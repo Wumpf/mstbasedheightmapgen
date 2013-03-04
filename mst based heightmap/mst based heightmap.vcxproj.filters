@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="clr interface">
+      <UniqueIdentifier>{0d5bc843-ddc0-419d-9f65-da267b782f18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="c++ interface">
+      <UniqueIdentifier>{484b0744-0671-4d74-a772-ed5a7c44d69a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{0c3125ac-9403-461a-acfd-8dd8c7b3b806}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mst based heightmap.h">
+      <Filter>clr interface</Filter>
+    </ClInclude>
+    <ClInclude Include="HeightmapFactory.h">
+      <Filter>c++ interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Stdafx.h">
+      <Filter>core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>clr interface</Filter>
+    </ClCompile>
+    <ClCompile Include="HeightmapFactory.cpp">
+      <Filter>c++ interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdafx.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="mst based heightmap.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

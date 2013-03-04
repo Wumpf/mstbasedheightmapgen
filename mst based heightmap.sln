@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mst based heightmap", "mst based heightmap\mst based heightmap.vcxproj", "{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MST Heightmap Generator GUI", "MST Heightmap Generator GUI\MST Heightmap Generator GUI.csproj", "{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Debug|Win32.Build.0 = Debug|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Release|Any CPU.ActiveCfg = Release|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Release|Win32.ActiveCfg = Release|Win32
+		{6FA9D10E-6B29-47E1-89ED-B991ECCF10FF}.Release|Win32.Build.0 = Release|Win32
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4A37FB34-4333-47B9-B9CF-B5858A6B56B4}.Release|Win32.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
