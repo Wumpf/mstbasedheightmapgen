@@ -33,7 +33,7 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="mst based heightmap.cpp">
-      <Filter>core</Filter>
+      <Filter>clr interface</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

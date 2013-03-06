@@ -19,12 +19,21 @@ namespace MST_Heightmap_Generator_GUI
     /// </summary>
     public partial class MainWindow : Window
     {
+        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(512, 512, 1);
+        float[,] _heightmapData;
+        
         public MainWindow()
         {
             InitializeComponent();
 
-            mstbasedheightmap.Class1 letsgo = new mstbasedheightmap.Class1();
-            letsgo.Generate(
+          //  _heightmapData = new float[_heightmapFactory.GetWidth(), _heightmapFactory.GetHeight()];
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+     //       mstbasedheightmap.Class1 letsgo = new mstbasedheightmap.Class1();
+      //      letsgo.Generate();
+            
         }
     }
 }

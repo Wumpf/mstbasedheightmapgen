@@ -1,6 +1,6 @@
 #pragma once
 
-class HeightmapFactory
+class CPP_DLL HeightmapFactory
 {
 public:
 	HeightmapFactory(float worldSizeX, float worldSizeY, float heightmapPixelPerWorldUnit);
@@ -17,5 +17,13 @@ public:
 	/// \brief Generates a heightmap with the given settings
 	/// \param dataDestination		pointer to preallocated data to write the heightmap in
 	void Generate(float* dataDestination);
+
+
+private:
+	unsigned int _resolutionX;
+	unsigned int _resolutionY;
+
+	float _worldSizeX;
+	float _worldSizeY;
 };
 

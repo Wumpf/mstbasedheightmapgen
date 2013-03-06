@@ -1,27 +1,30 @@
-// mst based heightmap.h
-
-#pragma once
-
-#include "HeightmapFactory.h"
+#pragma managed
 
 using namespace System;
+class HeightmapFactory;
 
-namespace mstbasedheightmap {
+namespace MstBasedHeightmap {
 
-	public ref class Class1
+	public ref class HeightmapFactory
 	{
-		// TODO: Add your methods for this class here.
-
 	public:
-		void Generate(array<float, 2>^ dataDestination)
-		{
-			/*HeightmapFactory fact;
 
-			pin_ptr<float> floatarray = &dataDestination[0,0];
-			fact.Generate(floatarray);
+		HeightmapFactory(float worldSizeX, float worldSizeY, float heightmapPixelPerWorldUnit);
+		~HeightmapFactory();
 
+		void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
 
-			return cliarray;*/
-		}
+		/// \brief Returns the number of data values in X direction
+		unsigned int GetWidth();
+	
+		/// \brief Returns the number of data values in Y direction
+		unsigned int GetHeight();
+
+		void Generate(array<float, 2>^ dataDestination);
+
+	private:
+		::HeightmapFactory* _nativeHeightmapFactory;
 	};
 }
+
+#pragma unmanaged
