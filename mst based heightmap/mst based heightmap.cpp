@@ -39,9 +39,8 @@ namespace MstBasedHeightmap
 
 	void HeightmapFactory::Generate(array<float, 2>^ dataDestination)
 	{
-		Random rand;
-		for each (float^ value in dataDestination)
-			value = static_cast<float>(rand.NextDouble());
+		pin_ptr<float> pinnedArray = &dataDestination[0,0];
+		_nativeHeightmapFactory->Generate(pinnedArray);
 	}
 }
 

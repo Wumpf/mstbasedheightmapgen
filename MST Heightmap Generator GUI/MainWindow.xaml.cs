@@ -26,14 +26,12 @@ namespace MST_Heightmap_Generator_GUI
         {
             InitializeComponent();
 
-          //  _heightmapData = new float[_heightmapFactory.GetWidth(), _heightmapFactory.GetHeight()];
+            _heightmapData = new float[_heightmapFactory.GetWidth(), _heightmapFactory.GetHeight()];
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-     //       mstbasedheightmap.Class1 letsgo = new mstbasedheightmap.Class1();
-      //      letsgo.Generate();
-            
+            _heightmapFactory.Generate(_heightmapData);
         }
     }
 }

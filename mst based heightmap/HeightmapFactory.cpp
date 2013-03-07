@@ -32,5 +32,7 @@ unsigned int HeightmapFactory::GetHeight()
 
 void HeightmapFactory::Generate(float* dataDestination)
 {
-	// TODO
+	for(unsigned int y=0; y<GetHeight(); ++y)
+		for(unsigned int x=0; x<GetWidth(); ++x)
+			dataDestination[x + y * GetWidth()] = static_cast<float>(rand()) / RAND_MAX;
 }

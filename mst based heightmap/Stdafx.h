@@ -9,4 +9,8 @@
 #include <stdint.h>
 #include <assert.h>
 
+#ifdef DLL
 #define CPP_DLL __declspec(dllexport)
+#else
+#define CPP_DLL __declspec(dllimport)
+#endif
