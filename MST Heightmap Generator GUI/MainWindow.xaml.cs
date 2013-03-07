@@ -21,17 +21,24 @@ namespace MST_Heightmap_Generator_GUI
     {
         MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(512, 512, 1);
         float[,] _heightmapData;
+
+        WriteableBitmap imageContent; 
         
         public MainWindow()
         {
             InitializeComponent();
 
             _heightmapData = new float[_heightmapFactory.GetWidth(), _heightmapFactory.GetHeight()];
+
+            imageContent = new WriteableBitmap((int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight(), -1.0f, -1.0f, PixelFormats.Gray32Float, null);
+            heightmapView.Source = imageContent;
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void GenerateHeightmap(object sender, RoutedEventArgs e)
         {
             _heightmapFactory.Generate(_heightmapData);
+            imageContent.WritePixels(new Int32Rect(0, 0, (int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight()), 
+                                            (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
         }
     }
 }
