@@ -45,5 +45,7 @@ private:
 
 	float _worldSizeX;
 	float _worldSizeY;
+
+	float _pixelSize;
 };
 

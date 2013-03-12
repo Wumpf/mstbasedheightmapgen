@@ -91,8 +91,8 @@ private:
 	char* pcName;
 
 	// Return the right/left end of a branch. This can be 'this' too.
-	Bucket* GetLargestChild()	{ Bucket* pRes = this; while(pRes->pRight) pRes = pRes->pRight; return pRes; }
-	Bucket* GetSmallestChild()	{ Bucket* pRes = this; while(pRes->pLeft) pRes = pRes->pLeft; return pRes; }
+	inline Bucket* GetLargestChild()	{ Bucket* pRes = this; while(pRes->pRight) pRes = pRes->pRight; return pRes; }
+	inline Bucket* GetSmallestChild()	{ Bucket* pRes = this; while(pRes->pLeft) pRes = pRes->pLeft; return pRes; }
 
 	// Operators for the tree search
 	bool IsLess( uint64_t uiKey, const char* _Str = 0 ) const;

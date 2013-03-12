@@ -10,4 +10,12 @@
 OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints );
 
 /// \brief Generates the euklidean distance field to the MST.
-void GenerateMSTBased_1( float* dataDestination, int width, int height, const OrE::ADT::Mesh& mst );
+/// \param [out] dataDestination Destination buffer for the highmap with a size
+///		of width*height*sizeof(float)
+/// \param [in] width Number of pixels in X direction.
+/// \param [in] width Number of pixels in Y direction.
+/// \param [in] pixelSize Sampling distance during generation.
+/// \param [in] graph An minimal spanning tree or any other graph used as
+///		mountain crest.
+/// \warning For performance reasons height has to be a muliple of 4!
+void GenerateGraphBased_1( float* dataDestination, int width, int height, float pixelSize, const OrE::ADT::Mesh& graph );

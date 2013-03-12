@@ -60,7 +60,7 @@ namespace ADT {
 
 			friend class Graph;
 		public:
-			Node() : m_Adjacence( 8, HashMap::HM_RESIZE_MODERATE ), m_uiInDegree(0), m_uiOutDegree(0), m_uiDegree(0)	{}
+			Node() : m_Adjacence( 8, HashMap::HM_PREFER_PERFORMANCE ), m_uiInDegree(0), m_uiOutDegree(0), m_uiDegree(0)	{}
 
 			// Virtual default destructor.
 			virtual ~Node()	{}
