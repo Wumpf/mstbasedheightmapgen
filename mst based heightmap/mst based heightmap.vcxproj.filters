@@ -21,6 +21,24 @@
     <ClInclude Include="Stdafx.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="src-mst\OrHash.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src-mst\OrHeap.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src-mst\OrADTObjects.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src-mst\OrGraph.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="math.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Generator.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -34,6 +52,21 @@
     </ClCompile>
     <ClCompile Include="mst based heightmap.cpp">
       <Filter>clr interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src-mst\OrHeap.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src-mst\OrMST.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src-mst\OrGraph.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src-mst\OrHash.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="Generator.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

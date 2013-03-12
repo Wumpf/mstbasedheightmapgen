@@ -76,14 +76,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Generator.h" />
     <ClInclude Include="HeightmapFactory.h" />
+    <ClInclude Include="math.hpp" />
     <ClInclude Include="mst based heightmap.h" />
+    <ClInclude Include="src-mst\OrADTObjects.h" />
+    <ClInclude Include="src-mst\OrGraph.h" />
+    <ClInclude Include="src-mst\OrHash.h" />
+    <ClInclude Include="src-mst\OrHeap.h" />
     <ClInclude Include="Stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="Generator.cpp">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="HeightmapFactory.cpp" />
     <ClCompile Include="mst based heightmap.cpp" />
+    <ClCompile Include="src-mst\OrGraph.cpp" />
+    <ClCompile Include="src-mst\OrHash.cpp" />
+    <ClCompile Include="src-mst\OrHeap.cpp" />
+    <ClCompile Include="src-mst\OrMST.cpp" />
     <ClCompile Include="Stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

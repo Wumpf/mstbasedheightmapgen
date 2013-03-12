@@ -9,6 +9,12 @@
 #include <stdint.h>
 #include <assert.h>
 
+// Stuff copied from OrBaseLib
+#include "src-mst/OrADTObjects.h"
+#include "src-mst/OrHeap.h"
+#include "src-mst/OrHash.h"
+#include "src-mst/OrGraph.h"
+
 #ifdef DLL
 #define CPP_DLL __declspec(dllexport)
 #else
