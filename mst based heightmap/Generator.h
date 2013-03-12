@@ -17,5 +17,4 @@ OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints );
 /// \param [in] pixelSize Sampling distance during generation.
 /// \param [in] graph An minimal spanning tree or any other graph used as
 ///		mountain crest.
-/// \warning For performance reasons height has to be a muliple of 4!
 void GenerateGraphBased_1( float* dataDestination, int width, int height, float pixelSize, const OrE::ADT::Mesh& graph );

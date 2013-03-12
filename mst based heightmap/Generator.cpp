@@ -44,31 +44,37 @@ OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints )
 	return pMST;
 }
 
+struct BufferDescriptor {
+	float* dataDestination;
+	int width;
+	int height;
+	float pixelSize;
+};
 
-static void GenerateGraphBased_Kernel_1( float* dataDestination, int width, int y, float pixelSize, const OrE::ADT::Mesh* mst )
+static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, int numLines, const OrE::ADT::Mesh* mst )
 {
-	for( int i=0; i<4; ++i )
+	for( int i=0; i<numLines; ++i )
 	{
-		int yw = (y+i)*width;
-		for( int x=0; x<width; ++x )
+		int yw = (y+i)*bufferDesc->width;
+		for( int x=0; x<bufferDesc->width; ++x )
 		{
-			dataDestination[yw+x] = 1000000000.0f;
+			bufferDesc->dataDestination[yw+x] = 1000000000.0f;
 			// Compute minimum distance to the mst for each pixel
 			auto it = mst->GetEdgeIterator();
 			while( ++it )
 			{
 				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
 										((PNode*)it->GetDst())->GetPos(),
-										x*pixelSize, (y+i)*pixelSize );
+										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize );
 										//Vec3( x*pixelSize, (y+i)*pixelSize, 0.0f ) );
-				if( dataDestination[yw+x] > distance )
-					dataDestination[yw+x] = distance;
+				if( bufferDesc->dataDestination[yw+x] > distance )
+					bufferDesc->dataDestination[yw+x] = distance;
 			}
 
-			dataDestination[yw+x] = sqrtf( dataDestination[yw+x] ) * 0.01f;
+			bufferDesc->dataDestination[yw+x] = sqrtf( bufferDesc->dataDestination[yw+x] ) * 0.01f;
 		//	float inverse = 1.0f - dataDestination[yw+x];
 		//	dataDestination[yw+x] = dataDestination[yw+x]*dataDestination[yw+x] + inverse*inverse;
-			dataDestination[yw+x] = 1.0f - dataDestination[yw+x];
+			bufferDesc->dataDestination[yw+x] = 1.0f - bufferDesc->dataDestination[yw+x];
 		}
 	}
 }
@@ -79,13 +85,26 @@ void GenerateGraphBased_1( float* dataDestination, int width, int height, float 
 	// Hight must be devisible through 4
 	assert( height & 3 == 0 );
 
-	//int numLinesPerThread = height / 8  +  ( height&7==0 ? 0 : 1 );
+	BufferDescriptor bufferDesc = {dataDestination, width, height, pixelSize};
+
+	int numLinesPerThread = height / 8  +  ( ((height&7)==0) ? 0 : 1 );
 	std::thread* threads[8];
-	for( int y=0; y<height; y+=32 )
+	for( int t=0; t<8; ++t )
+	{
+		int numLines = min(numLinesPerThread, height-t*numLinesPerThread);
+		threads[t] = new std::thread( GenerateGraphBased_Kernel_1, &bufferDesc, t*numLinesPerThread, numLines, &mst );
+	}
+	for( int t=0; t<8; ++t )
+	{
+		threads[t]->join();
+		delete threads[t];
+	}
+
+	/*for( int y=0; y<height; y+=32 )
 	{
 		int num = min(8,(height-y)/4);
 	/*	for( int t=0; t<num; ++t )
-			GenerateMSTBased_Kernel_1( dataDestination, width, y+t, &mst );//*/
+			GenerateMSTBased_Kernel_1( dataDestination, width, y+t, &mst );//* /
 		
 		for( int t=0; t<num; ++t )
 			threads[t] = new std::thread( GenerateGraphBased_Kernel_1, dataDestination, width, y+t*4, pixelSize, &mst );
@@ -93,6 +112,6 @@ void GenerateGraphBased_1( float* dataDestination, int width, int height, float 
 		{
 			threads[t]->join();
 			delete threads[t];
-		}//*/
-	}
+		}//* /
+	}*/
 }
