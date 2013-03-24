@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -22,8 +23,10 @@ namespace MST_Heightmap_Generator_GUI
         MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(512, 512, 1);
         float[,] _heightmapData;
 
-        WriteableBitmap imageContent; 
-        
+        WriteableBitmap imageContent;
+
+        RenderWindow renderWindow;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -32,6 +35,23 @@ namespace MST_Heightmap_Generator_GUI
 
             imageContent = new WriteableBitmap((int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight(), -1.0f, -1.0f, PixelFormats.Gray32Float, null);
             heightmapView.Source = imageContent;
+
+
+            new Thread(
+            /*System.Threading.Tasks.Parallel.Invoke(*/delegate(object obj)
+            {
+                using (renderWindow = new RenderWindow())
+                    renderWindow.Run();
+            }).Start();
+
+
+
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            renderWindow.Exit();
         }
 
         private void GenerateHeightmap(object sender, RoutedEventArgs e)
