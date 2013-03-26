@@ -217,18 +217,18 @@
 		return lensq( lineStart + v * fR - point );
 	}
 
-	inline float PointLineDistanceSq( const Vec3& lineStart, const Vec3& lineEnd, float px, float py )
+	inline float PointLineDistanceSq( const Vec3& lineStart, const Vec3& lineEnd, float px, float py, float& r )
 	{
 		float vx = lineEnd.x - lineStart.x;
 		float vy = lineEnd.y - lineStart.y;
 		float wx = px - lineStart.x;
 		float wy = py - lineStart.y;
 
-		float fR = ((wx*vx + wy*vy) / (vx*vx + vy*vy));
+		r = ((wx*vx + wy*vy) / (vx*vx + vy*vy));
 
-		fR = min( 1.0f, max( 0.0f, fR ) );
-		float x = lineStart.x + vx * fR - px;
-		float y = lineStart.y + vy * fR - py;
+		r = min( 1.0f, max( 0.0f, r ) );
+		float x = vx * r - wx;
+		float y = vy * r - wy;
 		return x*x + y*y;
 	}
 

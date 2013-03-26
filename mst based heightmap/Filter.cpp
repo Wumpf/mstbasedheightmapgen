@@ -14,6 +14,10 @@ static void Normalize_Kernel( float* dataDestination, int width, int yw, float f
 		dataDestination[x+yw1] = ( dataDestination[x+yw1] - fmin ) * rangeInv;
 		dataDestination[x+yw2] = ( dataDestination[x+yw2] - fmin ) * rangeInv;
 		dataDestination[x+yw3] = ( dataDestination[x+yw3] - fmin ) * rangeInv;
+	/*	dataDestination[x+yw ] *= dataDestination[x+yw ];
+		dataDestination[x+yw1] *= dataDestination[x+yw1];
+		dataDestination[x+yw2] *= dataDestination[x+yw2];
+		dataDestination[x+yw3] *= dataDestination[x+yw3];*/
 	}
 }
 
@@ -21,7 +25,7 @@ static void Normalize_Kernel( float* dataDestination, int width, int yw, float f
 void Normalize( float* dataDestination, int width, int height )
 {
 	// Hight must be devisible through 4
-	assert( height & 3 == 0 );
+	assert( (height & 3) == 0 );
 
 	// Search min and max sequentially (return values need so much code)
 	float fmin = *dataDestination;

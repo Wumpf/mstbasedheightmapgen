@@ -24,7 +24,29 @@ public:
 	HeightmapFactory(float worldSizeX, float worldSizeY, float heightmapPixelPerWorldUnit);
 	~HeightmapFactory();
 
+
+
+	/// \brief Change a state of the generator.
+	/// \details The parameters can be anything. The meaning depends on the
+	///		type value.
+	/// \param [in] width Data buffer width. Only required if data is an array.
+	/// \param [in] height Data buffer height. Only required if data is an array.
+	/// \param [in] type
+	///		* 0: ignored
+	///		* 1: reset worldSize to a new value. width must be 2 and height 1.
+	///			data[0] must be the new worldSizeX and data[1] the one in Y
+	///			direction.
+	///		* 2: reset the resolution in pixels per world unit. width and
+	///			height must be 1. data[0] newly defines heightmapPixelPerWorldUnit.
+	///		* 3: Set the bottom surface level. All valleys below that value are
+	///			set to the given value. This threshold is required because
+	///			otherwise the map hight would go to negative infinity.\n
+	///			The value must be less than 0 which is the highest value.\n
+	///			The initial value is minus infinity.
 	void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
+
+
+
 
 	/// \brief Returns the number of data values in X direction.
 	unsigned int GetWidth();
@@ -40,6 +62,7 @@ public:
 
 
 private:
+	// Sampling parameters
 	unsigned int _resolutionX;
 	unsigned int _resolutionY;
 
@@ -47,5 +70,8 @@ private:
 	float _worldSizeY;
 
 	float _pixelSize;
+
+	// Generation parameters
+	float _heightThreshold;	/// <<\brief Cuts the distance function at a certain level.
 };
 

@@ -9,6 +9,11 @@
 ///		in the edges. Must be deleted after use.
 OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints );
 
+
+struct GenerationDescriptor {
+	float heightThreshold;	/// <<\brief Cuts the distance function at a certain level.
+};
+
 /// \brief Generates the euklidean distance field to the MST.
 /// \param [out] dataDestination Destination buffer for the highmap with a size
 ///		of width*height*sizeof(float)
@@ -17,4 +22,7 @@ OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints );
 /// \param [in] pixelSize Sampling distance during generation.
 /// \param [in] graph An minimal spanning tree or any other graph used as
 ///		mountain crest.
-void GenerateGraphBased_1( float* dataDestination, int width, int height, float pixelSize, const OrE::ADT::Mesh& graph );
+void GenerateGraphBased_1( float* dataDestination, int width, int height,
+						   float pixelSize,
+						   const OrE::ADT::Mesh& graph,
+						   const GenerationDescriptor& generatorDesc );
