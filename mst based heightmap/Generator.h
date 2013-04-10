@@ -11,7 +11,17 @@ OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints );
 
 
 struct GenerationDescriptor {
-	float heightThreshold;	/// <<\brief Cuts the distance function at a certain level.
+	float _heightThreshold;	/// <<\brief Cuts the distance function at a certain level.
+	float _quadraticIncrease;
+
+	GenerationDescriptor(float heightThreshold, float quadraticIncreasePercentage) :
+		_heightThreshold(heightThreshold)
+	{
+		// Compute spline factors for the quadraticIncrease percentage.
+		// The spline is: ax^2
+		// with a = 1/(4*heightWithSpline)
+		_quadraticIncrease = abs(heightThreshold) * quadraticIncreasePercentage;
+	}
 };
 
 /// \brief Generates the euklidean distance field to the MST.

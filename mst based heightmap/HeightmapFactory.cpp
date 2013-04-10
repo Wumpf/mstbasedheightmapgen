@@ -10,7 +10,8 @@ HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float hei
 	_worldSizeX(worldSizeX),
 	_worldSizeY(worldSizeY),
 	_pixelSize(1.0f/heightmapPixelPerWorldUnit),
-	_heightThreshold(-std::numeric_limits<float>::infinity())
+	_heightThreshold(-60.0f),
+	_quadraticIncreasePercentage(1.0f)
 {
 	assert(worldSizeX > 0);
 	assert(worldSizeY > 0);
@@ -80,8 +81,7 @@ void HeightmapFactory::Generate(float* dataDestination)
 
 	OrE::ADT::Mesh* mst = ComputeMST( uglyTestBuffer, 50 );
 
-	GenerationDescriptor genDesc;
-	genDesc.heightThreshold = _heightThreshold;
+	GenerationDescriptor genDesc( _heightThreshold, _quadraticIncreasePercentage );
 	GenerateGraphBased_1( dataDestination, GetWidth(), GetHeight(), _pixelSize, *mst, genDesc );
 	delete mst;
 	delete[] uglyTestBuffer;

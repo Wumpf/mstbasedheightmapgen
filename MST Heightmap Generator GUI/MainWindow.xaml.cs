@@ -60,5 +60,25 @@ namespace MST_Heightmap_Generator_GUI
             imageContent.WritePixels(new Int32Rect(0, 0, (int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight()), 
                                             (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
         }
+
+        private void Sl_MaxHeight_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            float[,] value = {{(float)e.NewValue}};
+            _heightmapFactory.SetParameter(3, value);
+        }
+
+        private void Sl_QuadraticSpline_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            float[,] value = { { (float)e.NewValue } };
+            _heightmapFactory.SetParameter(4, value);
+            System.Security.Cryptography.MD5.Create();
+        }
+
+        private void TB_Seed_Changed(object sender, TextChangedEventArgs e)
+        {
+            int currentHash = ((System.Windows.Controls.TextBox)(e.Source)).Text.GetHashCode();
+            float[,] value = { { (float)currentHash } };
+            // TODO Parameter für seed
+        }
     }
 }

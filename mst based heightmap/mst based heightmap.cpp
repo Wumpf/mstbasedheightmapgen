@@ -17,8 +17,10 @@ namespace MstBasedHeightmap
 		delete _nativeHeightmapFactory;
 	}
 
-	void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height)
+	void HeightmapFactory::SetParameter(unsigned int type, array<float, 2>^ data)
 	{
+		pin_ptr<float> pinnedArray = &data[0,0];
+		_nativeHeightmapFactory->SetParameter( type, pinnedArray, data->GetLength(1), data->GetLength(0) );
 	}
 
 	unsigned int HeightmapFactory::GetWidth()

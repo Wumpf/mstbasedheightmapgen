@@ -4,5 +4,6 @@
     <StartAction>Project</StartAction>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
+    <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
   </PropertyGroup>
 </Project>

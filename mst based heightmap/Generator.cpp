@@ -59,7 +59,8 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 		int yw = (y+i)*bufferDesc->width;
 		for( int x=0; x<bufferDesc->width; ++x )
 		{
-			bufferDesc->dataDestination[yw+x] = generatorDesc.heightThreshold * generatorDesc.heightThreshold;
+			float height = abs(generatorDesc._heightThreshold) + abs(generatorDesc._quadraticIncrease);
+			height *= height;
 			// Compute minimum distance to the mst for each pixel
 			auto it = mst->GetEdgeIterator();
 			while( ++it )
@@ -68,18 +69,24 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
 										((PNode*)it->GetDst())->GetPos(),
 										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize, r );
-										//Vec3( x*pixelSize, (y+i)*pixelSize, 0.0f ) );
-				//float altitude = lrp( ((PNode*)it->GetSrc())->GetPos().z, ((PNode*)it->GetDst())->GetPos().z, r );
-				//distance = sqrtf(distance)+altitude*10000.0f;
-				//distance *= 0.1f;//altitude * 100.0f;
-				if( bufferDesc->dataDestination[yw+x] > distance )
-					bufferDesc->dataDestination[yw+x] = distance;
+				if( height > distance )
+					height = distance;
 			}
 
-			bufferDesc->dataDestination[yw+x] = sqrtf( bufferDesc->dataDestination[yw+x] );
-		//	float inverse = 1.0f - dataDestination[yw+x];
-		//	dataDestination[yw+x] = dataDestination[yw+x]*dataDestination[yw+x] + inverse*inverse;
-			bufferDesc->dataDestination[yw+x] = -bufferDesc->dataDestination[yw+x];
+			// Make it linear (squared distance was searched)
+			height = sqrtf( height );
+
+			// Transform linear increase into a decrease of mountain flanks
+			height = -height + abs(generatorDesc._heightThreshold);
+			// Transform foot of the mountain with quadratic spline
+			if( height > generatorDesc._quadraticIncrease )
+				bufferDesc->dataDestination[yw+x] = height;
+			else {
+				// (height+t)^2/(4*t)
+				height += generatorDesc._quadraticIncrease;
+				height = max( 0.0f, height );
+				bufferDesc->dataDestination[yw+x] = height*height/(4.0f*generatorDesc._quadraticIncrease);
+			}
 		}
 	}
 }
@@ -107,5 +114,5 @@ void GenerateGraphBased_1( float* dataDestination, int width, int height, float 
 	}
 
 	// Sequencial test
-	// GenerateGraphBased_Kernel_1( &bufferDesc, 0, height, &mst );
+	// GenerateGraphBased_Kernel_1( &bufferDesc, 0, height, &mst, generatorDesc );
 }
