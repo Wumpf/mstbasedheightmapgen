@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -38,20 +39,18 @@ namespace MST_Heightmap_Generator_GUI
 
 
             new Thread(
-            /*System.Threading.Tasks.Parallel.Invoke(*/delegate(object obj)
+                /*System.Threading.Tasks.Parallel.Invoke(*/x =>
             {
                 using (renderWindow = new RenderWindow())
                     renderWindow.Run();
             }).Start();
-
-
-
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
+            renderWindow.Closing = true;
+
             base.OnClosing(e);
-            renderWindow.Exit();
         }
 
         private void GenerateHeightmap(object sender, RoutedEventArgs e)

@@ -12,6 +12,8 @@ namespace MST_Heightmap_Generator_GUI
 
         private Effect terrainShader;
 
+        public bool Closing { get; set; }
+
         private bool terrainReady = false;
         private int width, height;
 
@@ -30,7 +32,6 @@ namespace MST_Heightmap_Generator_GUI
             graphicsDeviceManager.PreferredBackBufferWidth = 1024;
             graphicsDeviceManager.PreferredBackBufferHeight = 768;
             Window.AllowUserResizing = false;
-            
         }
 
         protected override void Initialize()
@@ -67,6 +68,14 @@ namespace MST_Heightmap_Generator_GUI
             GraphicsDevice.Draw(PrimitiveType.PointList, width * height);
 
             Thread.EndCriticalRegion();
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            if (Closing)
+                Exit();
+
+            base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
