@@ -38,12 +38,14 @@ namespace MST_Heightmap_Generator_GUI
             heightmapView.Source = imageContent;
 
 
-            new Thread(
+            Thread renderWindowThread = new Thread(
                 /*System.Threading.Tasks.Parallel.Invoke(*/x =>
             {
                 using (renderWindow = new RenderWindow())
                     renderWindow.Run();
-            }).Start();
+            });
+            renderWindowThread.TrySetApartmentState(ApartmentState.STA);
+            renderWindowThread.Start();
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -58,6 +60,8 @@ namespace MST_Heightmap_Generator_GUI
             _heightmapFactory.Generate(_heightmapData);
             imageContent.WritePixels(new Int32Rect(0, 0, (int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight()), 
                                             (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
+
+            renderWindow.Refresh((int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight());
         }
 
         private void Sl_MaxHeight_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

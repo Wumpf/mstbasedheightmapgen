@@ -66,7 +66,7 @@ namespace MST_Heightmap_Generator_GUI
         public override void Update(float passedTimeSinceLastFrame)
         {
             // mouse movement
-            UpdateThetaPhiFromMouse();
+            UpdateThetaPhiFromMouse(passedTimeSinceLastFrame);
 
             // resulting view direction
             viewDirection = new Vector3((float)(System.Math.Cos(phi) * System.Math.Sin(theta)),
@@ -83,13 +83,13 @@ namespace MST_Heightmap_Generator_GUI
 
 
             // forward movement
-            float forward = (Keyboard.GetKeyStates(Key.W) == KeyStates.Down ? 1.0f : 0.0f) + (Keyboard.GetKeyStates(Key.Up) == KeyStates.Down ? 1.0f : 0.0f) -
-                            (Keyboard.GetKeyStates(Key.S) == KeyStates.Down ? 1.0f : 0.0f) - (Keyboard.GetKeyStates(Key.Down) == KeyStates.Down ? 1.0f : 0.0f);
+            float forward = (Keyboard.GetKeyStates(Key.W) == KeyStates.Down ? 1.0f : 0.0f) -
+                            (Keyboard.GetKeyStates(Key.S) == KeyStates.Down ? 1.0f : 0.0f);
             Position += forward * forwardSpeed * viewDirection;
 
             // side movement
-            float side = (Keyboard.GetKeyStates(Key.D) == KeyStates.Down ? 1.0f : 0.0f) + (Keyboard.GetKeyStates(Key.Right) == KeyStates.Down ? 1.0f : 0.0f) -
-                         (Keyboard.GetKeyStates(Key.A) == KeyStates.Down ? 1.0f : 0.0f) - (Keyboard.GetKeyStates(Key.Left) == KeyStates.Down ? 1.0f : 0.0f);
+            float side = (Keyboard.GetKeyStates(Key.D) == KeyStates.Down ? 1.0f : 0.0f) -
+                         (Keyboard.GetKeyStates(Key.A) == KeyStates.Down ? 1.0f : 0.0f);
             Position += side * sideSpeed * sideVec;
 
             // compute view matrix
@@ -99,11 +99,15 @@ namespace MST_Heightmap_Generator_GUI
         /// <summary>
         /// intern helper to update view angles by mouse
         /// </summary>
-        protected void UpdateThetaPhiFromMouse()
+        protected void UpdateThetaPhiFromMouse(float passedTimeSinceLastFrame)
         {
             // mouse movement
-            double deltaX = Mouse.GetPosition(null).X - lastMouseX;
-            double deltaY = Mouse.GetPosition(null).Y - lastMouseY;
+            double keyboardMouseMovementY = (Keyboard.GetKeyStates(Key.Up) == KeyStates.Down ? passedTimeSinceLastFrame : 0.0f) -
+                                            (Keyboard.GetKeyStates(Key.Down) == KeyStates.Down ? passedTimeSinceLastFrame : 0.0f);
+            double keyboardMouseMovementX = (Keyboard.GetKeyStates(Key.Right) == KeyStates.Down ? passedTimeSinceLastFrame : 0.0f) -
+                                            (Keyboard.GetKeyStates(Key.Left) == KeyStates.Down ? passedTimeSinceLastFrame : 0.0f);
+            double deltaX = (Mouse.GetPosition(null).X + keyboardMouseMovementX * 100) - lastMouseX;
+            double deltaY = (Mouse.GetPosition(null).Y + keyboardMouseMovementY*100) - lastMouseY;
             phi += deltaX * rotationSpeed;
             theta -= deltaY * rotationSpeed;
             lastMouseX = Mouse.GetPosition(null).X;
