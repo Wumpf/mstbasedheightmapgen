@@ -10,8 +10,9 @@ HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float hei
 	_worldSizeX(worldSizeX),
 	_worldSizeY(worldSizeY),
 	_pixelSize(1.0f/heightmapPixelPerWorldUnit),
-	_heightThreshold(-60.0f),
-	_quadraticIncreasePercentage(1.0f)
+	_heightThreshold(50.0f),
+	_quadraticIncreasePercentage(0.3f),
+	_seed( 1111 )
 {
 	assert(worldSizeX > 0);
 	assert(worldSizeY > 0);
@@ -51,9 +52,21 @@ void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsign
 		break;
 
 	case 3:
-		// Set threshold - otherwise it goes to -oo
+		// Set threshold - otherwise it goes to oo
 		assert( width == 1 && height == 1 );
-		_heightThreshold = data[0];
+		_heightThreshold = abs(data[0]);
+		break;
+
+	case 4:
+		// Set how much of the mountain has a quadratic spline.
+		assert( width == 1 && height == 1 );
+		assert( data[0] >= 0.0f && data[0] <= 1.0f );
+		_quadraticIncreasePercentage = data[0];
+		break;
+
+	case 5:
+		assert( width == 1 && height == 1 );
+		_seed = static_cast<int>(data[0]);
 		break;
 	};
 }
@@ -67,6 +80,8 @@ unsigned int HeightmapFactory::GetHeight()
 
 void HeightmapFactory::Generate(float* dataDestination)
 {
+	srand( _seed );
+
 /*	for(unsigned int y=0; y<GetHeight(); ++y)
 		for(unsigned int x=0; x<GetWidth(); ++x)
 			dataDestination[x + y * GetWidth()] = static_cast<float>(rand()) / RAND_MAX;*/

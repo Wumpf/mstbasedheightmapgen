@@ -79,9 +79,10 @@ namespace MST_Heightmap_Generator_GUI
 
         private void TB_Seed_Changed(object sender, TextChangedEventArgs e)
         {
+            // Convert a string to an integer seed - by hashing
             int currentHash = ((System.Windows.Controls.TextBox)(e.Source)).Text.GetHashCode();
             float[,] value = { { (float)currentHash } };
-            // TODO Parameter für seed
+            _heightmapFactory.SetParameter(5, value);
         }
     }
 }

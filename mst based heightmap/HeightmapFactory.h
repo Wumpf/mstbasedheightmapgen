@@ -40,14 +40,17 @@ public:
 	///			height must be 1. data[0] newly defines PixelPerWorldUnit.
 	///		* 3: Set the bottom surface level. All valleys below that value are
 	///			set to the given value. This threshold is required because
-	///			otherwise the map hight would go to negative infinity.\n
-	///			The value must be less than 0 which is the highest value.\n
-	///			The initial value is -100.
+	///			otherwise the map hight would go to infinity.\n
+	///			The value must be greater than 0 which is the smallest value.\n
+	///			The initial value is 50.
+	///
+	///			For negative values the absolute is used.
 	///		* 4: Percentage p how much of the mount side is covered by a
 	///			quadratic spline. The part [threshold, (1-p)*threshold] is
 	///			smoothed with a qudratic spline. Above a linear increase is
 	///			used.\n
 	///			The initial value is 0.3.
+	///		* 5: Set the map seed. The default value is 1111.
 	void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
 
 
@@ -77,6 +80,7 @@ private:
 	float _pixelSize;
 
 	// Generation parameters
+	int _seed;							/// <<\brief Start value to make generation deterministic.
 	float _heightThreshold;				/// <<\brief Cuts the distance function at a certain level.
 	float _quadraticIncreasePercentage;	/// <<\brief Percentage of the quadratic spline to smooth the mountain foots.
 };

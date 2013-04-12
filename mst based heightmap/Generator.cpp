@@ -59,7 +59,7 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 		int yw = (y+i)*bufferDesc->width;
 		for( int x=0; x<bufferDesc->width; ++x )
 		{
-			float height = abs(generatorDesc._heightThreshold) + abs(generatorDesc._quadraticIncrease);
+			float height = generatorDesc._heightThreshold + generatorDesc._quadraticIncrease;
 			height *= height;
 			// Compute minimum distance to the mst for each pixel
 			auto it = mst->GetEdgeIterator();
@@ -77,9 +77,9 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 			height = sqrtf( height );
 
 			// Transform linear increase into a decrease of mountain flanks
-			height = -height + abs(generatorDesc._heightThreshold);
+			height = -height + generatorDesc._heightThreshold;
 			// Transform foot of the mountain with quadratic spline
-			if( height > generatorDesc._quadraticIncrease )
+			if( height >= generatorDesc._quadraticIncrease )
 				bufferDesc->dataDestination[yw+x] = height;
 			else {
 				// (height+t)^2/(4*t)
