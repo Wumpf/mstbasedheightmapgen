@@ -74,5 +74,8 @@
     <ClCompile Include="Filter.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="Noise.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
