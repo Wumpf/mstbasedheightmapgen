@@ -67,7 +67,7 @@ namespace WPFHost
 
         public void Dispose()
         {
-            this.SetRenderTargetDX10(null);
+            this.SetRenderTargetDX11(null);
             Disposer.RemoveAndDispose(ref this.RenderTarget);
 
             DX11ImageSource.ActiveClients--;
@@ -84,7 +84,7 @@ namespace WPFHost
             }
         }
 
-        public void SetRenderTargetDX10(SharpDX.Direct3D11.Texture2D renderTarget)
+        public void SetRenderTargetDX11(SharpDX.Direct3D11.Texture2D renderTarget)
         {
             if (this.RenderTarget != null)
             {

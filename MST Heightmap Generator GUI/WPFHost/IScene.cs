@@ -25,6 +25,7 @@ namespace WPFHost
     public interface ISceneHost
     {
         Device Device { get; }
+        RenderTargetView RenderTargetView { get; }
     }
 
     public interface IScene

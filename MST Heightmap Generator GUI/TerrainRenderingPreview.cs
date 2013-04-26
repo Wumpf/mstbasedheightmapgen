@@ -1,6 +1,7 @@
 ﻿using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
+using SharpDX.Toolkit.Graphics;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -9,13 +10,12 @@ namespace MST_Heightmap_Generator_GUI
 {
     public class TerrainRenderingPreview : WPFHost.IScene
     {
-        private SharpDX.Direct3D11.Effect terrainShader;
+        private SharpDX.Toolkit.Graphics.Effect terrainShader;
         private FreeCamera camera;
 
         public bool Closing { get; set; }
 
-        private Device graphicsDevice;
-        private DeviceContext immediateContext;
+        private GraphicsDevice graphicsDevice;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HelloWorldGame" /> class.
@@ -27,25 +27,29 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Attach(WPFHost.ISceneHost host)
         {
+            // device setup
             if (host.Device == null)
                 throw new Exception("Scene host device is null");
-            graphicsDevice = host.Device;
-            immediateContext = host.Device.ImmediateContext;
-
+            graphicsDevice = GraphicsDevice.New(host.Device);
+            RenderTarget2D backbufferRenderTarget = RenderTarget2D.New(graphicsDevice, host.RenderTargetView, true);
+            graphicsDevice.Presenter = new RenderTargetGraphicsPresenter(graphicsDevice, backbufferRenderTarget);
+            graphicsDevice.SetRenderTargets(backbufferRenderTarget);
             
-            /*
-            ShaderFlags compilerFlags = ShaderFlags.None;
+            
+            // load terrain shader
+            EffectCompilerFlags compilerFlags = EffectCompilerFlags.None;
 #if DEBUG
-            compilerFlags |= ShaderFlags.Debug;
+            compilerFlags |= EffectCompilerFlags.Debug;
 #endif
-            var terrainShaderCompileResult = ShaderBytecode.CompileFromFile("terrain.fx", "fx_5_0", compilerFlags);
+            var shaderCompiler = new EffectCompiler();
+            var terrainShaderCompileResult = shaderCompiler.CompileFromFile("terrain.fx", compilerFlags);
             if (terrainShaderCompileResult.HasErrors)
             {
-                System.Console.WriteLine(terrainShaderCompileResult.Message);
+                System.Console.WriteLine(terrainShaderCompileResult.Logger.Messages);
                 Debugger.Break();
             }
 
-            terrainShader = new SharpDX.Direct3D11.Effect(graphicsDevice, terrainShaderCompileResult.Bytecode); */
+            terrainShader = new SharpDX.Toolkit.Graphics.Effect(graphicsDevice, terrainShaderCompileResult.EffectData);
         }
 
         void WPFHost.IScene.Detach()
@@ -61,11 +65,9 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Render()
         {
-            // Clears the screen with the Color.CornflowerBlue
-            
-     //       immediateContext.ClearDepthStencilView(Color.Black);
+            graphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
 
-       /*     // setup camera
+            // setup camera
             Matrix viewProjection = camera.ProjectionMatrix * camera.ViewMatrix;
             viewProjection.Transpose();
             Matrix viewProjectionInverse = viewProjection;
@@ -78,7 +80,7 @@ namespace MST_Heightmap_Generator_GUI
 
             // render screenspace terrain!
             terrainShader.CurrentTechnique.Passes[0].Apply();
-            immediateContext.Draw(PrimitiveType.PointList, 1);*/
+            graphicsDevice.Draw(PrimitiveType.PointList, 1);
         }
     }
 }
