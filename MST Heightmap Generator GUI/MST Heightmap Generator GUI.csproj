@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -52,6 +53,9 @@
     <Reference Include="SharpDX.Direct3D11.Effects">
       <HintPath>sharpdx dependencies\SharpDX.Direct3D11.Effects.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Direct3D9">
+      <HintPath>sharpdx dependencies\SharpDX.Direct3D9.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX.DXGI, Version=2.4.2.0, Culture=neutral, PublicKeyToken=627a3d6d1956f55a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>sharpdx dependencies\SharpDX.DXGI.dll</HintPath>
@@ -74,6 +78,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -92,8 +97,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Camera.cs" />
+    <Compile Include="WPFHost\Disposer.cs" />
+    <Compile Include="WPFHost\DPFCanvas.cs" />
+    <Compile Include="WPFHost\DX11ImageSource.cs" />
     <Compile Include="FreeCamera.cs" />
-    <Compile Include="RenderWindow.cs" />
+    <Compile Include="WPFHost\IScene.cs" />
+    <Compile Include="TerrainRenderingPreview.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

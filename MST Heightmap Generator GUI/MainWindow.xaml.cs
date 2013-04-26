@@ -26,31 +26,33 @@ namespace MST_Heightmap_Generator_GUI
 
         WriteableBitmap imageContent;
 
-        RenderWindow renderWindow;
+     //   RenderWindow renderWindow;
 
         public MainWindow()
         {
             InitializeComponent();
 
+            DX11Display.Scene = new TerrainRenderingPreview();
+         
+            int width = (int)_heightmapFactory.GetWidth();
+            int height = (int)_heightmapFactory.GetHeight();
             _heightmapData = new float[_heightmapFactory.GetWidth(), _heightmapFactory.GetHeight()];
-
-            imageContent = new WriteableBitmap((int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight(), -1.0f, -1.0f, PixelFormats.Gray32Float, null);
+            imageContent = new WriteableBitmap(width, height, -1.0f, -1.0f, PixelFormats.Gray32Float, null);
             heightmapView.Source = imageContent;
 
 
-            Thread renderWindowThread = new Thread(
-                /*System.Threading.Tasks.Parallel.Invoke(*/x =>
-            {
-                using (renderWindow = new RenderWindow())
-                    renderWindow.Run();
-            });
-            renderWindowThread.TrySetApartmentState(ApartmentState.STA);
-            renderWindowThread.Start();
+           // Thread renderWindowThread = new Thread(x =>
+           // {
+       //         using (renderWindow = new RenderWindow())
+       //            renderWindow.Run( );
+          //  });
+        //    renderWindowThread.TrySetApartmentState(ApartmentState.STA);
+         //   renderWindowThread.Start();
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            renderWindow.Closing = true;
+        //    renderWindow.Closing = true;
 
             base.OnClosing(e);
         }
@@ -61,7 +63,7 @@ namespace MST_Heightmap_Generator_GUI
             imageContent.WritePixels(new Int32Rect(0, 0, (int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight()), 
                                             (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
 
-            renderWindow.Refresh((int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight());
+   //         renderWindow.Refresh((int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight());
         }
 
         private void Sl_MaxHeight_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

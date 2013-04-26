@@ -2386,6 +2386,22 @@
             <returns>Returns an array of floats. </returns>
             <unmanaged>HRESULT ID3D10EffectScalarVariable::GetFloatArray([Out, Buffer] float* pData,[None] int Offset,[None] int Count)</unmanaged>
         </member>
+        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.Set(System.UInt32)">
+            <summary>	
+            Set an unsigned integer variable.	
+            </summary>	
+            <param name="value">A reference to the variable. </param>
+            <returns>Returns one of the following {{Direct3D 10 Return Codes}}. </returns>
+            <unmanaged>HRESULT ID3D10EffectScalarVariable::SetInt([None] int Value)</unmanaged>
+        </member>
+        <member name="M:SharpDX.Direct3D11.EffectScalarVariable.Set(System.UInt32[])">
+            <summary>	
+            Set an array of unsigned integer variables.	
+            </summary>	
+            <param name="dataRef">A reference to the start of the data to set. </param>
+            <returns>Returns one of the following {{Direct3D 10 Return Codes}}. </returns>
+            <unmanaged>HRESULT ID3D10EffectScalarVariable::SetIntArray([In, Buffer] int* pData,[None] int Offset,[None] int Count)</unmanaged>
+        </member>
         <member name="M:SharpDX.Direct3D11.EffectScalarVariable.Set(System.Int32)">
             <summary>	
             Set an integer variable.	

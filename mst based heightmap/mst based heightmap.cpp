@@ -19,8 +19,11 @@ namespace MstBasedHeightmap
 
 	void HeightmapFactory::SetParameter(unsigned int type, array<float, 2>^ data)
 	{
-		pin_ptr<float> pinnedArray = &data[0,0];
-		_nativeHeightmapFactory->SetParameter( type, pinnedArray, data->GetLength(1), data->GetLength(0) );
+		if(_nativeHeightmapFactory)
+		{
+			pin_ptr<float> pinnedArray = &data[0,0];
+			_nativeHeightmapFactory->SetParameter( type, pinnedArray, data->GetLength(1), data->GetLength(0) );
+		}
 	}
 
 	unsigned int HeightmapFactory::GetWidth()
@@ -41,8 +44,11 @@ namespace MstBasedHeightmap
 
 	void HeightmapFactory::Generate(array<float, 2>^ dataDestination)
 	{
-		pin_ptr<float> pinnedArray = &dataDestination[0,0];
-		_nativeHeightmapFactory->Generate(pinnedArray);
+		if(_nativeHeightmapFactory)
+		{
+			pin_ptr<float> pinnedArray = &dataDestination[0,0];
+			_nativeHeightmapFactory->Generate(pinnedArray);
+		}
 	}
 }
 
