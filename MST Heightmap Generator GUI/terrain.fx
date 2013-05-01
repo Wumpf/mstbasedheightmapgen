@@ -88,9 +88,9 @@ float3 getTerrainNormal(in float3 pos)
 	const float off = 0.1f;
 	float lod = 0.0f;
 	float2 texcoord = pos.xz * heightmapTiling;
-    float3 n = float3(getTerrainHeight(float2(pos.x-off, pos.y)) - getTerrainHeight(float2(pos.x+off, pos.y)),
+    float3 n = float3(getTerrainHeight(float2(pos.x-off, pos.z)) - getTerrainHeight(float2(pos.x+off, pos.z)),
 						off*2,
-					  getTerrainHeight(float2(pos.x, pos.y-off)) - getTerrainHeight(float2(pos.x, pos.y+off))  );
+					  getTerrainHeight(float2(pos.x, pos.z-off)) - getTerrainHeight(float2(pos.x, pos.z+off))  );
     return normalize(n);
 }
 

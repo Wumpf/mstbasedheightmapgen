@@ -70,11 +70,9 @@ namespace MST_Heightmap_Generator_GUI
             graphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
 
             // setup camera
-            Matrix viewProjection = camera.ProjectionMatrix * camera.ViewMatrix;
+            Matrix viewProjection = camera.ViewMatrix * camera.ProjectionMatrix;
             Matrix viewProjectionInverse = viewProjection; viewProjectionInverse.Invert();
 
-            viewProjection.Transpose();
-            viewProjectionInverse.Transpose();
 
             var cameraConstantBuffer = terrainShader.ConstantBuffers["Camera"];
             cameraConstantBuffer.Set(0, viewProjectionInverse);
