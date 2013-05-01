@@ -22,11 +22,13 @@ namespace MST_Heightmap_Generator_GUI
         /// </summary>
         public TerrainRenderingPreview()
         {
-            camera = new FreeCamera(1.0f);
+            
         }
 
         void WPFHost.IScene.Attach(WPFHost.ISceneHost host)
         {
+            camera = new FreeCamera((float)host.RenderTargetWidth / host.RenderTargetHeight);
+
             // device setup
             if (host.Device == null)
                 throw new Exception("Scene host device is null");
@@ -69,9 +71,11 @@ namespace MST_Heightmap_Generator_GUI
 
             // setup camera
             Matrix viewProjection = camera.ProjectionMatrix * camera.ViewMatrix;
+            Matrix viewProjectionInverse = viewProjection; viewProjectionInverse.Invert();
+
             viewProjection.Transpose();
-            Matrix viewProjectionInverse = viewProjection;
-            viewProjectionInverse.Invert();
+            viewProjectionInverse.Transpose();
+
             var cameraConstantBuffer = terrainShader.ConstantBuffers["Camera"];
             cameraConstantBuffer.Set(0, viewProjectionInverse);
             cameraConstantBuffer.Set(sizeof(float) * 4 * 4, camera.Position);

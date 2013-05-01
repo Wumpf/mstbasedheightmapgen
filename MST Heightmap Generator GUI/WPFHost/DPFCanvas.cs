@@ -261,5 +261,8 @@ namespace WPFHost
         {
             get { return RenderTargetView; }
         }
+
+        public int RenderTargetWidth { get {return RenderTarget.Description.Width; } }
+        public int RenderTargetHeight { get { return RenderTarget.Description.Height; } }
     }
 }

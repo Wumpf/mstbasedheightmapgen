@@ -7,6 +7,7 @@ cbuffer Camera
 struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
+	float2 DevicePos : TEXCOORD0;
 };
 
 struct GS_INPUT
@@ -20,12 +21,14 @@ void GS(point GS_INPUT p[1], inout TriangleStream<PS_INPUT> TriStream )
 	vertices[0].Pos = float4(-1, 1, 0, 1);
 	vertices[1].Pos = float4( 3,  1, 0, 1);
 	vertices[2].Pos = float4(-1, -3, 0, 1);
+	vertices[0].DevicePos = vertices[0].Pos.xy;
+	vertices[1].DevicePos = vertices[1].Pos.xy;
+	vertices[2].DevicePos = vertices[2].Pos.xy;
 	TriStream.Append(vertices[0]);
 	TriStream.Append(vertices[1]);
 	TriStream.Append(vertices[2]);
 	TriStream.RestartStrip();
 }
-
 
 // ------------------------------------------------
 // SKY
@@ -64,7 +67,7 @@ float3 computeSkyColor(in float3 ray)
 // ------------------------------------------------
 // TERRAIN
 // ------------------------------------------------
-static const float terrainScale = 35;
+static const float terrainScale = 10;
 static const float minTerrainHeight = -65;
 static const float maxTerrainHeight = minTerrainHeight+terrainScale;
 
@@ -75,21 +78,19 @@ Texture2D Heightmap : register( t0 );
 static const float heightmapTiling = 0.004;
 static const float texelSize = 1.0/512.0;
 
-float getTerrainHeight(in float2 pos, in float cameraDistance)
+float getTerrainHeight(in float2 pos)
 {
-	float lod = 1.0f;// min(9, cameraDistance*0.01);
-	return Heightmap.SampleLevel(LinearSampler, pos*heightmapTiling, lod).x * terrainScale + minTerrainHeight;
+	return /*Heightmap.SampleLevel(LinearSampler, pos*heightmapTiling, lod).x*/ (sin(pos.x)+1) * terrainScale + minTerrainHeight;
 }
 
 float3 getTerrainNormal(in float3 pos)
 {
+	const float off = 0.1f;
 	float lod = 0.0f;
 	float2 texcoord = pos.xz * heightmapTiling;
-    float3 n = float3(Heightmap.SampleLevel(LinearSampler, float2(texcoord.x-texelSize, texcoord.y), lod).x - 
-					Heightmap.SampleLevel(LinearSampler, float2(texcoord.x+texelSize, texcoord.y), lod).x,
-					texelSize*2,
-					Heightmap.SampleLevel(LinearSampler, float2(texcoord.x, texcoord.y-texelSize), lod).x - 
-					Heightmap.SampleLevel(LinearSampler, float2(texcoord.x, texcoord.y+texelSize), lod).x  );
+    float3 n = float3(getTerrainHeight(float2(pos.x-off, pos.y)) - getTerrainHeight(float2(pos.x+off, pos.y)),
+						off*2,
+					  getTerrainHeight(float2(pos.x, pos.y-off)) - getTerrainHeight(float2(pos.x, pos.y+off))  );
     return normalize(n);
 }
 
@@ -118,7 +119,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	for(float t=start; t<end; t*=1.011)
 	{
 		float3 pos = rayOrigin + rayDirection * t;
-        float h = getTerrainHeight(pos.xz, t);
+        float h = getTerrainHeight(pos.xz);
 
         if(pos.y - h < 0)
 		{
@@ -138,10 +139,10 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 float3 PS(PS_INPUT input) : SV_Target
 {
     // "picking" - compute raydirection
-	float2 deviceCor = input.Pos.xy;
-	float4 rayOrigin = mul(InverseViewProjection, float4(deviceCor, -1, 1));
+	float2 deviceCor = input.DevicePos;
+	float4 rayOrigin = mul(InverseViewProjection, float4(deviceCor, 0, 1));
 	rayOrigin.xyz /= rayOrigin.w;
-	float4 rayTarget = mul(InverseViewProjection, float4(deviceCor, 0, 1));
+	float4 rayTarget = mul(InverseViewProjection, float4(deviceCor, 1, 1));
 	rayTarget.xyz /= rayTarget.w;
 	float3 rayDirection = normalize(rayTarget.xyz - rayOrigin.xyz);
 	
@@ -152,7 +153,7 @@ float3 PS(PS_INPUT input) : SV_Target
 
 	//int steps = 0;
 	float3 outColor;
-	if(false)//rayCast(CameraPosition, rayDirection, terrainPosition, dist))
+	if(rayCast(CameraPosition, rayDirection, terrainPosition, dist))
 	{
 		// LIGHTING
 		float3 normal = getTerrainNormal(terrainPosition);

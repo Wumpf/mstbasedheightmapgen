@@ -4,6 +4,6 @@
         xmlns:dpf="clr-namespace:WPFHost"
         Title="TerrainRenderingPreviewWindow" Height="768" Width="1024" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" WindowStyle="ToolWindow">
     <Grid>
-        <dpf:DPFCanvas x:Name="DX11Display"/>
+        <dpf:DPFCanvas x:Name="DX11Display" Height="auto" Width="auto"/>
     </Grid>
 </Window>

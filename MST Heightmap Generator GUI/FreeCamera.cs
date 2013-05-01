@@ -60,11 +60,6 @@ namespace MST_Heightmap_Generator_GUI
         protected double lastMouseX = 0; // last x position of the mouse
         protected double lastMouseY = 0; // last y position of the mouse
 
-        private int forwardMovementCommand = 0;
-        private int sideMovementCommand = 0;
-        private int rotationXCommand = 0;
-        private int rotationYCommand = 0;
-
         /// <summary>
         /// Updates the Camera 
         /// </summary>
@@ -78,22 +73,22 @@ namespace MST_Heightmap_Generator_GUI
                                         (float)(System.Math.Cos(theta)),
                                         (float)(System.Math.Sin(phi) * System.Math.Sin(theta)));
             // up vector - by rotation 90°
-            double theta2 = theta + (float)System.Math.PI / 2.0f;
+            float theta2 = (float)theta + (float)System.Math.PI / 2.0f;
             Vector3 upVec = new Vector3((float)(System.Math.Cos(phi) * System.Math.Sin(theta2)),
                                         (float)(System.Math.Cos(theta2)),
                                         (float)(System.Math.Sin(phi) * System.Math.Sin(theta2)));
             // compute side
             Vector3 sideVec = Vector3.Cross(upVec, viewDirection);
 
-
-
             // forward movement
-            Position += forwardMovementCommand * forwardSpeed * viewDirection;
+            float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Up) ? 1.0f : 0.0f) -
+                            (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Down) ? 1.0f : 0.0f);
+            Position += forward * forwardSpeed * viewDirection;
 
             // side movement
-            Position += sideMovementCommand * sideSpeed * sideVec;
-
-            UpdateThetaPhiFromMouse(passedTimeSinceLastFrame);
+            float side = -(Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Right) ? 1.0f : 0.0f) +
+                          (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Left) ? 1.0f : 0.0f);
+            Position += side * sideSpeed * sideVec;
 
             // compute view matrix
             viewMatrix = Matrix.LookAtLH(Position, Position + viewDirection, upVec);
@@ -105,8 +100,8 @@ namespace MST_Heightmap_Generator_GUI
         protected void UpdateThetaPhiFromMouse(float passedTimeSinceLastFrame)
         {
             // mouse movement
-            double deltaX = (Mouse.GetPosition(null).X + rotationXCommand * 100) - lastMouseX;
-            double deltaY = (Mouse.GetPosition(null).Y + rotationYCommand * 100) - lastMouseY;
+            double deltaX = Mouse.GetPosition(null).X - lastMouseX;
+            double deltaY = Mouse.GetPosition(null).Y - lastMouseY;
             phi += deltaX * rotationSpeed;
             theta -= deltaY * rotationSpeed;
             lastMouseX = Mouse.GetPosition(null).X;

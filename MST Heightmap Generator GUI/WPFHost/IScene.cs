@@ -26,6 +26,8 @@ namespace WPFHost
     {
         Device Device { get; }
         RenderTargetView RenderTargetView { get; }
+        int RenderTargetWidth { get; }
+        int RenderTargetHeight { get; }
     }
 
     public interface IScene

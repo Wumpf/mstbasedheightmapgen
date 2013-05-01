@@ -31,7 +31,7 @@ namespace MST_Heightmap_Generator_GUI
         public Camera(float aspectRatio, float fov, float nearPlane, float farPlane)
         { 
             this.aspectRatio = aspectRatio;
-            this.fov = fov;
+            this.fov = fov*2;
             this.nearPlane = nearPlane;
             this.farPlane = farPlane;
             RebuildProjectionMatrix();
