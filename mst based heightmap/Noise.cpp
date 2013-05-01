@@ -68,7 +68,7 @@ float Rand2D(int _iLowOctave, int _iHeightOctave, float _fPersistence, float _fX
 	// must be larger than the low one.
 	assert( _iLowOctave >= 0 && _iHeightOctave >= _iLowOctave );
 
-	_fOutGradX.x = _fOutGradY.y = 0.0f;
+	_fOutGradX = _fOutGradY = 0.0f;
 	float fRes = 0.0f;
 	float fAmplitude = 1.0f;
 	float fFrequence = float(1<<_iLowOctave);

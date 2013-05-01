@@ -103,7 +103,9 @@
     </ClCompile>
     <ClCompile Include="HeightmapFactory.cpp" />
     <ClCompile Include="mst based heightmap.cpp" />
-    <ClCompile Include="Noise.cpp" />
+    <ClCompile Include="Noise.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="src-mst\OrGraph.cpp" />
     <ClCompile Include="src-mst\OrHash.cpp" />
     <ClCompile Include="src-mst\OrHeap.cpp" />
