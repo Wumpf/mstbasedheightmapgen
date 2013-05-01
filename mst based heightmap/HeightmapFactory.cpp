@@ -101,6 +101,9 @@ void HeightmapFactory::Generate(float* dataDestination)
 	delete mst;
 	delete[] uglyTestBuffer;
 
+	// Create more natural apeareance
+	AddNoise( dataDestination, GetWidth(), GetHeight() );
+
 	// Normalize for visual output
 	Normalize( dataDestination, GetWidth(), GetHeight() );
 }

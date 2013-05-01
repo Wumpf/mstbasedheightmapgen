@@ -81,6 +81,7 @@
     <ClInclude Include="HeightmapFactory.h" />
     <ClInclude Include="math.hpp" />
     <ClInclude Include="mst based heightmap.h" />
+    <ClInclude Include="Noise.h" />
     <ClInclude Include="src-mst\OrADTObjects.h" />
     <ClInclude Include="src-mst\OrGraph.h" />
     <ClInclude Include="src-mst\OrHash.h" />

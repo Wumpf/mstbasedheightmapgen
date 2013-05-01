@@ -42,6 +42,9 @@
     <ClInclude Include="Filter.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="Noise.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">

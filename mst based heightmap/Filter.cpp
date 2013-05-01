@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "math.hpp"
 #include "Filter.h"
+#include "Noise.h"
 
 static void Normalize_Kernel( float* dataDestination, int width, int yw, float fmin, float rangeInv )
 {
@@ -55,5 +56,52 @@ void Normalize( float* dataDestination, int width, int height )
 			threads[t]->join();
 			delete threads[t];
 		}
+	}
+}
+
+
+// ************************************************************************* //
+// Parameter given to the threads of the AddNoiseKernel
+struct AddNoiseParam {
+	float* data;
+	int width;
+	int height;
+};
+
+// Uses several blending methods to add noise to the terrain.
+static void AddNoise_Kernel( AddNoiseParam* bufferDesc, int y, int numLines )
+{
+	float fGX;
+	float fGY;
+	for( int i=0; i<numLines; ++i )
+	{
+		int yw = (y+i)*bufferDesc->width;
+		for( int x=0; x<bufferDesc->width; ++x )
+		{
+			bufferDesc->data[yw+x] *= Rand2D( 0, 4, 0.5f, x*0.01f, (y+i)*0.01f, 1, fGX, fGY );
+		}
+	}
+}
+
+void AddNoise( float* dataDestination, int width, int height )
+{
+	// Hight must be devisible through 4
+	assert( (height & 3) == 0 );
+
+	AddNoiseParam bufferDesc = {dataDestination, width, height};
+
+	//AddNoise_Kernel( &bufferDesc, 0, height );
+
+	// Execution in 8 threads (one of them is the current one)
+	int numLinesPerThread = height / 8  +  ( ((height&7)==0) ? 0 : 1 );
+	std::thread* threads[7];
+	for( int t=0; t<7; ++t )
+		threads[t] = new std::thread( AddNoise_Kernel, &bufferDesc, t*numLinesPerThread, numLinesPerThread );
+	int numLines = min(numLinesPerThread, height-7*numLinesPerThread);
+	AddNoise_Kernel( &bufferDesc, 7*numLinesPerThread, numLines );
+	for( int t=0; t<7; ++t )
+	{
+		threads[t]->join();
+		delete threads[t];
 	}
 }

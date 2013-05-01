@@ -17,12 +17,14 @@ static double Sample1D(__int64 _i)
 inline float InterpolationPolynom(float _dR)
 {
 	// Polynomial function to get detailed information see "Burger-GradientNoiseGerman-2008".
-	return _dR*_dR*_dR*(_dR*(_dR*6.0f-15.0f)+10.0f);
+	return 0.5f-cos(_dR*3.14159f)*0.5f;
+	//_dR*_dR*_dR*(_dR*(_dR*6.0f-15.0f)+10.0f);
 }
 
 inline float Derivative(float _dR)
 {
-	return _dR*_dR*(_dR*(_dR-2.0f)+1.0f)*30.0f;
+	return sin(_dR*3.14159f) * 3.14159f;
+	//_dR*_dR*(_dR*(_dR-2.0f)+1.0f)*30.0f;
 }
 
 inline void IntFrac(float _f, int& _iInt, float& _fFrac)	{_iInt = Floor(_f); _fFrac = _f-_iInt;}
@@ -43,8 +45,8 @@ static float Rand2D(float _fX, float _fY, float _fFrequence, unsigned int _uiSee
 
 	float s00 = (float)Sample1D(iX0 + iY0 + _uiSeed);
 	float s10 = (float)Sample1D(iX1 + iY0 + _uiSeed);
-	float s01 = (float)Sample1D(iX0 + iY1 - _uiSeed);
-	float s11 = (float)Sample1D(iX1 + iY1 - _uiSeed);
+	float s01 = (float)Sample1D(iX0 + iY1 + _uiSeed);
+	float s11 = (float)Sample1D(iX1 + iY1 + _uiSeed);
 
 	float u = InterpolationPolynom(fFracX);
 	float v = InterpolationPolynom(fFracY);
