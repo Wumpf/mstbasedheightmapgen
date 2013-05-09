@@ -102,11 +102,14 @@ namespace MST_Heightmap_Generator_GUI
         /// </summary>
         protected void UpdateThetaPhiFromMouse(float passedTimeSinceLastFrame)
         {
-            // mouse movement
-            double deltaX = Mouse.GetPosition(null).X - lastMouseX;
-            double deltaY = Mouse.GetPosition(null).Y - lastMouseY;
-            phi -= deltaX * rotationSpeed;
-            theta -= deltaY * rotationSpeed;
+            if(Mouse.RightButton == MouseButtonState.Pressed)
+            {
+                // mouse movement
+                double deltaX = Mouse.GetPosition(null).X - lastMouseX;
+                double deltaY = Mouse.GetPosition(null).Y - lastMouseY;
+                phi -= deltaX * rotationSpeed;
+                theta -= deltaY * rotationSpeed;
+            }
             lastMouseX = Mouse.GetPosition(null).X;
             lastMouseY = Mouse.GetPosition(null).Y;
         }
