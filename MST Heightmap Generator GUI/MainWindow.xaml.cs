@@ -79,5 +79,10 @@ namespace MST_Heightmap_Generator_GUI
             float[,] value = { { (float)currentHash } };
             _heightmapFactory.SetParameter(5, value);
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            App.Current.Shutdown();
+        }
     }
 }

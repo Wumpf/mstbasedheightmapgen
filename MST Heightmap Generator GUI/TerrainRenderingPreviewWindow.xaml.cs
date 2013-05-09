@@ -28,5 +28,10 @@ namespace MST_Heightmap_Generator_GUI
 
             DX11Display.Scene = new TerrainRenderingPreview();
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            App.Current.Shutdown();
+        }
     }
 }
