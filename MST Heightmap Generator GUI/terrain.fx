@@ -14,6 +14,13 @@ struct GS_INPUT
 {
 };
 
+
+GS_INPUT VS()
+{
+	GS_INPUT output;
+	return output;
+}
+
 [maxvertexcount(3)]
 void GS(point GS_INPUT p[1], inout TriangleStream<PS_INPUT> TriStream )
 {
@@ -135,7 +142,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
     return false;
 }
 
-float3 PS(PS_INPUT input) : SV_Target
+float4 PS(PS_INPUT input) : SV_Target
 {
     // "picking" - compute raydirection
 	float2 deviceCor = input.DevicePos;
@@ -175,14 +182,14 @@ float3 PS(PS_INPUT input) : SV_Target
 		outColor = computeSkyColor(rayDirection);
 	}
 
-	return outColor;
+	return float4(outColor, 1.0f);
 }
 
 technique10 Render
 {
     pass P0
     {
-        SetVertexShader(null);
+        SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
         SetPixelShader(CompileShader(ps_5_0, PS()));
     }

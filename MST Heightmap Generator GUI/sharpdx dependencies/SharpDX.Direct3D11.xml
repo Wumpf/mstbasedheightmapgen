@@ -2247,10 +2247,10 @@
             <param name="shaderBytecodeRef"><dd>  <p>A reference to the compiled geometry shader for a standard geometry shader plus stream output. For info on how to get this reference, see Getting a Pointer to a Compiled Shader.</p> <p>To create the stream output without using a geometry shader, pass a reference to the output signature for the prior stage. To obtain this output signature, call the <strong><see cref="!:SharpDX.D3DCompiler.D3D.GetOutputSignatureBlob"/></strong> compiler function. You can also pass a reference to the compiled shader for the prior stage (for example, the vertex-shader stage or domain-shader stage). This compiled shader provides the output signature for the data.</p> </dd></param>	
             <param name="bytecodeLength"><dd>  <p>Size of the compiled geometry shader.</p> </dd></param>	
             <param name="sODeclarationRef"><dd>  <p>Pointer to a <strong><see cref="T:SharpDX.Direct3D11.StreamOutputElement"/></strong> array. Cannot be <strong><c>null</c></strong> if NumEntries &gt; 0.</p> </dd></param>	
-            <param name="numEntries"><dd>  <p>The number of entries in the stream output declaration ( ranges from 0 to D3D11_SO_STREAM_COUNT * D3D11_SO_OUTPUT_COMPONENT_COUNT ).</p> </dd></param>	
+            <param name="numEntries"><dd>  <p>The number of entries in the stream output declaration ( ranges from 0 to <see cref="F:SharpDX.Direct3D11.GeometryShader.StreamOutputStreamCount"/> * <see cref="F:SharpDX.Direct3D11.GeometryShader.StreamOutputOutputComponentCount"/> ).</p> </dd></param>	
             <param name="bufferStridesRef"><dd>  <p>An array of buffer strides; each stride is the size of an element for that buffer.</p> </dd></param>	
-            <param name="numStrides"><dd>  <p>The number of strides (or buffers) in <em>pBufferStrides</em> (ranges from 0 to D3D11_SO_BUFFER_SLOT_COUNT).</p> </dd></param>	
-            <param name="rasterizedStream"><dd>  <p>The index number of the stream to be sent to the rasterizer stage (ranges from 0 to D3D11_SO_STREAM_COUNT - 1).  Set to D3D11_SO_NO_RASTERIZED_STREAM if no stream is to be rasterized.</p> </dd></param>	
+            <param name="numStrides"><dd>  <p>The number of strides (or buffers) in <em>pBufferStrides</em> (ranges from 0 to <see cref="F:SharpDX.Direct3D11.GeometryShader.StreamOutputBufferSlotCount"/>).</p> </dd></param>	
+            <param name="rasterizedStream"><dd>  <p>The index number of the stream to be sent to the rasterizer stage (ranges from 0 to <see cref="F:SharpDX.Direct3D11.GeometryShader.StreamOutputStreamCount"/> - 1).  Set to <see cref="F:SharpDX.Direct3D11.GeometryShader.StreamOutputNoRasterizedStream"/> if no stream is to be rasterized.</p> </dd></param>	
             <param name="classLinkageRef"><dd>  <p>A reference to a class linkage interface (see <strong><see cref="T:SharpDX.Direct3D11.ClassLinkage"/></strong>); the value can be <strong><c>null</c></strong>.</p> </dd></param>	
             <param name="geometryShaderOut"><dd>  <p>Address of a reference to an <strong><see cref="T:SharpDX.Direct3D11.GeometryShader"/></strong> interface, representing the geometry shader that was created.  Set this to <strong><c>null</c></strong> to validate the other parameters; if validation passes, the method will return S_FALSE instead of <see cref="F:SharpDX.Result.Ok"/>.</p> </dd></param>	
             <returns><p>This method returns one of the Direct3D 11 Return Codes.</p></returns>	
@@ -4795,6 +4795,10 @@
             <unmanaged>ID3D11DeviceContext</unmanaged>	
             <unmanaged-short>ID3D11DeviceContext</unmanaged-short>	
         </member>
+        <member name="F:SharpDX.Direct3D11.OutputMergerStage.SimultaneousRenderTargetCount">
+            <summary>Constant SimultaneousRenderTargetCount.</summary>
+            <unmanaged>D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT</unmanaged>
+        </member>
         <member name="M:SharpDX.Direct3D11.OutputMergerStage.GetRenderTargets(SharpDX.Direct3D11.DepthStencilView@)">
             <summary>	
             Get references to the render targets that are available to the {{output-merger stage}}.	
@@ -5192,11 +5196,11 @@
             <summary>	
             <p>Bind one or more render targets atomically and the depth-stencil buffer to the output-merger stage.</p>	
             </summary>	
-            <param name="numViews"><dd>  <p>Number of render targets to bind (ranges between 0 and D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT).</p> </dd></param>	
+            <param name="numViews"><dd>  <p>Number of render targets to bind (ranges between 0 and <see cref="F:SharpDX.Direct3D11.OutputMergerStage.SimultaneousRenderTargetCount"/>).</p> </dd></param>	
             <param name="renderTargetViewsOut"><dd>  <p>Pointer to an array of render targets (see <strong><see cref="T:SharpDX.Direct3D11.RenderTargetView"/></strong>) to bind to the device.  If this parameter is <strong><c>null</c></strong>, no render targets are bound. See Remarks.</p> </dd></param>	
             <param name="depthStencilViewRef"><dd>  <p>Pointer to a depth-stencil view (see <strong><see cref="T:SharpDX.Direct3D11.DepthStencilView"/></strong>) to bind to the device.  If this parameter is <strong><c>null</c></strong>, the depth-stencil state is not bound.</p> </dd></param>	
             <remarks>	
-            <p>The maximum number of active render targets a device can have active at any given time is set by a #define in D3D11.h called  D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT. It is invalid to try to set the same subresource to multiple render target slots.  Any render targets not defined by this call are set to <strong><c>null</c></strong>.</p><p>If any subresources are also currently bound for reading in a different stage or writing (perhaps in a different part of the pipeline),  those bind points will be set to <strong><c>null</c></strong>, in order to prevent the same subresource from being read and written simultaneously in a single rendering operation.</p><p> The method will hold a reference to the interfaces passed in. This differs from the device state behavior in Direct3D 10. </p><p>If the render-target views were created from an array resource type, then all of the render-target views must have the same array size.   This restriction also applies to the depth-stencil view, its array size must match that of the render-target views being bound.</p><p>The pixel shader must be able to simultaneously render to at least eight separate render targets. All of these render targets must access the same type of resource: Buffer, Texture1D, Texture1DArray, Texture2D, Texture2DArray, Texture3D, or TextureCube. All render targets must have the same size in all dimensions (width and height, and depth for 3D or array size for *Array types). If render targets use multisample anti-aliasing, all bound render targets and depth buffer must be the same form of multisample resource (that is, the sample counts must be the same). Each render target can have a different data format. These render target formats are not required to have identical bit-per-element counts.</p><p>Any combination of the eight slots for render targets can have a render target set or not set.</p><p>The same resource view cannot be bound to multiple render target slots simultaneously. However, you can set multiple non-overlapping resource views of a single resource as simultaneous multiple render targets.</p>	
+            <p>The maximum number of active render targets a device can have active at any given time is set by a #define in D3D11.h called  <see cref="F:SharpDX.Direct3D11.OutputMergerStage.SimultaneousRenderTargetCount"/>. It is invalid to try to set the same subresource to multiple render target slots.  Any render targets not defined by this call are set to <strong><c>null</c></strong>.</p><p>If any subresources are also currently bound for reading in a different stage or writing (perhaps in a different part of the pipeline),  those bind points will be set to <strong><c>null</c></strong>, in order to prevent the same subresource from being read and written simultaneously in a single rendering operation.</p><p> The method will hold a reference to the interfaces passed in. This differs from the device state behavior in Direct3D 10. </p><p>If the render-target views were created from an array resource type, then all of the render-target views must have the same array size.   This restriction also applies to the depth-stencil view, its array size must match that of the render-target views being bound.</p><p>The pixel shader must be able to simultaneously render to at least eight separate render targets. All of these render targets must access the same type of resource: Buffer, Texture1D, Texture1DArray, Texture2D, Texture2DArray, Texture3D, or TextureCube. All render targets must have the same size in all dimensions (width and height, and depth for 3D or array size for *Array types). If render targets use multisample anti-aliasing, all bound render targets and depth buffer must be the same form of multisample resource (that is, the sample counts must be the same). Each render target can have a different data format. These render target formats are not required to have identical bit-per-element counts.</p><p>Any combination of the eight slots for render targets can have a render target set or not set.</p><p>The same resource view cannot be bound to multiple render target slots simultaneously. However, you can set multiple non-overlapping resource views of a single resource as simultaneous multiple render targets.</p>	
             </remarks>	
             <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='ID3D11DeviceContext::OMSetRenderTargets']/*"/>	
             <msdn-id>ff476464</msdn-id>	
@@ -15891,6 +15895,22 @@
             <msdn-id>ff476536</msdn-id>	
             <unmanaged>ID3D11GeometryShader</unmanaged>	
             <unmanaged-short>ID3D11GeometryShader</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Direct3D11.GeometryShader.StreamOutputNoRasterizedStream">
+            <summary>Constant StreamOutputNoRasterizedStream.</summary>
+            <unmanaged>D3D11_SO_NO_RASTERIZED_STREAM</unmanaged>
+        </member>
+        <member name="F:SharpDX.Direct3D11.GeometryShader.StreamOutputStreamCount">
+            <summary>Constant StreamOutputStreamCount.</summary>
+            <unmanaged>D3D11_SO_STREAM_COUNT</unmanaged>
+        </member>
+        <member name="F:SharpDX.Direct3D11.GeometryShader.StreamOutputOutputComponentCount">
+            <summary>Constant StreamOutputOutputComponentCount.</summary>
+            <unmanaged>D3D11_SO_OUTPUT_COMPONENT_COUNT</unmanaged>
+        </member>
+        <member name="F:SharpDX.Direct3D11.GeometryShader.StreamOutputBufferSlotCount">
+            <summary>Constant StreamOutputBufferSlotCount.</summary>
+            <unmanaged>D3D11_SO_BUFFER_SLOT_COUNT</unmanaged>
         </member>
         <member name="M:SharpDX.Direct3D11.GeometryShader.#ctor(System.IntPtr)">
             <summary>

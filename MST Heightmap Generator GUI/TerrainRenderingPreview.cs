@@ -18,6 +18,8 @@ namespace MST_Heightmap_Generator_GUI
         private GraphicsDevice graphicsDevice;
         private Texture2D heightmapTexture;
 
+        private SamplerState linearSamplerState;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="HelloWorldGame" /> class.
         /// </summary>
@@ -62,6 +64,14 @@ namespace MST_Heightmap_Generator_GUI
 
             terrainShader = new SharpDX.Toolkit.Graphics.Effect(graphicsDevice, terrainShaderCompileResult.EffectData);
 
+            
+            // linear sampler
+            var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();
+            samplerStateDesc.AddressV = SharpDX.Direct3D11.TextureAddressMode.Border;
+            samplerStateDesc.AddressU = SharpDX.Direct3D11.TextureAddressMode.Border;
+            samplerStateDesc.BorderColor = Color4.Black;
+            linearSamplerState = SamplerState.New(graphicsDevice, "LinearSampler", samplerStateDesc);
+
             // dummy heightmap
             heightmapTexture = Texture2D.New(graphicsDevice, 1, 1, MipMapCount.Auto, PixelFormat.R32.Float);
             heightmapTexture.SetData<float>(new float[] { 0.0f });    
@@ -80,22 +90,22 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Render()
         {
-  /*          graphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
-
+            graphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
+            
             // setup camera
             Matrix viewProjection = camera.ViewMatrix * camera.ProjectionMatrix;
             Matrix viewProjectionInverse = viewProjection; viewProjectionInverse.Invert();
-
 
             var cameraConstantBuffer = terrainShader.ConstantBuffers["Camera"];
             cameraConstantBuffer.Set(0, viewProjectionInverse);
             cameraConstantBuffer.Set(sizeof(float) * 4 * 4, camera.Position);
             cameraConstantBuffer.IsDirty = true;
             terrainShader.Parameters["Heightmap"].SetResource(heightmapTexture);
-
+            terrainShader.Parameters["LinearSampler"].SetResource(linearSamplerState);
+            
             // render screenspace terrain!
             terrainShader.CurrentTechnique.Passes[0].Apply();
-            graphicsDevice.Draw(PrimitiveType.PointList, 1); */
+            graphicsDevice.Draw(PrimitiveType.PointList, 1);
         }
     }
 }

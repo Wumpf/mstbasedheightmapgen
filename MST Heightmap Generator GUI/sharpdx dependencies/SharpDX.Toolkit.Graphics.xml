@@ -714,6 +714,205 @@
             May be null if this installer was initialized with only a <see cref="T:SharpDX.Toolkit.Graphics.GraphicsDevice"/>.
             </remarls>
         </member>
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive`1">
+            <summary>
+            A geometric primitive used to draw a simple model built from a set of vertices and indices.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.indexBuffer">
+            <summary>
+            The index buffer used by this geometric primitive.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.vertexBuffer">
+            <summary>
+            The vertex buffer used by this geometric primitive.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.GraphicsDevice">
+            <summary>
+            The default graphics device.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.InputLayout">
+            <summary>
+            The input layout used by this geometric primitive (shared for all geometric primitive).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.isIndex32Bits">
+            <summary>
+            True if the index buffer is a 32 bit index buffer.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.#ctor(SharpDX.Toolkit.Graphics.GraphicsDevice,`0[],System.Int16[],System.Boolean)" -->
+        <!-- Badly formed XML comment ignored for member "M:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.#ctor(SharpDX.Toolkit.Graphics.GraphicsDevice,`0[],System.Int32[],System.Boolean)" -->
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.Draw(SharpDX.Toolkit.Graphics.Effect)">
+            <summary>
+            Draws this <see cref="T:SharpDX.Toolkit.Graphics.GeometricPrimitive"/> using an optional effect. See remarks.
+            </summary>
+            <param name="effect">The effect. Null by default.</param>
+            <remarks>If an effect is passed to this method, a draw will be issued for each passes defined in the current technique of the effect. 
+            If no effect are passed, it is expected that an <see cref="T:SharpDX.Toolkit.Graphics.EffectPass"/> was previously applied.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.Draw(SharpDX.Toolkit.Graphics.GraphicsDevice,SharpDX.Toolkit.Graphics.Effect)">
+            <summary>
+            Draws this <see cref="T:SharpDX.Toolkit.Graphics.GeometricPrimitive"/> using an optional effect. See remarks.
+            </summary>
+            <param name="graphicsDevice">The graphics device.</param>
+            <param name="effect">The effect. Null by default.</param>
+            <remarks>If an effect is passed to this method, a draw will be issued for each passes defined in the current technique of the effect. 
+            If no effect are passed, an <see cref="T:SharpDX.Toolkit.Graphics.EffectPass"/> must have been applied previously.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.Draw(SharpDX.Toolkit.Graphics.GraphicsDevice,SharpDX.Toolkit.Graphics.EffectPass)">
+            <summary>
+            Draws this <see cref="T:SharpDX.Toolkit.Graphics.GeometricPrimitive"/> using an optional specific pass
+            </summary>
+            <param name="graphicsDevice">The graphics device.</param>
+            <param name="pass">The effect pass, null by default.</param>
+            <remarks>If an effect pass is passed to this method, the effect pass will be applied before drawing the geometry. 
+            If no effect pass is passed, an <see cref="T:SharpDX.Toolkit.Graphics.EffectPass"/> must have been applied previously.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive`1.ReverseWinding``1(`0[],``0[])">
+            <summary>
+            Helper for flipping winding of geometric primitives for LH vs. RH coords
+            </summary>
+            <typeparam name="TIndex">The type of the T index.</typeparam>
+            <param name="vertices">The vertices.</param>
+            <param name="indices">The indices.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive">
+            <summary>
+            A geometric primitive helper that provides several drawable basic 3D models <see cref="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Cube.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Boolean)"/>, <see cref="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Cylinder.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Single,System.Int32,System.Boolean)"/>, <see cref="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Sphere.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Int32,System.Boolean)"/>, <see cref="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.GeoSphere.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Int32,System.Boolean)"/>, <see cref="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Teapot.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Int32,System.Boolean)"/>, <see cref="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Torus.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Single,System.Int32,System.Boolean)"/>.
+            </summary>
+            <remarks>The vertex format used is <see cref="T:SharpDX.Toolkit.Graphics.VertexPositionNormalTexture"/>.</remarks>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SharpDX.Toolkit.Graphics.GeometricPrimitive.#ctor(SharpDX.Toolkit.Graphics.GraphicsDevice,SharpDX.Toolkit.Graphics.VertexPositionNormalTexture[],System.Int16[],System.Boolean)" -->
+        <!-- Badly formed XML comment ignored for member "M:SharpDX.Toolkit.Graphics.GeometricPrimitive.#ctor(SharpDX.Toolkit.Graphics.GraphicsDevice,SharpDX.Toolkit.Graphics.VertexPositionNormalTexture[],System.Int32[],System.Boolean)" -->
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive.Cube">
+            <summary>
+            A cube has six faces, each one pointing in a different direction.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Cube.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Boolean)">
+            <summary>
+            Creates a cube with six faces each one pointing in a different direction.
+            </summary>
+            <param name="device">The device.</param>
+            <param name="size">The size.</param>
+            <param name="toLeftHanded">if set to <c>true</c> vertices and indices will be transformed to left handed. Default is true.</param>
+            <returns>A cube.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive.Cylinder">
+            <summary>
+            A Cylinder primitive.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Cylinder.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Single,System.Int32,System.Boolean)">
+            <summary>
+            Creates a cylinder primitive.
+            </summary>
+            <param name="device">The device.</param>
+            <param name="height">The height.</param>
+            <param name="diameter">The diameter.</param>
+            <param name="tessellation">The tessellation.</param>
+            <param name="toLeftHanded">if set to <c>true</c> vertices and indices will be transformed to left handed. Default is true.</param>
+            <returns>A cylinder primitive.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">tessellation;tesselation must be &gt;= 3</exception>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive.GeoSphere">
+            <summary>
+            A Geodesic sphere.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.GeoSphere.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Int32,System.Boolean)">
+            <summary>
+            Creates a Geodesic sphere.
+            </summary>
+            <param name="graphicsDevice">The graphics device.</param>
+            <param name="diameter">The diameter.</param>
+            <param name="tessellation">The tessellation.</param>
+            <param name="toLeftHanded">if set to <c>true</c> vertices and indices will be transformed to left handed. Default is true.</param>
+            <returns>A Geodesic sphere.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.GeoSphere.Create(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Int32,System.Boolean)">
+            <summary>
+            Creates a Geodesic sphere.
+            </summary>
+            <param name="graphicsDevice">The graphics device.</param>
+            <param name="diameter">The diameter.</param>
+            <param name="tessellation">The tessellation.</param>
+            <param name="toLeftHanded">if set to <c>true</c> vertices and indices will be transformed to left handed. Default is true.</param>
+            <returns>A Geodesic sphere.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive.Plane">
+            <summary>
+            A plane primitive.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Plane.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Single,System.Int32,System.Boolean)">
+            <summary>
+            Creates a Plane primitive on the X/Y plane with a normal equal to -<see cref="F:SharpDX.Vector3.UnitZ"/>.
+            </summary>
+            <param name="device">The device.</param>
+            <param name="sizeX">The size X.</param>
+            <param name="sizeY">The size Y.</param>
+            <param name="tesselation">The tesselation, as the number of quads per axis.</param>
+            <param name="toLeftHanded">if set to <c>true</c> vertices and indices will be transformed to left handed. Default is true.</param>
+            <returns>A Plane primitive.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">tesselation;tesselation must be &gt; 0</exception>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive.Sphere">
+            <summary>
+            A sphere primitive.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Sphere.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Int32,System.Boolean)">
+            <summary>
+            Creates a sphere primitive.
+            </summary>
+            <param name="device">The device.</param>
+            <param name="diameter">The diameter.</param>
+            <param name="tessellation">The tessellation.</param>
+            <param name="toLeftHanded">if set to <c>true</c> vertices and indices will be transformed to left handed. Default is true.</param>
+            <returns>A sphere primitive.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">tessellation;Must be &gt;= 3</exception>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive.Teapot">
+            <summary>
+            A Teapot primitive.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Teapot.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Int32,System.Boolean)">
+            <summary>
+            Creates a teapot primitive.
+            </summary>
+            <param name="device">The device.</param>
+            <param name="size">The size.</param>
+            <param name="tessellation">The tessellation.</param>
+            <param name="toLeftHanded">if set to <c>true</c> vertices and indices will be transformed to left handed. Default is true.</param>
+            <returns>GeometricPrimitive.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">tessellation;tesselation must be &gt; 0</exception>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.GeometricPrimitive.Torus">
+            <summary>
+            A Torus primitive.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GeometricPrimitive.Torus.New(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Single,System.Single,System.Int32,System.Boolean)">
+            <summary>
+            Creates a torus primitive.
+            </summary>
+            <param name="device">The device.</param>
+            <param name="diameter">The diameter.</param>
+            <param name="thickness">The thickness.</param>
+            <param name="tessellation">The tessellation.</param>
+            <param name="toLeftHanded">if set to <c>true</c> vertices and indices will be transformed to left handed. Default is true.</param>
+            <returns>A Torus primitive.</returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">tessellation;tesselation parameter out of range</exception>
+        </member>
         <member name="T:SharpDX.Toolkit.Graphics.ModelContentReader">
             <summary>
             Internal class to load a SpriteFont.
@@ -1737,11 +1936,12 @@
             Renders a group of sprites.
             </summary>
         </member>
-        <member name="M:SharpDX.Toolkit.Graphics.SpriteBatch.#ctor(SharpDX.Toolkit.Graphics.GraphicsDevice)">
+        <member name="M:SharpDX.Toolkit.Graphics.SpriteBatch.#ctor(SharpDX.Toolkit.Graphics.GraphicsDevice,System.Int32)">
             <summary>
             Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.SpriteBatch"/> class.
             </summary>
             <param name="graphicsDevice">The graphics device.</param>
+            <param name="batchCapacity">The batch capacity default to 2048 (minimum 2048).</param>
         </member>
         <member name="M:SharpDX.Toolkit.Graphics.SpriteBatch.Begin(SharpDX.Toolkit.Graphics.SpriteSortMode,SharpDX.Toolkit.Graphics.Effect)">
             <summary>
@@ -1997,6 +2197,11 @@
         </member>
         <member name="P:SharpDX.Toolkit.Graphics.SpriteFont.Spacing">
             <summary>Gets or sets the spacing of the font characters.</summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFont.InternalDrawCommand">
+            <summary>
+            Struct InternalDrawCommand used to pass parameters to InternalDrawGlyph
+            </summary>
         </member>
         <member name="T:SharpDX.Toolkit.Graphics.SpriteFontContentReader">
             <summary>
@@ -8388,6 +8593,13 @@
             <unmanaged>void ID3D11DeviceContext::OMSetRenderTargets([In] unsigned int NumViews,[In] const void** ppRenderTargetViews,[In, Optional] ID3D11DepthStencilView* pDepthStencilView)</unmanaged>	
             <unmanaged-short>ID3D11DeviceContext::OMSetRenderTargets</unmanaged-short>	
         </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GraphicsDevice.GetRenderTargets(SharpDX.Direct3D11.DepthStencilView@)">
+            <summary>
+            Gets the render targets currently binded to the <see cref="F:SharpDX.Toolkit.Graphics.GraphicsDevice.OutputMergerStage"/> through this <see cref="T:SharpDX.Toolkit.Graphics.GraphicsDevice"/>instance.
+            </summary>
+            <param name="depthStencilViewRef">The depth stencil view, may ne null.</param>
+            <returns>An array of <see cref="T:SharpDX.Direct3D11.RenderTargetView"/>.</returns>
+        </member>
         <member name="M:SharpDX.Toolkit.Graphics.GraphicsDevice.SetRenderTargets(SharpDX.Direct3D11.RenderTargetView[])">
             <summary>	
             <p>Bind one or more render targets atomically and the depth-stencil buffer to the output-merger stage.</p>	
@@ -8552,6 +8764,11 @@
             <msdn-id>bb174576</msdn-id>	
             <unmanaged>HRESULT IDXGISwapChain::Present([In] unsigned int SyncInterval,[In] DXGI_PRESENT_FLAGS Flags)</unmanaged>	
             <unmanaged-short>IDXGISwapChain::Present</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.GraphicsDevice.ResetShaderStages">
+            <summary>
+            Remove all shaders bounded to each stage.
+            </summary>
         </member>
         <member name="M:SharpDX.Toolkit.Graphics.GraphicsDevice.GetOrCreateSharedData``1(SharpDX.Toolkit.Graphics.SharedDataType,System.Object,SharpDX.Toolkit.Graphics.GraphicsDevice.CreateSharedData{``0})">
             <summary>
