@@ -51,8 +51,9 @@ namespace MST_Heightmap_Generator_GUI
 
         // movement factors variables
         protected float rotationSpeed = 0.01f;
-        protected float forwardSpeed = 0.08f;
-        protected float sideSpeed = 0.08f;
+        protected float forwardSpeed = 0.8f;
+        protected float speedUpFactor = 10.0f;
+        protected float sideSpeed = 0.8f;
 
         // some intern controlling variables
         protected double phi = 0.0f;
@@ -80,15 +81,17 @@ namespace MST_Heightmap_Generator_GUI
             // compute side
             Vector3 sideVec = Vector3.Cross(upVec, viewDirection);
 
+            float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
+
             // forward movement
             float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Up) ? 1.0f : 0.0f) -
                             (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Down) ? 1.0f : 0.0f);
-            Position += forward * forwardSpeed * viewDirection;
+            Position += forward * forwardSpeed * viewDirection * speedUp;
 
             // side movement
-            float side = -(Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Right) ? 1.0f : 0.0f) +
-                          (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Left) ? 1.0f : 0.0f);
-            Position += side * sideSpeed * sideVec;
+            float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Right) ? 1.0f : 0.0f) -
+                         (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Left) ? 1.0f : 0.0f);
+            Position += side * sideSpeed * sideVec * speedUp;
 
             // compute view matrix
             viewMatrix = Matrix.LookAtLH(Position, Position + viewDirection, upVec);
@@ -102,7 +105,7 @@ namespace MST_Heightmap_Generator_GUI
             // mouse movement
             double deltaX = Mouse.GetPosition(null).X - lastMouseX;
             double deltaY = Mouse.GetPosition(null).Y - lastMouseY;
-            phi += deltaX * rotationSpeed;
+            phi -= deltaX * rotationSpeed;
             theta -= deltaY * rotationSpeed;
             lastMouseX = Mouse.GetPosition(null).X;
             lastMouseY = Mouse.GetPosition(null).Y;
