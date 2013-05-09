@@ -13,6 +13,7 @@ cbuffer Heightmap : register(b1)
 float2 HeightmapSize;
 float2 HeightmapSizeInv;
 
+float ScreenAspectRatio;
 
 
 struct PS_INPUT
@@ -151,15 +152,28 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
     return false;
 }
 
-static const float Ambient = 0.3f;
 
+static const float heightmapCornerSize = 0.5f;
+bool RenderHeightmapInCorner(float2 deviceCor, out float4 color)
+{
+	float2 heightmapArea = float2(heightmapCornerSize,heightmapCornerSize * ScreenAspectRatio);
+	float2 onScreenHeightmapZero = float2(1.0f - heightmapArea.x, -1.0f); 
+	float2 heightmapCor = (float2(deviceCor.x, -deviceCor.y) - onScreenHeightmapZero) / heightmapArea;
+	if(heightmapCor.x > 0 && heightmapCor.x < 1 && heightmapCor.y > 0 && heightmapCor.y < 1)
+	{
+		color = float4(Heightmap.SampleLevel(LinearSampler, heightmapCor, 0).rrr, 1);
+		return true;
+	}
+	else
+		return false;
+}
+
+static const float Ambient = 0.3f;
 float4 PS(PS_INPUT input) : SV_Target
 {
-	const float2 heightmapArea = float2(0.5f,0.5f);
-	float2 onScreenHeightmapZero = float2(1.0f - heightmapArea.x, -1.0f); 
-	float2 heightmapCor = (float2(input.DevicePos.x, -input.DevicePos.y) - onScreenHeightmapZero) / heightmapArea;
-	if(heightmapCor.x > 0 && heightmapCor.x < 1 && heightmapCor.y > 0 && heightmapCor.y < 1)
-		return float4(Heightmap.SampleLevel(LinearSampler, heightmapCor, 0).rrr, 1);
+	float4 color;
+	if(RenderHeightmapInCorner(input.DevicePos, color))
+		return color;
 
     // "picking" - compute raydirection
 	float2 deviceCor = input.DevicePos;

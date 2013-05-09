@@ -29,6 +29,6 @@
         <Slider Grid.Row="0" Grid.Column="1" Margin="10,103,10,0" VerticalAlignment="Top" Height="26" Maximum="2" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_NoiseHeightDependency_Changed" Value="0.5"/>
 
         <TextBox Margin="10,0,10,10" TextWrapping="Wrap" Text="Seed" TextChanged="TB_Seed_Changed" Height="23" VerticalAlignment="Bottom"/>
-        <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="UniformToFill"/>
+        <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill"/>
     </Grid>
 </Window>
