@@ -51,6 +51,12 @@ public:
 	///			used.\n
 	///			The initial value is 0.3.
 	///		* 5: Set the map seed. The default value is 1111.
+	///		* 6: The total amount of noise added to the map. This number is
+	///			relative to the maps height. A value of 1 creates (statistically)
+	///			a noise with a amplitude like the created base map.
+	///		* 7: Influence of the height to the noise frequency. A value of 0
+	///			disables the dependency. Too large values cause a very instable
+	///			behavior.
 	void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
 
 
@@ -80,8 +86,11 @@ private:
 	float _pixelSize;
 
 	// Generation parameters
-	int _seed;							/// <<\brief Start value to make generation deterministic.
-	float _heightThreshold;				/// <<\brief Cuts the distance function at a certain level.
-	float _quadraticIncreasePercentage;	/// <<\brief Percentage of the quadratic spline to smooth the mountain foots.
+	int _seed;							///<\brief Start value to make generation deterministic.
+	float _heightThreshold;				///<\brief Cuts the distance function at a certain level.
+	float _quadraticIncreasePercentage;	///<\brief Percentage of the quadratic spline to smooth the mountain foots.
+
+	float _noiseIntensity;				///<\brief Amount of perlin noise added to the map.
+	float _frequencyHeightDependence;	///<\brief Frequence shift depending on the terrain height.
 };
 

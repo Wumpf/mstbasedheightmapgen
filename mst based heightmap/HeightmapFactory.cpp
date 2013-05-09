@@ -12,7 +12,9 @@ HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float hei
 	_pixelSize(1.0f/heightmapPixelPerWorldUnit),
 	_heightThreshold(50.0f),
 	_quadraticIncreasePercentage(0.3f),
-	_seed( 1111 )
+	_seed( 1111 ),
+	_noiseIntensity(1.0f),
+	_frequencyHeightDependence(0.5f)
 {
 	assert(worldSizeX > 0);
 	assert(worldSizeY > 0);
@@ -68,6 +70,16 @@ void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsign
 		assert( width == 1 && height == 1 );
 		_seed = static_cast<int>(data[0]);
 		break;
+
+	case 6:
+		assert( width == 1 && height == 1 );
+		_noiseIntensity = data[0];
+		break;
+
+	case 7:
+		assert( width == 1 && height == 1 );
+		_frequencyHeightDependence = data[0];
+		break;
 	};
 }
 
@@ -102,7 +114,11 @@ void HeightmapFactory::Generate(float* dataDestination)
 	delete[] uglyTestBuffer;
 
 	// Create more natural apeareance
-	AddNoise( dataDestination, GetWidth(), GetHeight() );
+	AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
+		_heightThreshold * 0.5f,
+		_frequencyHeightDependence/_heightThreshold,
+		_heightThreshold * _noiseIntensity,
+		0.01f);
 
 	// Normalize for visual output
 	Normalize( dataDestination, GetWidth(), GetHeight() );

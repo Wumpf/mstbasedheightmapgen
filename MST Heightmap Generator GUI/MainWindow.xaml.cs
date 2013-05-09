@@ -69,7 +69,6 @@ namespace MST_Heightmap_Generator_GUI
         {
             float[,] value = { { (float)e.NewValue } };
             _heightmapFactory.SetParameter(4, value);
-            System.Security.Cryptography.MD5.Create();
         }
 
         private void TB_Seed_Changed(object sender, TextChangedEventArgs e)
@@ -83,6 +82,18 @@ namespace MST_Heightmap_Generator_GUI
         private void Window_Closed(object sender, EventArgs e)
         {
             App.Current.Shutdown();
+        }
+
+        private void Sl_NoiseIntensity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            float[,] value = { { (float)e.NewValue } };
+            _heightmapFactory.SetParameter(6, value);
+        }
+
+        private void Sl_NoiseHeightDependency_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            float[,] value = { { (float)e.NewValue } };
+            _heightmapFactory.SetParameter(7, value);
         }
     }
 }

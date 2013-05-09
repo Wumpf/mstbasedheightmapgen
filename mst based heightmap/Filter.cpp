@@ -66,29 +66,70 @@ struct AddNoiseParam {
 	float* data;
 	int width;
 	int height;
+	int maxOctave;
+
+	float frequenceDependencyOffset;
+	float frequenceHeightDependency;
+	float noiseIntensity;
+	float horizontalNoiseScale;
 };
+
+
+// Temporal parametrization: TODO Make these factors global influenceable from GUI
+const float SCALE_HORIZONTAL = 0.01f;
+const float SCALE_VERTICAL = 60.0f;
+const float FREQUENCE_HIGH_DEPENDENCY = 0.5f/SCALE_VERTICAL;
+
+float calculateFrequenceAmplitude( const AddNoiseParam& bufferDesc, float _fCurrentHeight, float _fFrequence, float _fGradientX, float _fGradientY )
+{
+	return exp((_fCurrentHeight-bufferDesc.frequenceDependencyOffset) * bufferDesc.frequenceHeightDependency) /_fFrequence;
+}
 
 // Uses several blending methods to add noise to the terrain.
 static void AddNoise_Kernel( AddNoiseParam* bufferDesc, int y, int numLines )
 {
-	float fGX;
-	float fGY;
 	for( int i=0; i<numLines; ++i )
 	{
-		int yw = (y+i)*bufferDesc->width;
+		int yw = (y+i) * bufferDesc->width;
+		float fy = (y+i) * bufferDesc->horizontalNoiseScale;
 		for( int x=0; x<bufferDesc->width; ++x )
 		{
-			bufferDesc->data[yw+x] *= Rand2D( 0, 4, 0.5f, x*0.01f, (y+i)*0.01f, 1, fGX, fGY );
+			float fGX = 0.0f;
+			float fGY = 0.0f;
+			float fSum = bufferDesc->data[yw+x];
+			float fx = bufferDesc->horizontalNoiseScale * x;
+
+			// *************** Noise function ***************
+			for( int i=0; i<bufferDesc->maxOctave; ++i )
+			{
+				float fdX;
+				float fdY;
+				float fFrequence = float(1<<i);
+				float fAmplitude = calculateFrequenceAmplitude( *bufferDesc, fSum, fFrequence, fGX, fGY ) * bufferDesc->noiseIntensity;
+				//fSum += abs(Rand2D( fx, fy, fFrequence, fdX, fdY ) - 0.5f) * fAmplitude;
+				fSum += (Rand2D( fx, fy, fFrequence, fdX, fdY ) * 2.0f - 1.0f) * fAmplitude;
+				// Update global gradient
+				fGX += fdX*fFrequence*fAmplitude;		fGY += fdY*fFrequence*fAmplitude;
+			}
+
+			bufferDesc->data[yw+x] = fSum;
+			//bufferDesc->data[yw+x] = Rand2D( 0, 4, 0.5f, x*0.01f, (y+i)*0.01f, 1, fGX, fGY );
 		}
 	}
 }
 
-void AddNoise( float* dataDestination, int width, int height )
+void AddNoise( float* dataDestination, int width, int height, int _iSeed,
+			   float frequenceDependencyOffset,
+			   float frequenceHeightDependency,
+			   float noiseIntensity,
+			   float horizontalNoiseScale )
 {
 	// Hight must be devisible through 4
 	assert( (height & 3) == 0 );
 
-	AddNoiseParam bufferDesc = {dataDestination, width, height};
+	SetSeed( _iSeed );
+	AddNoiseParam bufferDesc = { dataDestination, width, height, int(log( max(width, height) )/log(2)),
+		frequenceDependencyOffset, frequenceHeightDependency, noiseIntensity, horizontalNoiseScale };
 
 	//AddNoise_Kernel( &bufferDesc, 0, height );
 

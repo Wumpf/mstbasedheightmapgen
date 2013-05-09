@@ -1,17 +1,29 @@
 #include <cassert>
+#include <cstdint>
 #include "math.hpp"
 
+static unsigned int g_uiSeed;
 
-// ******************************************************************************** //
-static double Sample1D(__int64 _i)
+// ************************************************************************* //
+/// \brief Sets a global value for the current noise function.
+///
+void SetSeed( unsigned int _uiSeed )
 {
+	g_uiSeed = _uiSeed;
+}
+
+
+// ************************************************************************* //
+static double Sample1D(int64_t _i)
+{
+	_i += g_uiSeed;
 	_i ^= (_i<<13);
 	return (((_i * (_i * _i * 15731 + 789221) + 1376312589) & 0x7fffffff) / 2147483647.0);
 }
 
-// ******************************************************************** //
-// PERLIN NOISE
-// ******************************************************************** //
+// ************************************************************************* //
+// VALUE NOISE
+// ************************************************************************* //
 
 // Function for interpolation between two points of the noise
 inline float InterpolationPolynom(float _dR)
@@ -32,8 +44,8 @@ inline void IntFrac(float _f, int& _iInt, float& _fFrac)	{_iInt = Floor(_f); _fF
 
 
 
-// ******************************************************************** //
-static float Rand2D(float _fX, float _fY, float _fFrequence, unsigned int _uiSeed, float& _fOutGradX, float& _fOutGradY)
+// ************************************************************************* //
+float Rand2D(float _fX, float _fY, float _fFrequence, float& _fOutGradX, float& _fOutGradY)
 {
 	// We need 2 samples per dimension -> 4 samples total
 	float fFracX, fFracY;
@@ -43,10 +55,10 @@ static float Rand2D(float _fX, float _fY, float _fFrequence, unsigned int _uiSee
 	int iX1 = (iX0+1)*57; iX0*=57;
 	int iY1 = (iY0+1)*101; iY0*=101;
 
-	float s00 = (float)Sample1D(iX0 + iY0 + _uiSeed);
-	float s10 = (float)Sample1D(iX1 + iY0 + _uiSeed);
-	float s01 = (float)Sample1D(iX0 + iY1 + _uiSeed);
-	float s11 = (float)Sample1D(iX1 + iY1 + _uiSeed);
+	float s00 = (float)Sample1D(iX0 + iY0);
+	float s10 = (float)Sample1D(iX1 + iY0);
+	float s01 = (float)Sample1D(iX0 + iY1);
+	float s11 = (float)Sample1D(iX1 + iY1);
 
 	float u = InterpolationPolynom(fFracX);
 	float v = InterpolationPolynom(fFracY);
@@ -64,7 +76,7 @@ static float Rand2D(float _fX, float _fY, float _fFrequence, unsigned int _uiSee
 }
 
 
-float Rand2D(int _iLowOctave, int _iHeightOctave, float _fPersistence, float _fX, float _fY, unsigned int _uiSeed, float& _fOutGradX, float& _fOutGradY)
+/*float Rand2D(int _iLowOctave, int _iHeightOctave, float _fPersistence, float _fX, float _fY, unsigned int _uiSeed, float& _fOutGradX, float& _fOutGradY)
 {
 	// Octaves cannot be smaller than zero and the height octave
 	// must be larger than the low one.
@@ -87,4 +99,4 @@ float Rand2D(int _iLowOctave, int _iHeightOctave, float _fPersistence, float _fX
 
 	// Transform to [-1,1]
 	return fRes*2.0f*(1.0f-_fPersistence)/(1.0f-fAmplitude)-1.0f;
-}
+}*/

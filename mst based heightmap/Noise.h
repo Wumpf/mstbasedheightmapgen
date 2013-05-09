@@ -10,11 +10,27 @@
 /// \param _fOutGradX [out] The analytical computed gradient of the perlin noise function.
 /// \param _fOutGradY [out] The analytical computed gradient of the perlin noise function.
 /// \return A value in [-1,1]
-float Rand2D( int _iLowOctave,
+/*float Rand2D( int _iLowOctave,
 			 int _iHeightOctave,
 			 float _fPersistence,
 			 float _fX,
 			 float _fY,
 			 unsigned int _uiSeed,
 			 float& _fOutGradX,
-			 float& _fOutGradY );
+			 float& _fOutGradY );*/
+
+/// \brief Sets a global value for the current noise function.
+///
+void SetSeed( unsigned int _uiSeed );
+
+/// \brief Create a random sample in a 2D pink noise.
+/// \param [in] _fX Sampling position X
+/// \param [in] _fY Sampling position Y
+/// \param [in] _fFrequence The highest frequence of the created noise.
+/// \param [out] _fOutGradX The analytically computed gradient of the noise.
+/// \param [out] _fOutGradY The analytically computed gradient of the noise.
+/// \return A value in [0,1]
+float Rand2D(float _fX, float _fY,
+			 float _fFrequence,
+			 float& _fOutGradX,
+			 float& _fOutGradY);
