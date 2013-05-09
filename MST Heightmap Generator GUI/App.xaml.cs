@@ -12,12 +12,8 @@ namespace MST_Heightmap_Generator_GUI
     /// </summary>
     public partial class App : Application
     {
-        public TerrainRenderingPreviewWindow renderWindow;
-
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            renderWindow = new TerrainRenderingPreviewWindow();
-            renderWindow.Show();
         }
     }
 }

@@ -24,21 +24,21 @@ namespace MST_Heightmap_Generator_GUI
         MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(512, 512, 1);
         float[,] _heightmapData;
 
-        WriteableBitmap imageContent;
-
-        TerrainRenderingPreviewWindow renderWindow;
+      //  private WriteableBitmap imageContent;
+        private TerrainRenderingPreview terrainRenderingPreview;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            terrainRenderingPreview = new TerrainRenderingPreview();
+            DX11Display.Scene = terrainRenderingPreview;
          
             int width = (int)_heightmapFactory.GetWidth();
             int height = (int)_heightmapFactory.GetHeight();
             _heightmapData = new float[_heightmapFactory.GetWidth(), _heightmapFactory.GetHeight()];
-            imageContent = new WriteableBitmap(width, height, -1.0f, -1.0f, PixelFormats.Gray32Float, null);
-            heightmapView.Source = imageContent;
-
-            renderWindow = ((App)Application.Current).renderWindow;
+        //    imageContent = new WriteableBitmap(width, height, -1.0f, -1.0f, PixelFormats.Gray32Float, null);
+         //   heightmapView.Source = imageContent;
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -51,12 +51,11 @@ namespace MST_Heightmap_Generator_GUI
         private void GenerateHeightmap(object sender, RoutedEventArgs e)
         {
             _heightmapFactory.Generate(_heightmapData);
-            imageContent.WritePixels(new Int32Rect(0, 0, (int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight()), 
+        /*    imageContent.WritePixels(new Int32Rect(0, 0, (int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight()), 
                                             (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
 
-   
-            if(renderWindow != null)
-                renderWindow.TerrainPreview.LoadNewHeightMap(_heightmapData);
+            */   
+            terrainRenderingPreview.LoadNewHeightMap(_heightmapData);
         }
 
         private void Sl_MaxHeight_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

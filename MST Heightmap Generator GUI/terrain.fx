@@ -60,7 +60,7 @@ static const float LowerHorizonHeight = -0.4;
 static const float UpperHorizonHeight = -0.1;
 static const float SunAttenuation = 2;
 
-static const float3 LightDirection = float3(-0.577,0.577,-0.577);
+static const float3 LightDirection = float3(-0.577, 0.577, -0.577);
 
 float3 computeSkyColor(in float3 ray)
 {
@@ -128,7 +128,6 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	float end   = min(max(upperBound, lowerBound), maxStep);
 
 	// go!
-//	float stepLen = 20;
 	float lh = 0.0;
 	float ly = 0.0;
 	float lt = start;
@@ -156,6 +155,12 @@ static const float Ambient = 0.3f;
 
 float4 PS(PS_INPUT input) : SV_Target
 {
+	const float2 heightmapArea = float2(0.5f,0.5f);
+	float2 onScreenHeightmapZero = float2(1.0f - heightmapArea.x, -1.0f); 
+	float2 heightmapCor = (float2(input.DevicePos.x, -input.DevicePos.y) - onScreenHeightmapZero) / heightmapArea;
+	if(heightmapCor.x > 0 && heightmapCor.x < 1 && heightmapCor.y > 0 && heightmapCor.y < 1)
+		return float4(Heightmap.SampleLevel(LinearSampler, heightmapCor, 0).rrr, 1);
+
     // "picking" - compute raydirection
 	float2 deviceCor = input.DevicePos;
 	float4 rayOrigin = mul(InverseViewProjection, float4(deviceCor, 0, 1));
