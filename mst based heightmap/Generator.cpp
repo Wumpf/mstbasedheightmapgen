@@ -77,7 +77,8 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 			height = sqrtf( height );
 
 			// Transform linear increase into a decrease of mountain flanks
-			height = -height + generatorDesc._heightThreshold;
+			//height = -height + generatorDesc._heightThreshold;
+			height = min(height, generatorDesc._heightThreshold);
 			// Transform foot of the mountain with quadratic spline
 			if( height >= generatorDesc._quadraticIncrease )
 				bufferDesc->dataDestination[yw+x] = height;
