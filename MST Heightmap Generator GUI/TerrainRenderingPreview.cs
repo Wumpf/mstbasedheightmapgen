@@ -80,7 +80,7 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Render()
         {
-  /*          graphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
+            graphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
 
             // setup camera
             Matrix viewProjection = camera.ViewMatrix * camera.ProjectionMatrix;
@@ -95,7 +95,7 @@ namespace MST_Heightmap_Generator_GUI
 
             // render screenspace terrain!
             terrainShader.CurrentTechnique.Passes[0].Apply();
-            graphicsDevice.Draw(PrimitiveType.PointList, 1); */
+            graphicsDevice.Draw(PrimitiveType.PointList, 1); 
         }
     }
 }
