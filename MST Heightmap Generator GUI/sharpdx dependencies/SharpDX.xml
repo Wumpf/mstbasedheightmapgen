@@ -1888,11 +1888,12 @@
             Task utility for threading.
             </summary>
         </member>
-        <member name="M:SharpDX.Threading.TaskUtil.Run(SharpDX.VoidAction)">
+        <member name="M:SharpDX.Threading.TaskUtil.Run(SharpDX.VoidAction,System.String)">
             <summary>
             Runs the specified action in a thread.
             </summary>
             <param name="action">The action.</param>
+            <param name="taskName">Name of the task.</param>
         </member>
         <member name="T:SharpDX.ViewportF">
             <summary>
@@ -38264,10 +38265,19 @@
         </member>
         <member name="M:SharpDX.MathUtil.WithinEpsilon(System.Single,System.Single)">
             <summary>
+            Checks if a - b are almost equals within a float <see cref="F:System.Single.Epsilon"/>.
+            </summary>
+            <param name="a">The left value to compare.</param>
+            <param name="b">The right value to compare.</param>
+            <returns><c>true</c> if a almost equal to b within a float epsilon, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.MathUtil.WithinEpsilon(System.Single,System.Single,System.Single)">
+            <summary>
             Checks if a - b are almost equals within a float epsilon.
             </summary>
             <param name="a">The left value to compare.</param>
             <param name="b">The right value to compare.</param>
+            <param name="epsilon">Epsilon value</param>
             <returns><c>true</c> if a almost equal to b within a float epsilon, <c>false</c> otherwise</returns>
         </member>
         <member name="M:SharpDX.MathUtil.Array``1(``0,System.Int32)">
@@ -43146,6 +43156,14 @@
             <param name="source">The source array.</param>
             <returns>Converted byte array.</returns>
         </member>
+        <member name="M:SharpDX.Utilities.Swap``1(``0@,``0@)">
+            <summary>
+            Swaps the value between two references.
+            </summary>
+            <typeparam name="T">Type of a data to swap.</typeparam>
+            <param name="left">The left value.</param>
+            <param name="right">The right value.</param>
+        </member>
         <member name="M:SharpDX.Utilities.Read``1(System.IntPtr)">
             <summary>
             Reads the specified T data from a memory location.
@@ -44448,6 +44466,46 @@
             A <see cref="T:SharpDX.Vector3"/> with all of its components set to one.
             </summary>
         </member>
+        <member name="F:SharpDX.Vector3.Up">
+            <summary>
+            A unit <see cref="T:SharpDX.Vector3"/> designating up (0, 1, 0).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Vector3.Down">
+            <summary>
+            A unit <see cref="T:SharpDX.Vector3"/> designating down (0, -1, 0).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Vector3.Left">
+            <summary>
+            A unit <see cref="T:SharpDX.Vector3"/> designating left (-1, 0, 0).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Vector3.Right">
+            <summary>
+            A unit <see cref="T:SharpDX.Vector3"/> designating right (1, 0, 0).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Vector3.ForwardRH">
+            <summary>
+            A unit <see cref="T:SharpDX.Vector3"/> designating forward in a right-handed coordinate system (0, 0, -1).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Vector3.ForwardLH">
+            <summary>
+            A unit <see cref="T:SharpDX.Vector3"/> designating forward in a left-handed coordinate system (0, 0, 1).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Vector3.BackwardRH">
+            <summary>
+            A unit <see cref="T:SharpDX.Vector3"/> designating backward in a right-handed coordinate system (0, 0, 1).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Vector3.BackwardLH">
+            <summary>
+            A unit <see cref="T:SharpDX.Vector3"/> designating backward in a left-handed coordinate system (0, 0, -1).
+            </summary>
+        </member>
         <member name="F:SharpDX.Vector3.X">
             <summary>
             The X component of the vector.
@@ -44726,6 +44784,24 @@
             involves two square roots, which are computationally expensive. However, using distance squared 
             provides the same information and avoids calculating two square roots.
             </remarks>
+        </member>
+        <member name="M:SharpDX.Vector3.NearEqual(SharpDX.Vector3,SharpDX.Vector3,SharpDX.Vector3)">
+            <summary>
+            Tests whether one 3D vector is near another 3D vector.
+            </summary>
+            <param name="left">The left vector.</param>
+            <param name="right">The right vector.</param>
+            <param name="epsilon">The epsilon.</param>
+            <returns><c>true</c> if left and right are near another 3D, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Vector3.NearEqual(SharpDX.Vector3@,SharpDX.Vector3@,SharpDX.Vector3@)">
+            <summary>
+            Tests whether one 3D vector is near another 3D vector.
+            </summary>
+            <param name="left">The left vector.</param>
+            <param name="right">The right vector.</param>
+            <param name="epsilon">The epsilon.</param>
+            <returns><c>true</c> if left and right are near another 3D, <c>false</c> otherwise</returns>
         </member>
         <member name="M:SharpDX.Vector3.Dot(SharpDX.Vector3@,SharpDX.Vector3@,System.Single@)">
             <summary>

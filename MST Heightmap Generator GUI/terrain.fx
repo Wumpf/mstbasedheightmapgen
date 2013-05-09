@@ -1,8 +1,21 @@
-cbuffer Camera
+cbuffer Camera : register(b0)
 {
 	float4x4 InverseViewProjection; 
 	float3 CameraPosition;
 }
+
+/*
+cbuffer Heightmap : register(b1)
+{
+	float2 HeightmapSize	: packoffset(c0);
+	float2 HeightmapSizeInv : packoffset(c0.z);
+}*/
+
+
+	float2 HeightmapSize	;
+	float2 HeightmapSizeInv ;
+
+
 
 struct PS_INPUT
 {
@@ -13,6 +26,13 @@ struct PS_INPUT
 struct GS_INPUT
 {
 };
+
+
+GS_INPUT VS()
+{
+	GS_INPUT output;
+	return output;
+}
 
 [maxvertexcount(3)]
 void GS(point GS_INPUT p[1], inout TriangleStream<PS_INPUT> TriStream )
@@ -67,29 +87,26 @@ float3 computeSkyColor(in float3 ray)
 // ------------------------------------------------
 // TERRAIN
 // ------------------------------------------------
-static const float terrainScale = 20;
+static const float terrainScale = 40;
 static const float minTerrainHeight = 0;
 static const float maxTerrainHeight = minTerrainHeight+terrainScale;
 
 SamplerState LinearSampler;  
 Texture2D Heightmap;  
 
-static const float heightmapTiling = 0.004;
-static const float texelSize = 1.0/512.0;
-
 float getTerrainHeight(in float2 pos)
 {
-	return Heightmap.SampleLevel(LinearSampler, pos*heightmapTiling, 0).x * terrainScale + minTerrainHeight;
+	return Heightmap.SampleLevel(LinearSampler, pos*HeightmapSizeInv, 0).x * terrainScale + minTerrainHeight;
 }
 
 float3 getTerrainNormal(in float3 pos)
 {
-	const float off = 0.1f;
+	float2 off = HeightmapSizeInv;
 	float lod = 0.0f;
-	float2 texcoord = pos.xz * heightmapTiling;
-    float3 n = float3(getTerrainHeight(float2(pos.x-off, pos.z)) - getTerrainHeight(float2(pos.x+off, pos.z)),
-						off*2,
-					  getTerrainHeight(float2(pos.x, pos.z-off)) - getTerrainHeight(float2(pos.x, pos.z+off))  );
+	float2 texcoord = pos.xz * HeightmapSizeInv;
+    float3 n = float3(getTerrainHeight(float2(pos.x-off.x, pos.z)) - getTerrainHeight(float2(pos.x+off.x, pos.z)),
+						(off.x+off.y),
+					  getTerrainHeight(float2(pos.x, pos.z-off.y)) - getTerrainHeight(float2(pos.x, pos.z+off.y))  );
     return normalize(n);
 }
 
@@ -135,7 +152,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
     return false;
 }
 
-float3 PS(PS_INPUT input) : SV_Target
+float4 PS(PS_INPUT input) : SV_Target
 {
     // "picking" - compute raydirection
 	float2 deviceCor = input.DevicePos;
@@ -167,22 +184,22 @@ float3 PS(PS_INPUT input) : SV_Target
 
 		// FOGGING
 		// clever fog http://www.iquilezles.org/www/articles/fog/fog.htm
-		float fogAmount = min(1, 0.5 * exp(-CameraPosition.y  * 0.01) * (1.0 - exp( -dist*rayDirection.y* 0.01)) / rayDirection.y);
-		outColor = lerp(outColor, computeSkyColor(rayDirection), fogAmount);
+	//	float fogAmount = min(1, 0.5 * exp(-CameraPosition.y  * 0.01) * (1.0 - exp( -dist*rayDirection.y* 0.01)) / rayDirection.y);
+	//	outColor = lerp(outColor, computeSkyColor(rayDirection), fogAmount);
 	}
 	else
 	{
 		outColor = computeSkyColor(rayDirection);
 	}
 
-	return outColor;
+	return float4(outColor, 1.0f);
 }
 
 technique10 Render
 {
     pass P0
     {
-        SetVertexShader(null);
+        SetVertexShader(CompileShader(vs_5_0, VS()));
         SetGeometryShader(CompileShader(gs_5_0, GS()));
         SetPixelShader(CompileShader(ps_5_0, PS()));
     }
