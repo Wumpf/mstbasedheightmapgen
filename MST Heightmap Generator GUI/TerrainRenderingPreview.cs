@@ -83,6 +83,7 @@ namespace MST_Heightmap_Generator_GUI
             var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();
             samplerStateDesc.AddressV = SharpDX.Direct3D11.TextureAddressMode.Border;
             samplerStateDesc.AddressU = SharpDX.Direct3D11.TextureAddressMode.Border;
+            samplerStateDesc.Filter = SharpDX.Direct3D11.Filter.MinMagLinearMipPoint;   // no mipmapping
             samplerStateDesc.BorderColor = Color4.Black;
             linearSamplerState = SamplerState.New(graphicsDevice, "LinearSampler", samplerStateDesc);
 

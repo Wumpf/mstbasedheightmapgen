@@ -10,10 +10,8 @@ cbuffer Heightmap : register(b1)
 	float2 HeightmapSize	: packoffset(c0);
 	float2 HeightmapSizeInv : packoffset(c0.z);
 }*/
-
-
-	float2 HeightmapSize	;
-	float2 HeightmapSizeInv ;
+float2 HeightmapSize;
+float2 HeightmapSizeInv;
 
 
 
@@ -88,40 +86,42 @@ float3 computeSkyColor(in float3 ray)
 // TERRAIN
 // ------------------------------------------------
 static const float terrainScale = 40;
-static const float minTerrainHeight = 0;
-static const float maxTerrainHeight = minTerrainHeight+terrainScale;
+static const float maxTerrainHeight = terrainScale;
 
 SamplerState LinearSampler;  
 Texture2D Heightmap;  
 
 float getTerrainHeight(in float2 pos)
 {
-	return Heightmap.SampleLevel(LinearSampler, pos*HeightmapSizeInv, 0).x * terrainScale + minTerrainHeight;
+	return Heightmap.SampleLevel(LinearSampler, pos*HeightmapSizeInv, 0).x * terrainScale;
 }
 
 float3 getTerrainNormal(in float3 pos)
 {
-	float2 off = HeightmapSizeInv;
-	float lod = 0.0f;
+	float4 h;
 	float2 texcoord = pos.xz * HeightmapSizeInv;
-    float3 n = float3(getTerrainHeight(float2(pos.x-off.x, pos.z)) - getTerrainHeight(float2(pos.x+off.x, pos.z)),
-						(off.x+off.y),
-					  getTerrainHeight(float2(pos.x, pos.z-off.y)) - getTerrainHeight(float2(pos.x, pos.z+off.y))  );
-    return normalize(n);
+	h[0] = Heightmap.SampleLevel(LinearSampler, texcoord + HeightmapSizeInv*float2( 0,-1), 0).r;
+	h[1] = Heightmap.SampleLevel(LinearSampler, texcoord + HeightmapSizeInv*float2( 0, 1), 0).r;
+	h[2] = Heightmap.SampleLevel(LinearSampler, texcoord + HeightmapSizeInv*float2( 1, 0), 0).r;
+	h[3] = Heightmap.SampleLevel(LinearSampler, texcoord + HeightmapSizeInv*float2(-1, 0), 0).r;
+	h *= terrainScale;
+	float3 vecdz = float3(0.0f, h[1] - h[0], 2);
+	float3 vecdx = float3(2, h[2] - h[3], 0.0f);
+    return normalize(cross(vecdz, vecdx));
 }
 
 // ------------------------------------------------
 // RAYMARCH CORE
 // ------------------------------------------------
+static const float maxStep = 1000;
 bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectionPoint, out float dist)
 {
 	if(rayDirection.y == 0)
 		return false;
 
 	// area
-	static const float maxStep = 200;
 	float upperBound = (maxTerrainHeight - rayOrigin.y) / rayDirection.y;
-	float lowerBound = (minTerrainHeight - rayOrigin.y) / rayDirection.y;
+	float lowerBound = (0				 - rayOrigin.y) / rayDirection.y;
 	if(lowerBound < 0.0 && upperBound < 0.0)
 		return false;
 	float start = max(min(upperBound, lowerBound), 5);
@@ -152,6 +152,8 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
     return false;
 }
 
+static const float Ambient = 0.3f;
+
 float4 PS(PS_INPUT input) : SV_Target
 {
     // "picking" - compute raydirection
@@ -179,13 +181,13 @@ float4 PS(PS_INPUT input) : SV_Target
 		if(rayCast(terrainPosition+LightDirection, LightDirection, null, distToShadowCaster))
 			lighting *= min(max(0.3, distToShadowCaster*0.01), 1.0);
 		
-		outColor = float3(1,1,1) * lighting;
+		outColor = float3(1,1,1) * lighting + float3(Ambient,Ambient,Ambient);
 
 
 		// FOGGING
 		// clever fog http://www.iquilezles.org/www/articles/fog/fog.htm
-	//	float fogAmount = min(1, 0.5 * exp(-CameraPosition.y  * 0.01) * (1.0 - exp( -dist*rayDirection.y* 0.01)) / rayDirection.y);
-	//	outColor = lerp(outColor, computeSkyColor(rayDirection), fogAmount);
+		float fogAmount = min(1, 0.5 * exp(-CameraPosition.y  * 0.01) * (1.0 - exp( -dist*rayDirection.y* 0.01)) / rayDirection.y);
+		outColor = lerp(outColor, computeSkyColor(rayDirection), fogAmount);
 	}
 	else
 	{
