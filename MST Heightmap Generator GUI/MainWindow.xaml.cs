@@ -55,8 +55,8 @@ namespace MST_Heightmap_Generator_GUI
                                             (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
 
    
-            //if(renderWindow.IsActive)
-                //renderWindow((int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight());
+            if(renderWindow != null)
+                renderWindow.TerrainPreview.LoadNewHeightMap(_heightmapData);
         }
 
         private void Sl_MaxHeight_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

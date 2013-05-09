@@ -1,10 +1,10 @@
 ﻿using SharpDX;
 using SharpDX.D3DCompiler;
-using SharpDX.Direct3D11;
 using SharpDX.Toolkit.Graphics;
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Linq;
 
 namespace MST_Heightmap_Generator_GUI
 {
@@ -16,13 +16,22 @@ namespace MST_Heightmap_Generator_GUI
         public bool Closing { get; set; }
 
         private GraphicsDevice graphicsDevice;
+        private Texture2D heightmapTexture;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HelloWorldGame" /> class.
         /// </summary>
         public TerrainRenderingPreview()
         {
-            
+        }
+
+        public void LoadNewHeightMap(float[,] heightmap)
+        {
+            if(heightmapTexture != null)
+                heightmapTexture.Dispose();
+
+            heightmapTexture = Texture2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), MipMapCount.Auto, PixelFormat.R32.Float);
+            heightmapTexture.SetData<float>(heightmap.Cast<float>().ToArray());    
         }
 
         void WPFHost.IScene.Attach(WPFHost.ISceneHost host)
@@ -52,6 +61,10 @@ namespace MST_Heightmap_Generator_GUI
             }
 
             terrainShader = new SharpDX.Toolkit.Graphics.Effect(graphicsDevice, terrainShaderCompileResult.EffectData);
+
+            // dummy heightmap
+            heightmapTexture = Texture2D.New(graphicsDevice, 1, 1, MipMapCount.Auto, PixelFormat.R32.Float);
+            heightmapTexture.SetData<float>(new float[] { 0.0f });    
         }
 
         void WPFHost.IScene.Detach()
@@ -78,7 +91,7 @@ namespace MST_Heightmap_Generator_GUI
             cameraConstantBuffer.Set(0, viewProjectionInverse);
             cameraConstantBuffer.Set(sizeof(float) * 4 * 4, camera.Position);
             cameraConstantBuffer.IsDirty = true;
-            
+            terrainShader.Parameters["Heightmap"].SetResource(heightmapTexture);
 
             // render screenspace terrain!
             terrainShader.CurrentTechnique.Passes[0].Apply();

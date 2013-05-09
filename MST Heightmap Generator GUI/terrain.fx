@@ -67,20 +67,19 @@ float3 computeSkyColor(in float3 ray)
 // ------------------------------------------------
 // TERRAIN
 // ------------------------------------------------
-static const float terrainScale = 10;
-static const float minTerrainHeight = -65;
+static const float terrainScale = 20;
+static const float minTerrainHeight = 0;
 static const float maxTerrainHeight = minTerrainHeight+terrainScale;
 
-
-SamplerState LinearSampler : register( s0 );  
-Texture2D Heightmap : register( t0 );  
+SamplerState LinearSampler;  
+Texture2D Heightmap;  
 
 static const float heightmapTiling = 0.004;
 static const float texelSize = 1.0/512.0;
 
 float getTerrainHeight(in float2 pos)
 {
-	return /*Heightmap.SampleLevel(LinearSampler, pos*heightmapTiling, lod).x*/ (sin(pos.x)+1) * terrainScale + minTerrainHeight;
+	return Heightmap.SampleLevel(LinearSampler, pos*heightmapTiling, 0).x * terrainScale + minTerrainHeight;
 }
 
 float3 getTerrainNormal(in float3 pos)
