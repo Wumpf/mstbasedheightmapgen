@@ -106,7 +106,7 @@ void HeightmapFactory::Generate(float* dataDestination)
 		uglyTestBuffer[i].z = rand()*0.01f/RAND_MAX;
 	}
 
-	OrE::ADT::Mesh* mst = ComputeMST( uglyTestBuffer, 50 );
+	OrE::ADT::Mesh* mst = ComputeMST( uglyTestBuffer, 200 );
 
 	GenerationDescriptor genDesc( _heightThreshold, _quadraticIncreasePercentage );
 	GenerateGraphBased_1( dataDestination, GetWidth(), GetHeight(), _pixelSize, *mst, genDesc );
@@ -115,7 +115,7 @@ void HeightmapFactory::Generate(float* dataDestination)
 
 	// Create more natural apeareance
 	AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
-		_heightThreshold * 0.5f,
+		_heightThreshold,
 		_frequencyHeightDependence/_heightThreshold,
 		_heightThreshold * _noiseIntensity,
 		0.01f);
