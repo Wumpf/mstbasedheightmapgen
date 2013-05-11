@@ -1,4 +1,5 @@
 ﻿using SharpDX;
+using System.Windows.Input;
 
 namespace MST_Heightmap_Generator_GUI
 {
@@ -6,19 +7,38 @@ namespace MST_Heightmap_Generator_GUI
     /// Abstract class for cameras
     /// you can easily make your own camera by inheriting this class
     /// </summary>
-    abstract class Camera
+    class Camera
     {
         // matrices
-        protected Matrix projectionMatrix;
-        protected Matrix viewMatrix = Matrix.Identity;
+        private Matrix projectionMatrix;
+        private Matrix viewMatrix = Matrix.Identity;
         // vectors
-        protected Vector3 viewDirection = new Vector3(0,0,1);
-        protected Vector3 position = new Vector3(0, 1, 0);
-        // projection properties
-        protected float aspectRatio;
-        protected float fov;
-        protected float nearPlane;
-        protected float farPlane;
+        private Vector3 viewDirection = new Vector3(0, 0, 1);
+        private Vector3 position = new Vector3(0, 1, 0);
+        
+        // projection stuff
+        public float AspectRatio
+        {
+            get { return aspectRatio; }
+            set { aspectRatio = value; RebuildProjectionMatrix(); }
+        }
+        private float aspectRatio;
+        private float fov;
+        private float nearPlane;
+        private float farPlane;
+
+        // movement factors variables
+        private float rotationSpeed = 0.01f;
+        private float forwardSpeed = 0.8f;
+        private float speedUpFactor = 10.0f;
+        private float sideSpeed = 0.8f;
+
+        // some intern controlling variables
+        private double phi = 0.0f;
+        private double theta = 0.0f;
+        private double lastMouseX = 0; // last x position of the mouse
+        private double lastMouseY = 0; // last y position of the mouse
+
 
         /// <summary>
         /// creates a new camera and sets a projection matrix up
@@ -71,18 +91,66 @@ namespace MST_Heightmap_Generator_GUI
         }
 
         /// <summary>
-        /// Updates the Camera.
-        /// Handles user input intern and updates matrices.
-        /// </summary>
-        public abstract void Update(float timeSinceLastFrame);
-
-        /// <summary>
         /// Intern function for recreating the projection matrix.
         /// Capsuling the Matrix.Create... makes it easy to exchange the type of projection
         /// </summary>
-        protected virtual void RebuildProjectionMatrix()
+        private void RebuildProjectionMatrix()
         {
             projectionMatrix = Matrix.PerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
         }
+
+        /// <summary>
+        /// Updates the Camera 
+        /// </summary>
+        public void Update(float passedTimeSinceLastFrame)
+        {
+            // mouse movement
+            UpdateThetaPhiFromMouse(passedTimeSinceLastFrame);
+
+            // resulting view direction
+            viewDirection = new Vector3((float)(System.Math.Cos(phi) * System.Math.Sin(theta)),
+                                        (float)(System.Math.Cos(theta)),
+                                        (float)(System.Math.Sin(phi) * System.Math.Sin(theta)));
+            // up vector - by rotation 90°
+            float theta2 = (float)theta + (float)System.Math.PI / 2.0f;
+            Vector3 upVec = new Vector3((float)(System.Math.Cos(phi) * System.Math.Sin(theta2)),
+                                        (float)(System.Math.Cos(theta2)),
+                                        (float)(System.Math.Sin(phi) * System.Math.Sin(theta2)));
+            // compute side
+            Vector3 sideVec = Vector3.Cross(upVec, viewDirection);
+
+            float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
+
+            // forward movement
+            float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Up) ? 1.0f : 0.0f) -
+                            (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Down) ? 1.0f : 0.0f);
+            Position += forward * forwardSpeed * viewDirection * speedUp;
+
+            // side movement
+            float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Right) ? 1.0f : 0.0f) -
+                         (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Left) ? 1.0f : 0.0f);
+            Position += side * sideSpeed * sideVec * speedUp;
+
+            // compute view matrix
+            viewMatrix = Matrix.LookAtLH(Position, Position + viewDirection, upVec);
+        }
+
+        /// <summary>
+        /// intern helper to update view angles by mouse
+        /// </summary>
+        protected void UpdateThetaPhiFromMouse(float passedTimeSinceLastFrame)
+        {
+            if (Mouse.RightButton == MouseButtonState.Pressed)
+            {
+                // mouse movement
+                double deltaX = Mouse.GetPosition(null).X - lastMouseX;
+                double deltaY = Mouse.GetPosition(null).Y - lastMouseY;
+                phi -= deltaX * rotationSpeed;
+                theta -= deltaY * rotationSpeed;
+            }
+            lastMouseX = Mouse.GetPosition(null).X;
+            lastMouseY = Mouse.GetPosition(null).Y;
+        }
+
     }
 }
