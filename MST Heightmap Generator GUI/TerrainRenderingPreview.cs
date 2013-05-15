@@ -30,7 +30,7 @@ namespace MST_Heightmap_Generator_GUI
         {
         }
 
-        public void LoadNewHeightMap(float[,] heightmap)
+        public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit)
         {
             if(heightmapTexture != null)
                 heightmapTexture.Dispose();
@@ -45,6 +45,8 @@ namespace MST_Heightmap_Generator_GUI
             var heightmapConstantBuffer = terrainShader.ConstantBuffers["HeightmapInfo"];
             heightmapConstantBuffer.Parameters["HeightmapSize"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
             heightmapConstantBuffer.Parameters["HeightmapSizeInv"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height));   // HeightmapSizeInv
+            heightmapConstantBuffer.Parameters["WorldUnitToHeightmapTexcoord"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height) * heightmapPixelPerWorldUnit);
+            heightmapConstantBuffer.Parameters["HeightmapPixelSizeInWorld"].SetValue(1.0f / heightmapPixelPerWorldUnit);
             heightmapConstantBuffer.IsDirty = true;
 
             terrainShader.Parameters["Heightmap"].SetResource(heightmapTexture);

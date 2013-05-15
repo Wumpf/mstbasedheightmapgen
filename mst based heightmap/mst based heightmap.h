@@ -1,5 +1,7 @@
 #pragma managed
 
+using namespace System::Runtime::InteropServices;
+
 using namespace System;
 class HeightmapFactory;
 
@@ -17,6 +19,9 @@ namespace MstBasedHeightmap {
 		///		dimension 0 is y and dimension 1 is x
 		void SetParameter(unsigned int type, array<float, 2>^ data);
 
+		void GetParameter(unsigned int type, array<float, 2>^ outData, [Out] unsigned int% outWidth, [Out] unsigned int% outHeight );
+
+		
 		/// \brief Returns the number of data values in X direction
 		unsigned int GetWidth();
 	

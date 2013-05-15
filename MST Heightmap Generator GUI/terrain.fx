@@ -12,6 +12,8 @@ cbuffer HeightmapInfo : register(b2)
 {
 	float2 HeightmapSize;
 	float2 HeightmapSizeInv;
+	float2 WorldUnitToHeightmapTexcoord;
+	float2 HeightmapPixelSizeInWorld;
 }
 
 // ------------------------------------------------
@@ -25,16 +27,16 @@ Texture2D Heightmap;
 
 float getTerrainHeight(in float2 pos)
 {
-	return Heightmap.SampleLevel(LinearSampler, pos*HeightmapSizeInv + 0.5, 0).x * terrainScale;
+	return Heightmap.SampleLevel(LinearSampler, pos*WorldUnitToHeightmapTexcoord + 0.5, 0).x * terrainScale;
 }
 
 float3 getTerrainNormal(in float3 pos)
 {
 	float4 h;
-	h[0] = getTerrainHeight(pos.xz + float2( 0,-1 ));
-	h[1] = getTerrainHeight(pos.xz + float2( 0, 1 ));
-	h[2] = getTerrainHeight(pos.xz + float2( 1, 0 ));
-	h[3] = getTerrainHeight(pos.xz + float2(-1, 0 ));
+	h[0] = getTerrainHeight(pos.xz + float2( 0,-HeightmapPixelSizeInWorld.y ));
+	h[1] = getTerrainHeight(pos.xz + float2( 0, HeightmapPixelSizeInWorld.y ));
+	h[2] = getTerrainHeight(pos.xz + float2( HeightmapPixelSizeInWorld.x, 0 ));
+	h[3] = getTerrainHeight(pos.xz + float2(-HeightmapPixelSizeInWorld.x, 0 ));
 	float3 vecdz = float3(0.0f, h[1] - h[0], 2);
 	float3 vecdx = float3(2, h[2] - h[3], 0.0f);
     return normalize(cross(vecdz, vecdx));

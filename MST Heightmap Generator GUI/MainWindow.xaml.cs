@@ -21,7 +21,7 @@ namespace MST_Heightmap_Generator_GUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(512, 512, 1);
+        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(512, 512, 2);
         float[,] _heightmapData;
 
       //  private WriteableBitmap imageContent;
@@ -55,7 +55,10 @@ namespace MST_Heightmap_Generator_GUI
                                             (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
 
             */   
-            terrainRenderingPreview.LoadNewHeightMap(_heightmapData);
+            uint width, height;
+            float[,] heightmapPixelsPerWorld = new float[1, 1];
+            _heightmapFactory.GetParameter(2, heightmapPixelsPerWorld, out width, out height);
+            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0]);
         }
 
         private void Sl_MaxHeight_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

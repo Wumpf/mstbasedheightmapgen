@@ -6,7 +6,7 @@
 
 HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float heightmapPixelPerWorldUnit) :
 	_resolutionX(static_cast<unsigned int>(worldSizeX * heightmapPixelPerWorldUnit)),
-	_resolutionY(static_cast<unsigned int>(worldSizeX * heightmapPixelPerWorldUnit)),
+	_resolutionY(static_cast<unsigned int>(worldSizeY * heightmapPixelPerWorldUnit)),
 	_worldSizeX(worldSizeX),
 	_worldSizeY(worldSizeY),
 	_pixelSize(1.0f/heightmapPixelPerWorldUnit),
@@ -89,6 +89,63 @@ void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsign
 	case 8:
 		assert( width == 1 && height == 1 );
 		_frequencyGradientDependence = data[0];
+		break;
+
+	default:
+		// Unimplemented parameter
+		assert( false );
+	};
+}
+
+void HeightmapFactory::GetParameter(unsigned int type, float* outData, unsigned int& outWidth, unsigned int& outHeight)
+{
+	assert(outData);
+
+	// default:
+	outWidth = 1;
+	outHeight = 1;
+
+	switch(type)
+	{
+	case 0:
+		outData[0] = _useInverseDistance;
+		break;
+
+	case 1:
+		// Get _worldSize
+		outData[0] = _worldSizeX;
+		outData[1] = _worldSizeY;
+		break;
+
+	case 2:
+		// Get resolution
+		outData[0] = 1.0f / _pixelSize;
+		break;
+
+	case 3:
+		// Get threshold
+		outData[0] = _heightThreshold;
+		break;
+
+	case 4:
+		// Get how much of the mountain has a quadratic spline.
+		outData[0] = _quadraticIncreasePercentage;
+		break;
+
+	case 5:
+		outData[0] = _seed;
+		break;
+
+	case 6:
+		outData[0] = _noiseIntensity;
+		break;
+
+	case 7:
+		outData[0] = _frequencyHeightDependence;
+		break;
+
+	case 8:
+		outData[0] = _frequencyGradientDependence;
 		break;
 
 	default:

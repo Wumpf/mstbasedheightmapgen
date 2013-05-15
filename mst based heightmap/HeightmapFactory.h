@@ -65,6 +65,7 @@ public:
 	///			behavior.
 	void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
 
+	void GetParameter(unsigned int type, float* outData, unsigned int& outWidth, unsigned int& outHeight);
 
 
 
