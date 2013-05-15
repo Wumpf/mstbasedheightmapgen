@@ -2,19 +2,14 @@ cbuffer Camera : register(b0)
 {
 	float4x4 InverseViewProjection; 
 	float3 CameraPosition;
+	float ScreenAspectRatio;
 }
 
-/*
-cbuffer Heightmap : register(b1)
+cbuffer HeightmapInfo : register(b2)
 {
-	float2 HeightmapSize	: packoffset(c0);
-	float2 HeightmapSizeInv : packoffset(c0.z);
-}*/
-float2 HeightmapSize;
-float2 HeightmapSizeInv;
-
-float ScreenAspectRatio;
-
+	float2 HeightmapSize;
+	float2 HeightmapSizeInv;
+}
 
 struct PS_INPUT
 {

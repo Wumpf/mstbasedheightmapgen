@@ -42,12 +42,10 @@ namespace MST_Heightmap_Generator_GUI
             camera.Position = new Vector3(heightmapTexture.Width/2, 100.0f, heightmapTexture.Height / 2);
 
             // setup heightmap cbuffer
-            /* var heightmapConstantBuffer = terrainShader.ConstantBuffers["Heightmap"];
-             heightmapConstantBuffer.Set(0, new Vector2(heightmapTexture.Width, heightmapTexture.Height));   // HeightmapSize
-             heightmapConstantBuffer.Set(sizeof(float) * 2, 1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height));   // HeightmapSizeInv
-             heightmapConstantBuffer.IsDirty = true;*/
-            terrainShader.Parameters["HeightmapSize"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
-            terrainShader.Parameters["HeightmapSizeInv"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height));
+            var heightmapConstantBuffer = terrainShader.ConstantBuffers["HeightmapInfo"];
+            heightmapConstantBuffer.Parameters["HeightmapSize"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
+            heightmapConstantBuffer.Parameters["HeightmapSizeInv"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height));   // HeightmapSizeInv
+            heightmapConstantBuffer.IsDirty = true;
 
             terrainShader.Parameters["Heightmap"].SetResource(heightmapTexture);
             terrainShader.Parameters["LinearSampler"].SetResource(linearSamplerState);
@@ -81,7 +79,7 @@ namespace MST_Heightmap_Generator_GUI
             }
 
             terrainShader = new SharpDX.Toolkit.Graphics.Effect(graphicsDevice, terrainShaderCompileResult.EffectData);
-            terrainShader.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
+            terrainShader.ConstantBuffers["Camera"].Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
 
             // linear sampler
             var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();
@@ -134,7 +132,7 @@ namespace MST_Heightmap_Generator_GUI
             cameraConstantBuffer.Set(0, viewProjectionInverse);
             cameraConstantBuffer.Set(sizeof(float) * 4 * 4, camera.Position);
             cameraConstantBuffer.IsDirty = true;
-            
+
             // render screenspace terrain!
             terrainShader.CurrentTechnique.Passes[0].Apply();
             graphicsDevice.Draw(PrimitiveType.PointList, 1);

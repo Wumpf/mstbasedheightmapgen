@@ -36,7 +36,7 @@ namespace MST_Heightmap_Generator_GUI
 
         // some intern controlling variables
         private double phi = 0.0f;
-        private double theta = 0.0f;
+        private double theta = -MathUtil.Pi/2;
         private double lastMouseX = 0; // last x position of the mouse
         private double lastMouseY = 0; // last y position of the mouse
 
