@@ -1,3 +1,6 @@
+#include "vertexprocessing.fx"
+#include "sky.fx"
+
 cbuffer Camera : register(b0)
 {
 	float4x4 InverseViewProjection; 
@@ -9,73 +12,6 @@ cbuffer HeightmapInfo : register(b2)
 {
 	float2 HeightmapSize;
 	float2 HeightmapSizeInv;
-}
-
-struct PS_INPUT
-{
-    float4 Pos : SV_POSITION;
-	float2 DevicePos : TEXCOORD0;
-};
-
-struct GS_INPUT
-{
-};
-
-
-GS_INPUT VS()
-{
-	GS_INPUT output;
-	return output;
-}
-
-[maxvertexcount(3)]
-void GS(point GS_INPUT p[1], inout TriangleStream<PS_INPUT> TriStream )
-{
-	PS_INPUT vertices[3];
-	vertices[0].Pos = float4(-1, 1, 0, 1);
-	vertices[1].Pos = float4( 3,  1, 0, 1);
-	vertices[2].Pos = float4(-1, -3, 0, 1);
-	vertices[0].DevicePos = vertices[0].Pos.xy;
-	vertices[1].DevicePos = vertices[1].Pos.xy;
-	vertices[2].DevicePos = vertices[2].Pos.xy;
-	TriStream.Append(vertices[0]);
-	TriStream.Append(vertices[1]);
-	TriStream.Append(vertices[2]);
-	TriStream.RestartStrip();
-}
-
-// ------------------------------------------------
-// SKY
-// ------------------------------------------------
-static const float3 AdditonalSunColor = float3(1.0, 0.98, 0.8)/3;
-static const float3 LowerHorizonColour = float3(0.815, 1.141, 1.54)/2;
-static const float3 UpperHorizonColour = float3(0.986, 1.689, 2.845)/2;
-static const float3 UpperSkyColour = float3(0.16, 0.27, 0.43)*0.8;
-static const float3 GroundColour = float3(0.31, 0.41, 0.5)*0.8;
-static const float LowerHorizonHeight = -0.4;
-static const float UpperHorizonHeight = -0.1;
-static const float SunAttenuation = 2;
-
-static const float3 LightDirection = float3(-0.577, 0.577, -0.577);
-
-float3 computeSkyColor(in float3 ray)
-{
-	float3 color;
-
-	// background
-	float heightValue = ray.y;	// mirror..
-	if(heightValue < LowerHorizonHeight)
-		color = lerp(GroundColour, LowerHorizonColour, (heightValue+1) / (LowerHorizonHeight+1));
-	else if(heightValue < UpperHorizonHeight)
-		color = lerp(LowerHorizonColour, UpperHorizonColour, (heightValue-LowerHorizonHeight) / (UpperHorizonHeight - LowerHorizonHeight));
-	else
-		color = lerp(UpperHorizonColour, UpperSkyColour, (heightValue-UpperHorizonHeight) / (1.0-UpperHorizonHeight));
-	
-	// Sun
-	float angle = max(0, dot(ray, LightDirection));
-	color += (pow(angle, SunAttenuation) + pow(angle, 10000)*10) * AdditonalSunColor;
-
-	return color;
 }
 
 // ------------------------------------------------
@@ -115,16 +51,18 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 
 	// area
 	float upperBound = (maxTerrainHeight - rayOrigin.y) / rayDirection.y;
-	float lowerBound = (0				 - rayOrigin.y) / rayDirection.y;
+	float lowerBound = (-10				 - rayOrigin.y) / rayDirection.y;
+
 	if(lowerBound < 0.0 && upperBound < 0.0)
 		return false;
 	float start = max(min(upperBound, lowerBound), 5);
-	float end   = min(max(upperBound, lowerBound), maxStep);
+	float end   = min(max(upperBound, lowerBound), maxStep) - 0.0001f;
 
 	// go!
 	float lh = 0.0;
 	float ly = 0.0;
 	float lt = start;
+	float delt;
 	for(float t=start; t<end; t*=1.011)
 	{
 		float3 pos = rayOrigin + rayDirection * t;
@@ -138,14 +76,13 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 			return true;
         }
 		lt = t;
-	//	stepLen = 0.012 * t;	// addaptive error
 		lh = h;
 		ly = pos.y;
 	}
     return false;
 }
 
-
+// heightmap display in upper right corner
 static const float heightmapCornerSize = 0.5f;
 bool RenderHeightmapInCorner(float2 deviceCor, out float4 color)
 {

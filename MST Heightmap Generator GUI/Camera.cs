@@ -153,10 +153,10 @@ namespace MST_Heightmap_Generator_GUI
             }
             else
             {
-                theta += (Keyboard.IsKeyDown(Key.Up) ? rotationSpeed * 10 : 0.0f);
-                theta -= (Keyboard.IsKeyDown(Key.Down) ? rotationSpeed * 10 : 0.0f);
-                phi -= (Keyboard.IsKeyDown(Key.Right) ? rotationSpeed * 10 : 0.0f);
-                phi += (Keyboard.IsKeyDown(Key.Left) ? rotationSpeed * 10 : 0.0f);
+                theta += (Keyboard.IsKeyDown(Key.Up) ? rotationSpeed * passedTimeSinceLastFrame * 0.3f : 0.0f);
+                theta -= (Keyboard.IsKeyDown(Key.Down) ? rotationSpeed * passedTimeSinceLastFrame * 0.3f : 0.0f);
+                phi -= (Keyboard.IsKeyDown(Key.Right) ? rotationSpeed * passedTimeSinceLastFrame * 0.3f : 0.0f);
+                phi += (Keyboard.IsKeyDown(Key.Left) ? rotationSpeed * passedTimeSinceLastFrame * 0.3f : 0.0f);
             }
 
 
