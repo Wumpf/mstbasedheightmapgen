@@ -190,7 +190,7 @@ void HeightmapFactory::Generate(float* dataDestination)
 		_frequencyHeightDependence/_heightThreshold,
 		_frequencyGradientDependence,
 		_heightThreshold * _noiseIntensity,
-		0.01f);
+		0.01f );
 
 	// Normalize for visual output
 	Normalize( dataDestination, GetWidth(), GetHeight() );

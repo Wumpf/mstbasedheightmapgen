@@ -51,16 +51,19 @@ struct BufferDescriptor {
 	float pixelSize;
 };
 
+inline float sqr( float _x )	{ return _x*_x; }
+
 static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, int numLines, const OrE::ADT::Mesh* mst,
 						   const GenerationDescriptor& generatorDesc )
 {
+	const float maxHeight = sqr(generatorDesc._heightThreshold + generatorDesc._quadraticIncrease);
 	for( int i=0; i<numLines; ++i )
 	{
 		int yw = (y+i)*bufferDesc->width;
 		for( int x=0; x<bufferDesc->width; ++x )
 		{
-			float height = generatorDesc._heightThreshold + generatorDesc._quadraticIncrease;
-			height *= height;
+			float height = generatorDesc._useInverseDistance ? -generatorDesc._quadraticIncrease : maxHeight;
+			float mindistance = maxHeight;
 			// Compute minimum distance to the mst for each pixel
 			auto it = mst->GetEdgeIterator();
 			while( ++it )
@@ -69,18 +72,34 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
 										((PNode*)it->GetDst())->GetPos(),
 										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize, r );
-				if( height > distance )
-					height = distance;
+				float parameterHeight = lrp( ((PNode*)it->GetSrc())->GetPos(), ((PNode*)it->GetDst())->GetPos(), r ).z * 100.0f;
+				if( generatorDesc._useInverseDistance )
+				{
+					height = max(height, (generatorDesc._heightThreshold-sqrtf(distance)) * parameterHeight);
+				} else {
+					height = min(height, generatorDesc._heightThreshold-(generatorDesc._heightThreshold-sqrtf(distance))*parameterHeight);
+				}
+/*				if( mindistance > distance*parameterHeight )
+				{
+					mindistance = distance*parameterHeight;
+				//	height = maxheight - (maxheight-distance) * parameterHeight;
+					if( generatorDesc._useInverseDistance )
+						height = (generatorDesc._heightThreshold-sqrtf(distance)) * parameterHeight;
+					else
+						height = sqrtf(mindistance);
+				}		*/
 			}
 
 			// Make it linear (squared distance was searched)
-			height = sqrtf( height );
+			//height = sqrtf( height );
+
+			//height = max( 0.0f, min( generatorDesc._heightThreshold, height ) );
 
 			// Transform linear increase into a decrease of mountain flanks
-			if( generatorDesc._useInverseDistance )
+			/*if( generatorDesc._useInverseDistance )
 				height = -height + generatorDesc._heightThreshold;
 			else
-				height = min(height, generatorDesc._heightThreshold);
+				height = min(height, generatorDesc._heightThreshold);//*/
 			// Transform foot of the mountain with quadratic spline
 			if( height >= generatorDesc._quadraticIncrease )
 				bufferDesc->dataDestination[yw+x] = height;
