@@ -11,14 +11,17 @@ namespace MST_Heightmap_Generator_GUI
     public class TerrainRenderingPreview : WPFHost.IScene
     {
         private SharpDX.Toolkit.Graphics.Effect terrainShader;
-        private FreeCamera camera;
+        private Camera camera;
 
         public bool Closing { get; set; }
 
+        private WPFHost.ISceneHost host;
         private GraphicsDevice graphicsDevice;
         private Texture2D heightmapTexture;
 
         private SamplerState linearSamplerState;
+
+        private bool resizeNeeded = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HelloWorldGame" /> class.
@@ -52,7 +55,8 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Attach(WPFHost.ISceneHost host)
         {
-            camera = new FreeCamera((float)host.RenderTargetWidth / host.RenderTargetHeight);
+            this.host = host;
+            camera = new Camera((float)host.RenderTargetWidth / host.RenderTargetHeight, (float)(75.0 * Math.PI / 180.0), 0.1f, 10000.0f);
 
             // device setup
             if (host.Device == null)
@@ -78,9 +82,6 @@ namespace MST_Heightmap_Generator_GUI
 
             terrainShader = new SharpDX.Toolkit.Graphics.Effect(graphicsDevice, terrainShaderCompileResult.EffectData);
 
-            terrainShader.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
-
-            
             // linear sampler
             var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();
             samplerStateDesc.AddressV = SharpDX.Direct3D11.TextureAddressMode.Border;
@@ -103,6 +104,22 @@ namespace MST_Heightmap_Generator_GUI
         void WPFHost.IScene.Update(TimeSpan sceneTime)
         {
             camera.Update((float)sceneTime.TotalSeconds);
+
+            lock (this)
+            {
+                if (resizeNeeded)
+                {
+                    // todo: new camera sucks
+                    camera.AspectRatio = (float)host.RenderTargetWidth / host.RenderTargetHeight;   
+
+                    // set new backbuffer
+                    RenderTarget2D backbufferRenderTarget = RenderTarget2D.New(graphicsDevice, host.RenderTargetView, true);
+                    graphicsDevice.Presenter = new RenderTargetGraphicsPresenter(graphicsDevice, backbufferRenderTarget);
+                    graphicsDevice.SetRenderTargets(backbufferRenderTarget);
+
+                    terrainShader.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
+                }
+            }
         }
 
         void WPFHost.IScene.Render()
@@ -120,6 +137,17 @@ namespace MST_Heightmap_Generator_GUI
             // render screenspace terrain!
             terrainShader.CurrentTechnique.Passes[0].Apply();
             graphicsDevice.Draw(PrimitiveType.PointList, 1);
+        }
+
+        void WPFHost.IScene.OnResize(WPFHost.ISceneHost host)
+        {
+            if (graphicsDevice == null)
+                return;
+
+            lock (this)
+            {
+                resizeNeeded = true;
+            }
         }
     }
 }

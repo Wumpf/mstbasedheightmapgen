@@ -100,7 +100,6 @@
     <Compile Include="WPFHost\Disposer.cs" />
     <Compile Include="WPFHost\DPFCanvas.cs" />
     <Compile Include="WPFHost\DX11ImageSource.cs" />
-    <Compile Include="FreeCamera.cs" />
     <Compile Include="WPFHost\IScene.cs" />
     <Compile Include="TerrainRenderingPreview.cs" />
     <Page Include="MainWindow.xaml">

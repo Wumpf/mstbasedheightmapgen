@@ -175,6 +175,9 @@ namespace WPFHost
         {
             this.CreateAndBindTargets();
             base.OnRenderSizeChanged(sizeInfo);
+
+            if (RenderScene != null)
+                RenderScene.OnResize(this);
         }
 
         void Render(TimeSpan sceneTime)

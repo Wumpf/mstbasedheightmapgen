@@ -34,7 +34,10 @@ namespace WPFHost
     {
         void Attach(ISceneHost host);
         void Detach();
+
         void Update(TimeSpan timeSpan);
         void Render();
+
+        void OnResize(ISceneHost host);
     }
 }
