@@ -11,11 +11,11 @@
             <RowDefinition Height="1*" MinHeight="512" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions >
-            <ColumnDefinition Width="159" />
-            <ColumnDefinition Width="141" />
+            <ColumnDefinition Width="140" />
+            <ColumnDefinition Width="160" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="1" Content="Generate Heightmap" VerticalAlignment="Bottom" Height="23" Click="GenerateHeightmap" Margin="10,0,10,10"/>
+        <Button Grid.Column="1" Content="Generate Heightmap" VerticalAlignment="Bottom" Height="23" Click="GenerateHeightmap" Margin="10,0,10,10" Focusable="False"/>
         <Slider Grid.Row="0" Grid.Column="1" Margin="10,8,10,0" VerticalAlignment="Top" Height="26" Maximum="100" LargeChange="5" SmallChange="1" Minimum="1" ValueChanged="Sl_MaxHeight_Changed" Value="50"/>
         <Label Grid.Row="0" Grid.Column="0" Content="Maximum Height" Margin="0,8,10,0" VerticalAlignment="Top" Height="26"/>
 
@@ -25,10 +25,14 @@
         <Slider Grid.Row="0" Grid.Column="1" Margin="11,72,10,0" VerticalAlignment="Top" Height="26" Maximum="3" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_NoiseIntensity_Changed" Value="1.0"/>
         <Label Grid.Row="0" Grid.Column="0" Content="Noise Intensity" Margin="0,70,10,0" VerticalAlignment="Top" Height="26"/>
 
-        <Label Grid.Row="0" Grid.Column="0" Content="Noise Height Dependency" Margin="0,101,10,0" VerticalAlignment="Top" Height="26"/>
-        <Slider Grid.Row="0" Grid.Column="1" Margin="10,103,10,0" VerticalAlignment="Top" Height="26" Maximum="2" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_NoiseHeightDependency_Changed" Value="0.5"/>
+        <Label Grid.Row="0" Grid.Column="0" Content="Height Dependency" Margin="0,101,32,0" VerticalAlignment="Top" Height="26"/>
+        <Slider Grid.Row="0" Grid.Column="1" Margin="10,101,10,0" VerticalAlignment="Top" Height="26" Maximum="2" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_NoiseHeightDependency_Changed" Value="0.5"/>
 
         <TextBox Margin="10,0,10,10" TextWrapping="Wrap" Text="Seed" TextChanged="TB_Seed_Changed" Height="23" VerticalAlignment="Bottom"/>
+
+        <Label Grid.Row="0" Grid.Column="0" Content="Gradient Dependency" Margin="0,132,32,0" VerticalAlignment="Top" Height="26"/>
+        <Slider Grid.Row="0" Grid.Column="1" Margin="11,132,9,0" VerticalAlignment="Top" Height="26" Maximum="0.025" LargeChange="0.005" SmallChange="0.001" ValueChanged="Sl_GradientDependency_Changed" Value="0.005"/>
+
         <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill"/>
     </Grid>
 </Window>

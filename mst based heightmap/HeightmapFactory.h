@@ -57,6 +57,9 @@ public:
 	///		* 7: Influence of the height to the noise frequency. A value of 0
 	///			disables the dependency. Too large values cause a very instable
 	///			behavior.
+	///		* 8: Influence of the gradient to the noise frequency. A value of 0
+	///			disables the dependency. Too large values cause a very instable
+	///			behavior.
 	void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
 
 
@@ -92,5 +95,6 @@ private:
 
 	float _noiseIntensity;				///<\brief Amount of perlin noise added to the map.
 	float _frequencyHeightDependence;	///<\brief Frequence shift depending on the terrain height.
+	float _frequencyGradientDependence;	///<\brief Frequence shift depending on the terrain gradient.
 };
 

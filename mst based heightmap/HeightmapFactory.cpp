@@ -80,6 +80,15 @@ void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsign
 		assert( width == 1 && height == 1 );
 		_frequencyHeightDependence = data[0];
 		break;
+
+	case 8:
+		assert( width == 1 && height == 1 );
+		_frequencyGradientDependence = data[0];
+		break;
+
+	default:
+		// Unimplemented parameter
+		assert( false );
 	};
 }
 
@@ -117,6 +126,7 @@ void HeightmapFactory::Generate(float* dataDestination)
 	AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
 		_heightThreshold,
 		_frequencyHeightDependence/_heightThreshold,
+		_frequencyGradientDependence,
 		_heightThreshold * _noiseIntensity,
 		0.01f);
 

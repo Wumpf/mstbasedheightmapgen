@@ -12,5 +12,6 @@ void Normalize( float* dataDestination, int width, int height );
 void AddNoise( float* dataDestination, int width, int height, int _iSeed,
 			   float frequenceDependencyOffset,
 			   float frequenceHeightDependency,
+			   float frequenceGradientDependency,
 			   float noiseIntensity,
 			   float horizontalNoiseScale );

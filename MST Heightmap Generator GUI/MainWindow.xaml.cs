@@ -94,5 +94,11 @@ namespace MST_Heightmap_Generator_GUI
             float[,] value = { { (float)e.NewValue } };
             _heightmapFactory.SetParameter(7, value);
         }
+
+        private void Sl_GradientDependency_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            float[,] value = { { (float)e.NewValue } };
+            _heightmapFactory.SetParameter(8, value);
+        }
     }
 }

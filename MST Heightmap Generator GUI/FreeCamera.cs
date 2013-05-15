@@ -54,6 +54,7 @@ namespace MST_Heightmap_Generator_GUI
         protected float forwardSpeed = 0.8f;
         protected float speedUpFactor = 10.0f;
         protected float sideSpeed = 0.8f;
+        protected float upSpeed = 0.7f;
 
         // some intern controlling variables
         protected double phi = 0.0f;
@@ -92,6 +93,10 @@ namespace MST_Heightmap_Generator_GUI
             float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Right) ? 1.0f : 0.0f) -
                          (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Left) ? 1.0f : 0.0f);
             Position += side * sideSpeed * sideVec * speedUp;
+
+            // upward movement
+            float up = Keyboard.IsKeyDown(Key.Space) ? 1.0f : 0.0f;
+            Position += up * upSpeed * upVec;
 
             // compute view matrix
             viewMatrix = Matrix.LookAtLH(Position, Position + viewDirection, upVec);

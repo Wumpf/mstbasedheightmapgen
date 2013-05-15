@@ -70,19 +70,18 @@ struct AddNoiseParam {
 
 	float frequenceDependencyOffset;
 	float frequenceHeightDependency;
+	float frequenceGradientDependency;
 	float noiseIntensity;
 	float horizontalNoiseScale;
 };
 
 
-// Temporal parametrization: TODO Make these factors global influenceable from GUI
-const float SCALE_HORIZONTAL = 0.01f;
-const float SCALE_VERTICAL = 60.0f;
-const float FREQUENCE_HIGH_DEPENDENCY = 0.5f/SCALE_VERTICAL;
 
 float calculateFrequenceAmplitude( const AddNoiseParam& bufferDesc, float _fCurrentHeight, float _fFrequence, float _fGradientX, float _fGradientY )
 {
-	return min( 10.0f, exp( (_fCurrentHeight-bufferDesc.frequenceDependencyOffset) * bufferDesc.frequenceHeightDependency) / _fFrequence );
+	float fHeightDependency = exp( (_fCurrentHeight-bufferDesc.frequenceDependencyOffset) * bufferDesc.frequenceHeightDependency);
+	float fGradientDependency = 1.0f + sqrt(_fGradientX*_fGradientX + _fGradientY*_fGradientY) * bufferDesc.frequenceGradientDependency;
+	return min( 10.0f, fHeightDependency*fGradientDependency / _fFrequence );
 }
 
 // Uses several blending methods to add noise to the terrain.
@@ -121,6 +120,7 @@ static void AddNoise_Kernel( AddNoiseParam* bufferDesc, int y, int numLines )
 void AddNoise( float* dataDestination, int width, int height, int _iSeed,
 			   float frequenceDependencyOffset,
 			   float frequenceHeightDependency,
+			   float frequenceGradientDependency,
 			   float noiseIntensity,
 			   float horizontalNoiseScale )
 {
@@ -129,7 +129,7 @@ void AddNoise( float* dataDestination, int width, int height, int _iSeed,
 
 	SetSeed( _iSeed );
 	AddNoiseParam bufferDesc = { dataDestination, width, height, int(log( max(width, height) )/log(2)),
-		frequenceDependencyOffset, frequenceHeightDependency, noiseIntensity, horizontalNoiseScale };
+		frequenceDependencyOffset, frequenceHeightDependency, frequenceGradientDependency, noiseIntensity, horizontalNoiseScale };
 
 	//AddNoise_Kernel( &bufferDesc, 0, height );
 
