@@ -133,7 +133,7 @@ namespace MST_Heightmap_Generator_GUI
             cameraConstantBuffer.Set(0, viewProjectionInverse);
             cameraConstantBuffer.Set(sizeof(float) * 4 * 4, camera.Position);
             cameraConstantBuffer.IsDirty = true;
-
+            
             // render screenspace terrain!
             terrainShader.CurrentTechnique.Passes[0].Apply();
             graphicsDevice.Draw(PrimitiveType.PointList, 1);

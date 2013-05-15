@@ -123,13 +123,11 @@ namespace MST_Heightmap_Generator_GUI
             float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
 
             // forward movement
-            float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Up) ? 1.0f : 0.0f) -
-                            (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Down) ? 1.0f : 0.0f);
+            float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f);
             Position += forward * forwardSpeed * viewDirection * speedUp;
 
             // side movement
-            float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) + (Keyboard.IsKeyDown(Key.Right) ? 1.0f : 0.0f) -
-                         (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.Left) ? 1.0f : 0.0f);
+            float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f);
             Position += side * sideSpeed * sideVec * speedUp;
 
             // upward movement
@@ -153,6 +151,15 @@ namespace MST_Heightmap_Generator_GUI
                 phi -= deltaX * rotationSpeed;
                 theta -= deltaY * rotationSpeed;
             }
+            else
+            {
+                theta += (Keyboard.IsKeyDown(Key.Up) ? rotationSpeed * 10 : 0.0f);
+                theta -= (Keyboard.IsKeyDown(Key.Down) ? rotationSpeed * 10 : 0.0f);
+                phi -= (Keyboard.IsKeyDown(Key.Right) ? rotationSpeed * 10 : 0.0f);
+                phi += (Keyboard.IsKeyDown(Key.Left) ? rotationSpeed * 10 : 0.0f);
+            }
+
+
             lastMouseX = Mouse.GetPosition(null).X;
             lastMouseY = Mouse.GetPosition(null).Y;
         }
