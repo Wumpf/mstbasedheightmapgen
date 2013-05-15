@@ -165,7 +165,10 @@ bool RenderHeightmapInCorner(float2 deviceCor, out float4 color)
 		return true;
 	}
 	else
+	{
+		color = float4(1,0,1,1);
 		return false;
+	}
 }
 
 static const float Ambient = 0.3f;

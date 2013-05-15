@@ -81,6 +81,7 @@ namespace MST_Heightmap_Generator_GUI
             }
 
             terrainShader = new SharpDX.Toolkit.Graphics.Effect(graphicsDevice, terrainShaderCompileResult.EffectData);
+            terrainShader.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
 
             // linear sampler
             var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();
@@ -92,7 +93,7 @@ namespace MST_Heightmap_Generator_GUI
 
             // dummy heightmap
             heightmapTexture = Texture2D.New(graphicsDevice, 1, 1, MipMapCount.Auto, PixelFormat.R32.Float);
-            heightmapTexture.SetData<float>(new float[] { 0.0f });    
+            heightmapTexture.SetData<float>(new float[] { 0.0f });
         }
 
         void WPFHost.IScene.Detach()
