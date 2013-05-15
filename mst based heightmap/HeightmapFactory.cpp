@@ -120,7 +120,7 @@ void HeightmapFactory::Generate(float* dataDestination)
 		uglyTestBuffer[i].z = rand()*0.01f/RAND_MAX;
 	}
 
-	OrE::ADT::Mesh* mst = ComputeMST( uglyTestBuffer, 200 );
+	OrE::ADT::Mesh* mst = ComputeMST( uglyTestBuffer, 20 );
 
 	GenerationDescriptor genDesc( _useInverseDistance, _heightThreshold, _quadraticIncreasePercentage );
 	GenerateGraphBased_1( dataDestination, GetWidth(), GetHeight(), _pixelSize, *mst, genDesc );
