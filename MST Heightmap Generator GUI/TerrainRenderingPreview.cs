@@ -39,7 +39,7 @@ namespace MST_Heightmap_Generator_GUI
             heightmapTexture.SetData<float>(heightmap.Cast<float>().ToArray());
 
             // setup camera
-            camera.Position = new Vector3(heightmapTexture.Width/2, 100.0f, heightmapTexture.Height / 2);
+           // camera.Position = new Vector3(heightmapTexture.Width/2, 100.0f, heightmapTexture.Height / 2);
 
             // setup heightmap cbuffer
             /* var heightmapConstantBuffer = terrainShader.ConstantBuffers["Heightmap"];
