@@ -11,11 +11,13 @@ OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints );
 
 
 struct GenerationDescriptor {
-	float _heightThreshold;	/// <<\brief Cuts the distance function at a certain level.
+	bool _useInverseDistance;
+	float _heightThreshold;		///< Cuts the distance function at a certain level.
 	float _quadraticIncrease;
 
-	GenerationDescriptor(float heightThreshold, float quadraticIncreasePercentage) :
-		_heightThreshold(heightThreshold)
+	GenerationDescriptor(bool useInverseDistance, float heightThreshold, float quadraticIncreasePercentage) :
+		_heightThreshold(heightThreshold),
+		_useInverseDistance(useInverseDistance)
 	{
 		// Compute spline factors for the quadraticIncrease percentage.
 		// The spline is: ax^2

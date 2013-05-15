@@ -15,23 +15,30 @@
             <ColumnDefinition Width="160" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="1" Content="Generate Heightmap" VerticalAlignment="Bottom" Height="23" Click="GenerateHeightmap" Margin="10,0,10,10" Focusable="False"/>
-        <Slider Grid.Row="0" Grid.Column="1" Margin="10,8,10,0" VerticalAlignment="Top" Height="26" Maximum="100" LargeChange="5" SmallChange="1" Minimum="1" ValueChanged="Sl_MaxHeight_Changed" Value="50"/>
-        <Label Grid.Row="0" Grid.Column="0" Content="Maximum Height" Margin="0,8,10,0" VerticalAlignment="Top" Height="26"/>
+        <Label Grid.Row="0" Grid.Column="0" Content="Generator" Margin="-1,5,11,0" VerticalAlignment="Top" Height="26"/>
+        <ComboBox Name="GeneratorSelection" Grid.Column="1" HorizontalAlignment="Left" Height="26" Margin="10,5,0,0" VerticalAlignment="Top" Width="139" SelectedIndex="1" SelectionChanged="Cb_Generator_Changed">
+            <ComboBoxItem Content="MST Distance"/>
+            <ComboBoxItem Content="MST Inverse Distance"/>
+        </ComboBox>
 
-        <Slider Grid.Row="0" Grid.Column="1" Margin="10,41,10,0" VerticalAlignment="Top" Height="26" Maximum="1" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_QuadraticSpline_Changed" Value="0.3"/>
-        <Label Grid.Row="0" Grid.Column="0" Content="Quadratic Spline" Margin="0,39,10,0" VerticalAlignment="Top" Height="26"/>
+        <Slider Grid.Row="0" Grid.Column="1" Margin="9,36,11,0" VerticalAlignment="Top" Height="26" Maximum="100" LargeChange="5" SmallChange="1" Minimum="1" ValueChanged="Sl_MaxHeight_Changed" Value="50"/>
+        <Label Grid.Row="0" Grid.Column="0" Content="Maximum Height" Margin="-1,36,11,0" VerticalAlignment="Top" Height="26"/>
 
-        <Slider Grid.Row="0" Grid.Column="1" Margin="11,72,10,0" VerticalAlignment="Top" Height="26" Maximum="3" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_NoiseIntensity_Changed" Value="1.0"/>
-        <Label Grid.Row="0" Grid.Column="0" Content="Noise Intensity" Margin="0,70,10,0" VerticalAlignment="Top" Height="26"/>
+        <Slider Grid.Row="0" Grid.Column="1" Margin="9,69,11,0" VerticalAlignment="Top" Height="26" Maximum="1" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_QuadraticSpline_Changed" Value="0.3"/>
+        <Label Grid.Row="0" Grid.Column="0" Content="Quadratic Spline" Margin="-1,67,11,0" VerticalAlignment="Top" Height="26"/>
 
-        <Label Grid.Row="0" Grid.Column="0" Content="Height Dependency" Margin="0,101,32,0" VerticalAlignment="Top" Height="26"/>
-        <Slider Grid.Row="0" Grid.Column="1" Margin="10,101,10,0" VerticalAlignment="Top" Height="26" Maximum="2" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_NoiseHeightDependency_Changed" Value="0.5"/>
+        <Slider Grid.Row="0" Grid.Column="1" Margin="10,100,11,0" VerticalAlignment="Top" Height="26" Maximum="3" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_NoiseIntensity_Changed" Value="1.0"/>
+        <Label Grid.Row="0" Grid.Column="0" Content="Noise Intensity" Margin="-1,98,11,0" VerticalAlignment="Top" Height="26"/>
+
+        <Label Grid.Row="0" Grid.Column="0" Content="Height Dependency" Margin="-1,129,11,0" VerticalAlignment="Top" Height="26"/>
+        <Slider Grid.Row="0" Grid.Column="1" Margin="9,129,11,0" VerticalAlignment="Top" Height="26" Maximum="2" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_NoiseHeightDependency_Changed" Value="0.5"/>
 
         <TextBox Margin="10,0,10,10" TextWrapping="Wrap" Text="Seed" TextChanged="TB_Seed_Changed" Height="23" VerticalAlignment="Bottom"/>
 
-        <Label Grid.Row="0" Grid.Column="0" Content="Gradient Dependency" Margin="0,132,32,0" VerticalAlignment="Top" Height="26"/>
-        <Slider Grid.Row="0" Grid.Column="1" Margin="11,132,9,0" VerticalAlignment="Top" Height="26" Maximum="0.025" LargeChange="0.005" SmallChange="0.001" ValueChanged="Sl_GradientDependency_Changed" Value="0.005"/>
+        <Label Grid.Row="0" Grid.Column="0" Content="Gradient Dependency" Margin="-1,160,11,0" VerticalAlignment="Top" Height="26"/>
+        <Slider Grid.Row="0" Grid.Column="1" Margin="10,160,10,0" VerticalAlignment="Top" Height="26" Maximum="0.025" LargeChange="0.005" SmallChange="0.001" ValueChanged="Sl_GradientDependency_Changed" Value="0.005"/>
+
+        <Button Grid.Column="1" Content="Generate Heightmap" VerticalAlignment="Bottom" Height="23" Click="GenerateHeightmap" Margin="10,0,10,10" Focusable="False"/>
 
         <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill"/>
     </Grid>

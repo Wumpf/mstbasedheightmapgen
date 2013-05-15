@@ -14,7 +14,8 @@ HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float hei
 	_quadraticIncreasePercentage(0.3f),
 	_seed( 1111 ),
 	_noiseIntensity(1.0f),
-	_frequencyHeightDependence(0.5f)
+	_frequencyHeightDependence(0.5f),
+	_useInverseDistance(true)
 {
 	assert(worldSizeX > 0);
 	assert(worldSizeY > 0);
@@ -33,7 +34,11 @@ void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsign
 
 	switch(type)
 	{
-	case 0: break;
+	case 0:
+		// Set generator type
+		assert( width == 1 && height == 1 );
+		_useInverseDistance = 1.0f == data[0];
+		break;
 
 	case 1:
 		// Reset _worldSize
@@ -117,7 +122,7 @@ void HeightmapFactory::Generate(float* dataDestination)
 
 	OrE::ADT::Mesh* mst = ComputeMST( uglyTestBuffer, 20 );
 
-	GenerationDescriptor genDesc( _heightThreshold, _quadraticIncreasePercentage );
+	GenerationDescriptor genDesc( _useInverseDistance, _heightThreshold, _quadraticIncreasePercentage );
 	GenerateGraphBased_1( dataDestination, GetWidth(), GetHeight(), _pixelSize, *mst, genDesc );
 	delete mst;
 	delete[] uglyTestBuffer;

@@ -89,18 +89,16 @@ Texture2D Heightmap;
 
 float getTerrainHeight(in float2 pos)
 {
-	return Heightmap.SampleLevel(LinearSampler, pos*HeightmapSizeInv, 0).x * terrainScale;
+	return Heightmap.SampleLevel(LinearSampler, pos*HeightmapSizeInv + 0.5, 0).x * terrainScale;
 }
 
 float3 getTerrainNormal(in float3 pos)
 {
 	float4 h;
-	float2 texcoord = pos.xz * HeightmapSizeInv;
-	h[0] = Heightmap.SampleLevel(LinearSampler, texcoord + HeightmapSizeInv*float2( 0,-1), 0).r;
-	h[1] = Heightmap.SampleLevel(LinearSampler, texcoord + HeightmapSizeInv*float2( 0, 1), 0).r;
-	h[2] = Heightmap.SampleLevel(LinearSampler, texcoord + HeightmapSizeInv*float2( 1, 0), 0).r;
-	h[3] = Heightmap.SampleLevel(LinearSampler, texcoord + HeightmapSizeInv*float2(-1, 0), 0).r;
-	h *= terrainScale;
+	h[0] = getTerrainHeight(pos.xz + float2( 0,-1 ));
+	h[1] = getTerrainHeight(pos.xz + float2( 0, 1 ));
+	h[2] = getTerrainHeight(pos.xz + float2( 1, 0 ));
+	h[3] = getTerrainHeight(pos.xz + float2(-1, 0 ));
 	float3 vecdz = float3(0.0f, h[1] - h[0], 2);
 	float3 vecdx = float3(2, h[2] - h[3], 0.0f);
     return normalize(cross(vecdz, vecdx));

@@ -14,7 +14,7 @@ namespace MST_Heightmap_Generator_GUI
         private Matrix viewMatrix = Matrix.Identity;
         // vectors
         private Vector3 viewDirection = new Vector3(0, 0, 1);
-        private Vector3 position = new Vector3(0, 1, 0);
+        private Vector3 position = new Vector3(0, 100, 0);
         
         // projection stuff
         public float AspectRatio

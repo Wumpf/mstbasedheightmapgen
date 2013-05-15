@@ -100,5 +100,11 @@ namespace MST_Heightmap_Generator_GUI
             float[,] value = { { (float)e.NewValue } };
             _heightmapFactory.SetParameter(8, value);
         }
+
+        private void Cb_Generator_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            float[,] value = { { (float)GeneratorSelection.SelectedIndex } };
+            _heightmapFactory.SetParameter(0, value);
+        }
     }
 }

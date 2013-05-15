@@ -32,7 +32,10 @@ public:
 	/// \param [in] width Data buffer width. Only required if data is an array.
 	/// \param [in] height Data buffer height. Only required if data is an array.
 	/// \param [in] type
-	///		* 0: ignored
+	///		* 0: Select the base map generator. A value of 0 uses the distance
+	///			function to an MST. For index 1 the inverse distance map is
+	///			used. The inverse function is more intuitive in its
+	///			parametrization and is the default generator.
 	///		* 1: reset worldSize to a new value. width must be 2 and height 1.
 	///			data[0] must be the new worldSizeX and data[1] the one in Y
 	///			direction.
@@ -89,12 +92,13 @@ private:
 	float _pixelSize;
 
 	// Generation parameters
-	int _seed;							///<\brief Start value to make generation deterministic.
-	float _heightThreshold;				///<\brief Cuts the distance function at a certain level.
-	float _quadraticIncreasePercentage;	///<\brief Percentage of the quadratic spline to smooth the mountain foots.
+	bool _useInverseDistance;			///< Switches between the two generator alternatives
+	int _seed;							///< Start value to make generation deterministic.
+	float _heightThreshold;				///< Cuts the distance function at a certain level.
+	float _quadraticIncreasePercentage;	///< Percentage of the quadratic spline to smooth the mountain foots.
 
-	float _noiseIntensity;				///<\brief Amount of perlin noise added to the map.
-	float _frequencyHeightDependence;	///<\brief Frequence shift depending on the terrain height.
-	float _frequencyGradientDependence;	///<\brief Frequence shift depending on the terrain gradient.
+	float _noiseIntensity;				///< Amount of perlin noise added to the map.
+	float _frequencyHeightDependence;	///< Frequence shift depending on the terrain height.
+	float _frequencyGradientDependence;	///< Frequence shift depending on the terrain gradient.
 };
 
