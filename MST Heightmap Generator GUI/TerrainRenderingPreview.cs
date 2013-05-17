@@ -17,7 +17,7 @@ namespace MST_Heightmap_Generator_GUI
 
         private WPFHost.ISceneHost host;
         private GraphicsDevice graphicsDevice;
-        private Texture2D heightmapTexture;
+        private Texture heightmapTexture;
 
         private SamplerState linearSamplerState;
 
@@ -35,8 +35,9 @@ namespace MST_Heightmap_Generator_GUI
             if(heightmapTexture != null)
                 heightmapTexture.Dispose();
 
-            heightmapTexture = Texture2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), MipMapCount.Auto, PixelFormat.R32.Float);
+            heightmapTexture = RenderTarget2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), MipMapCount.Auto, PixelFormat.R32.Float);
             heightmapTexture.SetData<float>(heightmap.Cast<float>().ToArray());
+            heightmapTexture.GenerateMipMaps();
 
             // setup camera
            // camera.Position = new Vector3(heightmapTexture.Width/2, 100.0f, heightmapTexture.Height / 2);
@@ -87,7 +88,7 @@ namespace MST_Heightmap_Generator_GUI
             var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();
             samplerStateDesc.AddressV = SharpDX.Direct3D11.TextureAddressMode.Border;
             samplerStateDesc.AddressU = SharpDX.Direct3D11.TextureAddressMode.Border;
-            samplerStateDesc.Filter = SharpDX.Direct3D11.Filter.MinMagLinearMipPoint;   // no mipmapping
+            samplerStateDesc.Filter = SharpDX.Direct3D11.Filter.MinMagMipLinear;
             samplerStateDesc.BorderColor = Color4.Black;
             linearSamplerState = SamplerState.New(graphicsDevice, "LinearSampler", samplerStateDesc);
 

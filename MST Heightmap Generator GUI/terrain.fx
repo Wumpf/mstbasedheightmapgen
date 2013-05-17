@@ -21,13 +21,14 @@ cbuffer HeightmapInfo : register(b2)
 // ------------------------------------------------
 static const float terrainScale = 40;
 static const float maxTerrainHeight = terrainScale;
+static const float minTerrainHeight = -10;
 
 SamplerState LinearSampler;  
 Texture2D Heightmap;  
 
-float getTerrainHeight(in float2 pos)
+float getTerrainHeight(in float2 pos, in float lod = 0.0f)
 {
-	return Heightmap.SampleLevel(LinearSampler, pos*WorldUnitToHeightmapTexcoord + 0.5, 0).x * terrainScale;
+	return Heightmap.SampleLevel(LinearSampler, pos*WorldUnitToHeightmapTexcoord + 0.5, lod).x * terrainScale;
 }
 
 float3 getTerrainNormal(in float3 pos)
@@ -45,20 +46,22 @@ float3 getTerrainNormal(in float3 pos)
 // ------------------------------------------------
 // RAYMARCH CORE
 // ------------------------------------------------
-static const float maxStep = 1000;
-bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectionPoint, out float dist)
+static const float FarPlane = 1000;
+static const float NearPlane = 3;
+static const float RayStepToHeightmapLod = 0.01f;
+bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectionPoint, out float dist, in float lodFactor = 1.0f)
 {
 	if(rayDirection.y == 0)
 		return false;
 
 	// area
 	float upperBound = (maxTerrainHeight - rayOrigin.y) / rayDirection.y;
-	float lowerBound = (-10				 - rayOrigin.y) / rayDirection.y;
+	float lowerBound = (minTerrainHeight - rayOrigin.y) / rayDirection.y;
 
 	if(lowerBound < 0.0 && upperBound < 0.0)
 		return false;
-	float start = max(min(upperBound, lowerBound), 5);
-	float end   = min(max(upperBound, lowerBound), maxStep) - 0.0001f;
+	float start = max(min(upperBound, lowerBound), NearPlane);
+	float end   = min(max(upperBound, lowerBound), FarPlane);
 
 	// go!
 	float lh = 0.0;
@@ -68,7 +71,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	for(float t=start; t<end; t*=1.011)
 	{
 		float3 pos = rayOrigin + rayDirection * t;
-        float h = getTerrainHeight(pos.xz);
+        float h = getTerrainHeight(pos.xz, t * RayStepToHeightmapLod * lodFactor);
 
         if(pos.y - h < 0)
 		{
@@ -132,7 +135,7 @@ float4 PS(PS_INPUT input) : SV_Target
 		float3 null;
 		float lighting = max(0, dot(normal, LightDirection));
 		float distToShadowCaster;
-		if(rayCast(terrainPosition+LightDirection, LightDirection, null, distToShadowCaster))
+		if(rayCast(terrainPosition, LightDirection, null, distToShadowCaster, 4.0f))
 			lighting *= min(max(0.3, distToShadowCaster*0.01), 1.0);
 		
 		outColor = float3(1,1,1) * lighting + float3(Ambient,Ambient,Ambient);
