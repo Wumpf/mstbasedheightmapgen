@@ -21,8 +21,12 @@ namespace MST_Heightmap_Generator_GUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(512, 512, 2);
+        const int MAP_SIZE = 512;
+        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(MAP_SIZE, MAP_SIZE, 2);
         float[,] _heightmapData;
+
+        // Second dimension is always 3
+        float[,] _summitList;
 
       //  private WriteableBitmap imageContent;
         private TerrainRenderingPreview terrainRenderingPreview;
@@ -39,6 +43,8 @@ namespace MST_Heightmap_Generator_GUI
             _heightmapData = new float[_heightmapFactory.GetWidth(), _heightmapFactory.GetHeight()];
         //    imageContent = new WriteableBitmap(width, height, -1.0f, -1.0f, PixelFormats.Gray32Float, null);
          //   heightmapView.Source = imageContent;
+
+            GenerateRandomSummits(20);
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -50,6 +56,9 @@ namespace MST_Heightmap_Generator_GUI
 
         private void GenerateHeightmap(object sender, RoutedEventArgs e)
         {
+            // Send points only on generated (they are modified interactive)
+            _heightmapFactory.SetParameter(9, _summitList);
+
             _heightmapFactory.Generate(_heightmapData);
         /*    imageContent.WritePixels(new Int32Rect(0, 0, (int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight()), 
                                             (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
@@ -59,6 +68,18 @@ namespace MST_Heightmap_Generator_GUI
             float[,] heightmapPixelsPerWorld = new float[1, 1];
             _heightmapFactory.GetParameter(2, heightmapPixelsPerWorld, out width, out height);
             terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0]);
+        }
+
+        private void GenerateRandomSummits(int num)
+        {
+            _summitList = new float[num,3];
+            Random rnd = new Random(SeedEdit.Text.GetHashCode());
+            for (int i = 0; i < num; ++i)
+            {
+                _summitList[i, 0] = rnd.Next(10000) / 10000.0f * MAP_SIZE;
+                _summitList[i, 1] = rnd.Next(10000) / 10000.0f * MAP_SIZE;
+                _summitList[i, 2] = rnd.Next(10000) / 10000.0f;
+            }
         }
 
         private void Sl_MaxHeight_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

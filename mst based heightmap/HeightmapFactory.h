@@ -63,6 +63,9 @@ public:
 	///		* 8: Influence of the gradient to the noise frequency. A value of 0
 	///			disables the dependency. Too large values cause a very instable
 	///			behavior.
+	///		* 9: A list of points describing summits. The height determines the
+	///			number of summits whereby each point consists of three floats.
+	///			The width is always 3 for the three vector components.
 	void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
 
 	void GetParameter(unsigned int type, float* outData, unsigned int& outWidth, unsigned int& outHeight);
@@ -93,6 +96,9 @@ private:
 	float _pixelSize;
 
 	// Generation parameters
+	Vec3* _summitList;
+	unsigned int _numSummits;
+
 	bool _useInverseDistance;			///< Switches between the two generator alternatives
 	int _seed;							///< Start value to make generation deterministic.
 	float _heightThreshold;				///< Cuts the distance function at a certain level.

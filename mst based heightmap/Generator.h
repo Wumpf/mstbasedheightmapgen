@@ -38,3 +38,8 @@ void GenerateGraphBased_1( float* dataDestination, int width, int height,
 						   float pixelSize,
 						   const OrE::ADT::Mesh& graph,
 						   const GenerationDescriptor& generatorDesc );
+
+/// \brief A scaling factor used to encode the height per node in a MST node.
+/// \details On this way the MST topology does not change if the height is
+///		edited.
+const float HEIGHT_CODE_FACTOR = 256.0f;

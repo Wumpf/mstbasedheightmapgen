@@ -72,7 +72,7 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
 										((PNode*)it->GetDst())->GetPos(),
 										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize, r );
-				float parameterHeight = lrp( ((PNode*)it->GetSrc())->GetPos(), ((PNode*)it->GetDst())->GetPos(), r ).z * 100.0f;
+				float parameterHeight = lrp( ((PNode*)it->GetSrc())->GetPos(), ((PNode*)it->GetDst())->GetPos(), r ).z * HEIGHT_CODE_FACTOR;
 				if( generatorDesc._useInverseDistance )
 				{
 					height = max(height, (generatorDesc._heightThreshold-sqrtf(distance)) * parameterHeight);

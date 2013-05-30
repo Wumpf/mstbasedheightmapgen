@@ -28,7 +28,6 @@ static double Sample1D(int64_t _i)
 // Function for interpolation between two points of the noise
 inline float InterpolationPolynom(float _dR)
 {
-	// Polynomial function to get detailed information see "Burger-GradientNoiseGerman-2008".
 	return 0.5f-cos(_dR*3.14159f)*0.5f;
 	//_dR*_dR*_dR*(_dR*(_dR*6.0f-15.0f)+10.0f);
 }

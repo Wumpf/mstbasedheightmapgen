@@ -15,7 +15,8 @@ HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float hei
 	_seed( 1111 ),
 	_noiseIntensity(1.0f),
 	_frequencyHeightDependence(0.5f),
-	_useInverseDistance(true)
+	_useInverseDistance(true),
+	_numSummits(0), _summitList(nullptr)
 {
 	assert(worldSizeX > 0);
 	assert(worldSizeY > 0);
@@ -25,6 +26,7 @@ HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float hei
 
 HeightmapFactory::~HeightmapFactory(void)
 {
+	delete[] _summitList;
 }
 
 void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height)
@@ -91,6 +93,19 @@ void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsign
 		_frequencyGradientDependence = data[0];
 		break;
 
+	case 9:
+		assert( width==3 );
+		_numSummits = height;
+		delete[] _summitList;
+		_summitList = new Vec3[height];
+		for( unsigned int i=0; i<height; ++i )
+		{
+			_summitList[i].x = data[i*3];
+			_summitList[i].y = data[i*3+1];
+			_summitList[i].z = data[i*3+2] / HEIGHT_CODE_FACTOR;	// Decrease height to avoid an inluence of the MST structure
+		}
+		break;
+
 	default:
 		// Unimplemented parameter
 		assert( false );
@@ -133,7 +148,7 @@ void HeightmapFactory::GetParameter(unsigned int type, float* outData, unsigned 
 		break;
 
 	case 5:
-		outData[0] = _seed;
+		outData[0] = float(_seed);
 		break;
 
 	case 6:
@@ -147,6 +162,15 @@ void HeightmapFactory::GetParameter(unsigned int type, float* outData, unsigned 
 	case 8:
 		outData[0] = _frequencyGradientDependence;
 		break;
+
+	case 9:
+		outWidth = _numSummits;
+		for( unsigned int i=0; i<_numSummits; ++i )
+		{
+			outData[i*3] = _summitList[i].x;
+			outData[i*3+1] = _summitList[i].y;
+			outData[i*3+2] = _summitList[i].z * HEIGHT_CODE_FACTOR;
+		}
 
 	default:
 		// Unimplemented parameter
@@ -165,24 +189,21 @@ void HeightmapFactory::Generate(float* dataDestination)
 {
 	srand( _seed );
 
-/*	for(unsigned int y=0; y<GetHeight(); ++y)
-		for(unsigned int x=0; x<GetWidth(); ++x)
-			dataDestination[x + y * GetWidth()] = static_cast<float>(rand()) / RAND_MAX;*/
 
-	Vec3* uglyTestBuffer = new Vec3[2000];
+/*	Vec3* uglyTestBuffer = new Vec3[2000];
 	for( int i=0; i<2000; ++i )
 	{
 		uglyTestBuffer[i].x = (rand()*_worldSizeX/RAND_MAX);// * 0.5f + 0.25f*_worldSizeX;
 		uglyTestBuffer[i].y = (rand()*_worldSizeY/RAND_MAX);// * 0.5f + 0.25f*_worldSizeY;
-		uglyTestBuffer[i].z = rand()*0.01f/RAND_MAX;
-	}
+		uglyTestBuffer[i].z = rand()*0.00390625f/RAND_MAX;
+	}*/
 
-	OrE::ADT::Mesh* mst = ComputeMST( uglyTestBuffer, 20 );
+	OrE::ADT::Mesh* mst = ComputeMST( _summitList, _numSummits );
 
 	GenerationDescriptor genDesc( _useInverseDistance, _heightThreshold, _quadraticIncreasePercentage );
 	GenerateGraphBased_1( dataDestination, GetWidth(), GetHeight(), _pixelSize, *mst, genDesc );
 	delete mst;
-	delete[] uglyTestBuffer;
+	//delete[] uglyTestBuffer;
 
 	// Create more natural apeareance
 	AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
