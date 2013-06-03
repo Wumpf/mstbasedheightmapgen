@@ -21,7 +21,7 @@ namespace MST_Heightmap_Generator_GUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        const int MAP_SIZE = 512;
+        const int MAP_SIZE = 256;
         MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(MAP_SIZE, MAP_SIZE, 2);
         float[,] _heightmapData;
 

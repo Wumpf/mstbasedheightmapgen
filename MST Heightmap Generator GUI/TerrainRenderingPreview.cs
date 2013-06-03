@@ -11,6 +11,8 @@ namespace MST_Heightmap_Generator_GUI
     public class TerrainRenderingPreview : WPFHost.IScene
     {
         private SharpDX.Toolkit.Graphics.Effect terrainShader;
+        private SharpDX.Toolkit.Graphics.Effect computeRelaxedConeShader;
+
         private Camera camera;
 
         public bool Closing { get; set; }
@@ -35,9 +37,17 @@ namespace MST_Heightmap_Generator_GUI
             if(heightmapTexture != null)
                 heightmapTexture.Dispose();
 
-            heightmapTexture = RenderTarget2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), MipMapCount.Auto, PixelFormat.R32.Float);
-            heightmapTexture.SetData<float>(heightmap.Cast<float>().ToArray());
-            heightmapTexture.GenerateMipMaps();
+            var heightOnlyTexture = Texture2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource);
+            heightOnlyTexture.SetData<float>(heightmap.Cast<float>().ToArray());
+            heightmapTexture = Texture2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R16G16.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
+            computeRelaxedConeShader.Parameters["HeightInput"].SetResource(heightOnlyTexture);
+            computeRelaxedConeShader.Parameters["HeightWithConesOutput"].SetResource(heightmapTexture);
+            computeRelaxedConeShader.CurrentTechnique.Passes[0].Apply();
+           
+            graphicsDevice.Dispatch(heightmap.GetLength(0) / 32, heightmap.GetLength(1) / 32, 1);
+           
+            computeRelaxedConeShader.CurrentTechnique.Passes[0].UnApply(true);
+            heightOnlyTexture.Dispose();
 
             // setup camera
            // camera.Position = new Vector3(heightmapTexture.Width/2, 100.0f, heightmapTexture.Height / 2);
@@ -67,13 +77,25 @@ namespace MST_Heightmap_Generator_GUI
             graphicsDevice.Presenter = new RenderTargetGraphicsPresenter(graphicsDevice, backbufferRenderTarget);
             graphicsDevice.SetRenderTargets(backbufferRenderTarget);
             
-            
+  
+
             // load terrain shader
             EffectCompilerFlags compilerFlags = EffectCompilerFlags.None;
 #if DEBUG
             compilerFlags |= EffectCompilerFlags.Debug;
 #endif
             var shaderCompiler = new EffectCompiler();
+                      
+            // relaxed cone mapping compute shader
+            var computeRelaxedConeShaderCompileResult = shaderCompiler.CompileFromFile("computerelaxedconemap.fx", compilerFlags);
+            if (computeRelaxedConeShaderCompileResult.HasErrors)
+            {
+                System.Console.WriteLine(computeRelaxedConeShaderCompileResult.Logger.Messages);
+                Debugger.Break();
+            }
+            computeRelaxedConeShader = new SharpDX.Toolkit.Graphics.Effect(graphicsDevice, computeRelaxedConeShaderCompileResult.EffectData);
+            
+            // load terrain shader
             var terrainShaderCompileResult = shaderCompiler.CompileFromFile("terrain.fx", compilerFlags);
             if (terrainShaderCompileResult.HasErrors)
             {
@@ -135,6 +157,9 @@ namespace MST_Heightmap_Generator_GUI
             cameraConstantBuffer.Set(0, viewProjectionInverse);
             cameraConstantBuffer.Set(sizeof(float) * 4 * 4, camera.Position);
             cameraConstantBuffer.IsDirty = true;
+
+            terrainShader.Parameters["Heightmap"].SetResource(heightmapTexture);
+            terrainShader.Parameters["LinearSampler"].SetResource(linearSamplerState);
 
             // render screenspace terrain!
             terrainShader.CurrentTechnique.Passes[0].Apply();
