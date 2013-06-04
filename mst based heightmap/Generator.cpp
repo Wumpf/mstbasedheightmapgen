@@ -62,8 +62,7 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 		int yw = (y+i)*bufferDesc->width;
 		for( int x=0; x<bufferDesc->width; ++x )
 		{
-			float height = generatorDesc._useInverseDistance ? -generatorDesc._quadraticIncrease : maxHeight;
-			float mindistance = maxHeight;
+			float height = maxHeight;
 			// Compute minimum distance to the mst for each pixel
 			auto it = mst->GetEdgeIterator();
 			while( ++it )
@@ -72,43 +71,57 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
 										((PNode*)it->GetDst())->GetPos(),
 										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize, r );
-				float parameterHeight = lrp( ((PNode*)it->GetSrc())->GetPos(), ((PNode*)it->GetDst())->GetPos(), r ).z * HEIGHT_CODE_FACTOR;
-				if( generatorDesc._useInverseDistance )
-				{
-					height = max(height, (generatorDesc._heightThreshold-sqrtf(distance)) * parameterHeight);
-				} else {
-					height = min(height, generatorDesc._heightThreshold-(generatorDesc._heightThreshold-sqrtf(distance))*parameterHeight);
-				}
-/*				if( mindistance > distance*parameterHeight )
-				{
-					mindistance = distance*parameterHeight;
-				//	height = maxheight - (maxheight-distance) * parameterHeight;
-					if( generatorDesc._useInverseDistance )
-						height = (generatorDesc._heightThreshold-sqrtf(distance)) * parameterHeight;
-					else
-						height = sqrtf(mindistance);
-				}		*/
+				float parameterHeight = lrp( ((PNode*)it->GetSrc())->GetPos().z, ((PNode*)it->GetDst())->GetPos().z, r ) * HEIGHT_CODE_FACTOR;
+
+				height = min(height, generatorDesc._heightThreshold-(generatorDesc._heightThreshold-sqrtf(distance)) * parameterHeight);
 			}
-
-			// Make it linear (squared distance was searched)
-			//height = sqrtf( height );
-
-			//height = max( 0.0f, min( generatorDesc._heightThreshold, height ) );
-
-			// Transform linear increase into a decrease of mountain flanks
-			/*if( generatorDesc._useInverseDistance )
-				height = -height + generatorDesc._heightThreshold;
-			else
-				height = min(height, generatorDesc._heightThreshold);//*/
+		
 			// Transform foot of the mountain with quadratic spline
 			if( height >= generatorDesc._quadraticIncrease )
 				bufferDesc->dataDestination[yw+x] = height;
 			else {
+				bufferDesc->dataDestination[yw+x] = height;
 				// (height+t)^2/(4*t)
 				height += generatorDesc._quadraticIncrease;
 				height = max( 0.0f, height );
 				bufferDesc->dataDestination[yw+x] = height*height/(4.0f*generatorDesc._quadraticIncrease);
 			}
+		}
+	}
+}
+
+static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, int numLines, const OrE::ADT::Mesh* mst,
+						   const GenerationDescriptor& generatorDesc )
+{
+	const float maxHeight = generatorDesc._heightThreshold + generatorDesc._quadraticIncrease;
+	for( int i=0; i<numLines; ++i )
+	{
+		int yw = (y+i)*bufferDesc->width;
+		for( int x=0; x<bufferDesc->width; ++x )
+		{
+			float height = -generatorDesc._quadraticIncrease;
+			// Compute minimum distance to the mst for each pixel
+			auto it = mst->GetEdgeIterator();
+			while( ++it )
+			{
+				float r;
+				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
+										((PNode*)it->GetDst())->GetPos(),
+										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize, r );
+				float parameterHeight = lrp( ((PNode*)it->GetSrc())->GetPos().z, ((PNode*)it->GetDst())->GetPos().z, r ) * HEIGHT_CODE_FACTOR;
+
+				float unparametrizedHeight = maxHeight-sqrtf(distance);
+				// (height+t)^2/(4*t)
+				if( unparametrizedHeight < generatorDesc._quadraticIncrease )
+				{
+					unparametrizedHeight += generatorDesc._quadraticIncrease;
+					unparametrizedHeight = max( 0.0f, unparametrizedHeight );
+					unparametrizedHeight = sqr(unparametrizedHeight)/(4.0f*generatorDesc._quadraticIncrease);
+				}
+				height = max( unparametrizedHeight*parameterHeight, height );
+			}
+
+			bufferDesc->dataDestination[yw+x] = height;
 		}
 	}
 }
@@ -127,7 +140,10 @@ void GenerateGraphBased_1( float* dataDestination, int width, int height, float 
 	for( int t=0; t<8; ++t )
 	{
 		int numLines = min(numLinesPerThread, height-t*numLinesPerThread);
-		threads[t] = new std::thread( GenerateGraphBased_Kernel_1, &bufferDesc, t*numLinesPerThread, numLines, &mst, generatorDesc );
+		if( generatorDesc._useInverseDistance )
+			threads[t] = new std::thread( GenerateGraphBased_Kernel_2, &bufferDesc, t*numLinesPerThread, numLines, &mst, generatorDesc );
+		else
+			threads[t] = new std::thread( GenerateGraphBased_Kernel_1, &bufferDesc, t*numLinesPerThread, numLines, &mst, generatorDesc );
 	}
 	for( int t=0; t<8; ++t )
 	{

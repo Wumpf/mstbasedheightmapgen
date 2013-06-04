@@ -206,12 +206,15 @@ void HeightmapFactory::Generate(float* dataDestination)
 	//delete[] uglyTestBuffer;
 
 	// Create more natural apeareance
-	AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
-		_heightThreshold,
-		_frequencyHeightDependence/_heightThreshold,
-		_frequencyGradientDependence,
-		_heightThreshold * _noiseIntensity,
-		0.01f );
+	if( _noiseIntensity > 0.0f )
+	{
+		AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
+			_heightThreshold,
+			_frequencyHeightDependence/_heightThreshold,
+			_frequencyGradientDependence,
+			_heightThreshold * _noiseIntensity,
+			0.01f );
+	}
 
 	// Normalize for visual output
 	Normalize( dataDestination, GetWidth(), GetHeight() );
