@@ -12,7 +12,7 @@ void CSMain( uint3 threadID : SV_DispatchThreadID )
 	float2 srcTexcoord = pixelSize * threadID.xy;
 	float srcHeight = HeightInput[threadID.xy];
 
-	const int AREA_SIZE = 200;
+	const int AREA_SIZE = 100;
 	const float MAX_CONE_RATIO = 1.0f;
 
 	// CONEMAP ATM

@@ -56,6 +56,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 
 	float upperBound = (maxTerrainHeight - rayOrigin.y) / rayDirection.y;
 	float lowerBound = (0				 - rayOrigin.y) / rayDirection.y;
+	// Clip if ray upward from above or downward from below
 	if(lowerBound < 0.0 && upperBound < 0.0)
 		return false;
 	float start = max(min(upperBound, lowerBound), NearPlane);
@@ -72,20 +73,49 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	// starting point
 	intersectionPoint = rayOrigin + rayDirection * start;
 	intersectionPoint.xz = intersectionPoint.xz * WorldUnitToHeightmapTexcoord + 0.5f;
+	float2 startOffset = (saturate(intersectionPoint.xz)-intersectionPoint.xz)/rayDirection_TextureSpace.xz;
 	intersectionPoint.y = intersectionPoint.y / terrainScale;
+	intersectionPoint += max(startOffset.x, startOffset.y) * rayDirection_TextureSpace;
 
 	// cone stepping
 	const int MaxNumConeSteps = 64;
-	float minDistOffset = HeightmapSizeInv.x * dirXZlen * 0.5;
+	float minDistOffset = HeightmapSizeInv.x / dirXZlen * 0.25;
 	float distOffset;
+	float deltaHeight;
 	for(int i = 0; i < MaxNumConeSteps; ++i)
 	{
 		float2 height_cone = Heightmap.SampleLevel(LinearSampler, intersectionPoint.xz, 0).xy;
-		float deltaHeight = intersectionPoint.y - height_cone.x;
+		deltaHeight = intersectionPoint.y - height_cone.x;
 		
 		// below terrain? done.
 		if(deltaHeight < 0.000001)
-			break;
+		{
+					/*
+			// binary steps
+			// dist update missing
+			const int NumBinarySteps = 5;
+			distOffset *= 0.5f;
+			intersectionPoint -= rayDirection_TextureSpace * distOffset;
+			for(int i = 0; i < NumBinarySteps; ++i)
+			{  
+				float height = Heightmap.SampleLevel(LinearSampler, intersectionPoint.xz, 0).x; 
+				distOffset *= 0.5;  
+				if (intersectionPoint.y < height)  // If outside  
+					intersectionPoint += rayDirection_TextureSpace * distOffset;  // Move forward  
+				 else  
+					intersectionPoint -= rayDirection_TextureSpace * distOffset;  // Move backward  
+			}*/
+			
+			// bring intersection point to world and output
+			intersectionPoint.xz -= 0.5f;
+			intersectionPoint.xz /= WorldUnitToHeightmapTexcoord;
+			intersectionPoint.y = height_cone.x * terrainScale;
+
+			// easier to compute this way than to add up all the time
+			dist = length(intersectionPoint - rayOrigin);
+
+			return true;
+		}
 
 		// step cone
 		distOffset = deltaHeight * height_cone.y / (dirXZlen - rayDirection_TextureSpace.y * height_cone.y);
@@ -93,35 +123,12 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 		intersectionPoint += rayDirection_TextureSpace * distOffset;
 
 		// outside?
-		if(any(intersectionPoint.xz != saturate(intersectionPoint.xz)))
+		if(any(intersectionPoint.xz != saturate(intersectionPoint.xz)) || (intersectionPoint.y > 1))
 			return false;
 	}
 
-/*
-	// binary steps
-	// dist update missing
-	const int NumBinarySteps = 5;
-	distOffset *= 0.5f;
-	intersectionPoint -= rayDirection_TextureSpace * distOffset;
-	for(int i = 0; i < NumBinarySteps; ++i)
-	{  
-		float height = Heightmap.SampleLevel(LinearSampler, intersectionPoint.xz, 0).x; 
-		distOffset *= 0.5;  
-		if (intersectionPoint.y < height)  // If outside  
-			intersectionPoint += rayDirection_TextureSpace * distOffset;  // Move forward  
-		 else  
-			intersectionPoint -= rayDirection_TextureSpace * distOffset;  // Move backward  
-	}
-	*/
-	// bring intersection point to world and output
-	intersectionPoint.xz -= 0.5f;
-	intersectionPoint.xz /= WorldUnitToHeightmapTexcoord;
-	intersectionPoint.y *= terrainScale;
-
-	// easier to compute this way than to add up all the time
-	dist = length(intersectionPoint - rayOrigin);
-
-	return true;
+	// Left loop without terrain hit
+	return false;
 }
 
 // heightmap display in upper right corner
@@ -172,8 +179,8 @@ float4 PS(PS_INPUT input) : SV_Target
 		float3 null;
 		float lighting = max(0, dot(normal, LightDirection));
 		float distToShadowCaster;
-		//if(rayCast(terrainPosition, LightDirection, null, distToShadowCaster, 4.0f))
-		//	lighting *= min(max(0.3, distToShadowCaster*0.01), 1.0);
+		if(rayCast(terrainPosition, LightDirection, null, distToShadowCaster, 4.0f))
+			lighting *= min(max(0.3, distToShadowCaster*0.01), 1.0);
 		
 		outColor = float3(1,1,1) * lighting + float3(Ambient,Ambient,Ambient);
 		//outColor = Heightmap.SampleLevel(LinearSampler, terrainPosition.xz*WorldUnitToHeightmapTexcoord + 0.5, 0).y;

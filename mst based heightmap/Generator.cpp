@@ -97,6 +97,7 @@ static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, in
 	for( int i=0; i<numLines; ++i )
 	{
 		int yw = (y+i)*bufferDesc->width;
+		float py = (y+i)*bufferDesc->pixelSize;
 		for( int x=0; x<bufferDesc->width; ++x )
 		{
 			float height = -generatorDesc._quadraticIncrease;
@@ -104,11 +105,17 @@ static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, in
 			auto it = mst->GetEdgeIterator();
 			while( ++it )
 			{
+				// TODO: Lösung: Suche Punkt der in 2D am Nächsten am MST
+				// - für diesen Punkt: berechne Höhe (parameter Höhe für Punkt merken aber nicht mit vergleichen)
+				// - Problem: scharfe Abbrüche
+				// - Frage: Differenziere Fall für r=0 oder r=1 von r in (0,1)?
 				float r;
-				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
-										((PNode*)it->GetDst())->GetPos(),
-										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize, r );
-				float parameterHeight = lrp( ((PNode*)it->GetSrc())->GetPos().z, ((PNode*)it->GetDst())->GetPos().z, r ) * HEIGHT_CODE_FACTOR;
+				const Vec3& vP0 = ((PNode*)it->GetSrc())->GetPos();
+				const Vec3& vP1 = ((PNode*)it->GetDst())->GetPos();
+				float distance = PointLineDistanceSq( vP0,
+										vP1,
+										py, x*bufferDesc->pixelSize , r );
+				float parameterHeight = lrp( vP0.z, vP1.z, r ) * HEIGHT_CODE_FACTOR;
 
 				float unparametrizedHeight = maxHeight-sqrtf(distance);
 				// (height+t)^2/(4*t)
