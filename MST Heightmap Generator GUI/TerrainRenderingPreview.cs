@@ -42,6 +42,7 @@ namespace MST_Heightmap_Generator_GUI
             heightmapTexture = Texture2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R16G16.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
             computeRelaxedConeShader.Parameters["HeightInput"].SetResource(heightOnlyTexture);
             computeRelaxedConeShader.Parameters["HeightWithConesOutput"].SetResource(heightmapTexture);
+            //computeRelaxedConeShader.Parameters["LinearSampler"].SetResource(linearSamplerState);
             computeRelaxedConeShader.CurrentTechnique.Passes[0].Apply();
            
             graphicsDevice.Dispatch(heightmap.GetLength(0) / 32, heightmap.GetLength(1) / 32, 1);
