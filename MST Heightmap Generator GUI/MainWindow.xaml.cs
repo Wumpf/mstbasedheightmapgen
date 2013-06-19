@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SharpDX;
 
 namespace MST_Heightmap_Generator_GUI
 {
@@ -67,7 +68,7 @@ namespace MST_Heightmap_Generator_GUI
             uint width, height;
             float[,] heightmapPixelsPerWorld = new float[1, 1];
             _heightmapFactory.GetParameter(2, heightmapPixelsPerWorld, out width, out height);
-            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0]);
+            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0], _summitList);
         }
 
         private void GenerateRandomSummits(int num)
