@@ -91,6 +91,12 @@ namespace MST_Heightmap_Generator_GUI
             get { return viewDirection; }
         }
 
+        public Vector3 Right
+        {
+            get;
+            private set;
+        }
+
         /// <summary>
         /// Intern function for recreating the projection matrix.
         /// Capsuling the Matrix.Create... makes it easy to exchange the type of projection
@@ -118,7 +124,7 @@ namespace MST_Heightmap_Generator_GUI
                                         (float)(System.Math.Cos(theta2)),
                                         (float)(System.Math.Sin(phi) * System.Math.Sin(theta2)));
             // compute side
-            Vector3 sideVec = Vector3.Cross(upVec, viewDirection);
+            Right = Vector3.Cross(upVec, viewDirection);
 
             float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
 
@@ -128,7 +134,7 @@ namespace MST_Heightmap_Generator_GUI
 
             // side movement
             float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f);
-            Position += side * sideSpeed * sideVec * speedUp;
+            Position += side * sideSpeed * Right * speedUp;
 
             // upward movement
             float up = Keyboard.IsKeyDown(Key.Space) ? 1.0f : 0.0f;
