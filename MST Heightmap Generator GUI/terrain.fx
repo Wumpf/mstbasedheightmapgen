@@ -78,7 +78,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	intersectionPoint += max(startOffset.x, startOffset.y) * rayDirection_TextureSpace;
 
 	// cone stepping
-	const int MaxNumConeSteps = 100;
+	const int MaxNumConeSteps = 80;
 	float minDistOffset = HeightmapSizeInv.x / dirXZlen * 0.25;
 	float distOffset;
 	float deltaHeight;
@@ -136,7 +136,7 @@ bool RenderHeightmapInCorner(float2 deviceCor, out float4 color)
 	float2 heightmapCor = (float2(deviceCor.x, -deviceCor.y) - onScreenHeightmapZero) / heightmapArea;
 	if(heightmapCor.x > 0 && heightmapCor.x < 1 && heightmapCor.y > 0 && heightmapCor.y < 1)
 	{
-		color = float4(Heightmap.SampleLevel(LinearSampler, heightmapCor, 0).rg, 0, 1);
+		color = float4(Heightmap.SampleLevel(LinearSampler, heightmapCor, 0).rrr, 1);
 		return true;
 	}
 	else

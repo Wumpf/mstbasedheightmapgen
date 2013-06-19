@@ -29,7 +29,7 @@ static double Sample1D(int64_t _i)
 inline float InterpolationPolynom(float _dR)
 {
 	return 0.5f-cos(_dR*3.14159f)*0.5f;
-	//_dR*_dR*_dR*(_dR*(_dR*6.0f-15.0f)+10.0f);
+	//return _dR;//_dR*_dR*_dR*(_dR*(_dR*6.0f-15.0f)+10.0f);
 }
 
 inline float Derivative(float _dR)
@@ -75,7 +75,7 @@ float Rand2D(float _fX, float _fY, float _fFrequence, float& _fOutGradX, float& 
 }
 
 
-/*float Rand2D(int _iLowOctave, int _iHeightOctave, float _fPersistence, float _fX, float _fY, unsigned int _uiSeed, float& _fOutGradX, float& _fOutGradY)
+float Rand2D(int _iLowOctave, int _iHeightOctave, float _fPersistence, float _fX, float _fY, float& _fOutGradX, float& _fOutGradY)
 {
 	// Octaves cannot be smaller than zero and the height octave
 	// must be larger than the low one.
@@ -88,7 +88,7 @@ float Rand2D(float _fX, float _fY, float _fFrequence, float& _fOutGradX, float& 
 	for(int i=_iLowOctave; i<=_iHeightOctave; ++i)
 	{
 		float fGradX, fGradY;
-		fRes += fAmplitude*Rand2D(_fX, _fY, fFrequence, _uiSeed*37, fGradX, fGradY );
+		fRes += fAmplitude*Rand2D(_fX, _fY, fFrequence, fGradX, fGradY );
 		_fOutGradX += fFrequence*fAmplitude*fGradX;
 		_fOutGradY += fFrequence*fAmplitude*fGradY;
 
@@ -98,4 +98,4 @@ float Rand2D(float _fX, float _fY, float _fFrequence, float& _fOutGradX, float& 
 
 	// Transform to [-1,1]
 	return fRes*2.0f*(1.0f-_fPersistence)/(1.0f-fAmplitude)-1.0f;
-}*/
+}

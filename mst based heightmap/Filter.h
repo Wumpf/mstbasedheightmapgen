@@ -15,3 +15,10 @@ void AddNoise( float* dataDestination, int width, int height, int _iSeed,
 			   float frequenceGradientDependency,
 			   float noiseIntensity,
 			   float horizontalNoiseScale );
+
+/// \brief Uses a standard value noise normal map and refracts the underlying
+///		structure
+/// \param [in] refractionDistance The higher the distance between refraction
+///		texture and map the heigher the translation of pixels.
+void RefractWithNoise( float*& dataDestination, int width, int height, int _iSeed,
+			   float refractionDistance );

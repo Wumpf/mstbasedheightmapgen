@@ -146,3 +146,74 @@ void AddNoise( float* dataDestination, int width, int height, int _iSeed,
 		delete threads[t];
 	}
 }
+
+
+// ************************************************************************* //
+struct RefractionParam {
+	float* data;
+	float* out;
+	int width;
+	int height;
+	int maxOctave;
+	float horizontalNoiseScale;
+	float refractionDistance;
+};
+
+static void Refraction_Kernel( RefractionParam* bufferDesc, int y, int numLines )
+{
+	for( int i=0; i<numLines; ++i )
+	{
+		int yw = (y+i) * bufferDesc->width;
+		float fy = (y+i) * bufferDesc->horizontalNoiseScale;
+		for( int x=0; x<bufferDesc->width; ++x )
+		{
+			float fGradX, fGradY;
+			Rand2D( 0, bufferDesc->maxOctave, 0.25f, x*bufferDesc->horizontalNoiseScale, fy,
+				fGradX, fGradY );
+			
+			float fNorm = 1.0f/sqrt(fGradX*fGradX + 1 + fGradY*fGradY);
+			fGradX *= fNorm;
+			fGradY *= fNorm;
+
+			float fStep = 5.0f* bufferDesc->refractionDistance / fNorm;
+
+			float x_refrac = max(0.0f,min(float(bufferDesc->width-1), x + fGradX * fStep));
+			float y_refrac = max(0.0f,min(float(bufferDesc->height-1), y + i + fGradY * fStep));
+			int dx = Floor(x_refrac);	x_refrac -= dx;
+			int dy = Floor(y_refrac);	y_refrac -= dy;
+			bufferDesc->out[yw+x] = lrp(lrp(bufferDesc->data[dy * bufferDesc->width + dx], bufferDesc->data[dy * bufferDesc->width + dx + 1], x_refrac),
+				lrp(bufferDesc->data[(dy+1) * bufferDesc->width + dx], bufferDesc->data[(dy+1) * bufferDesc->width + dx + 1], x_refrac), y_refrac);
+		}
+	}
+}
+
+void RefractWithNoise( float*& dataDestination, int width, int height, int _iSeed,
+			   float refractionDistance )
+{
+	// Hight must be devisible through 4
+	assert( (height & 3) == 0 );
+
+	SetSeed( _iSeed );
+	float* dataCopy = new float[width*height];
+	memcpy( dataCopy, dataDestination, sizeof(float)*width*height );
+	RefractionParam bufferDesc = { dataCopy, dataDestination, width, height,
+		int(0.5*log( max(width, height) )/log(2)), 0.01f, refractionDistance };
+
+	//Refraction_Kernel( &bufferDesc, 0, height );
+
+	// Execution in 8 threads (one of them is the current one)
+	int numLinesPerThread = height / 8  +  ( ((height&7)==0) ? 0 : 1 );
+	std::thread* threads[7];
+	for( int t=0; t<7; ++t )
+		threads[t] = new std::thread( Refraction_Kernel, &bufferDesc, t*numLinesPerThread, numLinesPerThread );
+	int numLines = min(numLinesPerThread, height-7*numLinesPerThread);
+	Refraction_Kernel( &bufferDesc, 7*numLinesPerThread, numLines );
+	for( int t=0; t<7; ++t )
+	{
+		threads[t]->join();
+		delete threads[t];
+	}
+
+	// Remove double buffer
+	delete[] dataCopy;
+}

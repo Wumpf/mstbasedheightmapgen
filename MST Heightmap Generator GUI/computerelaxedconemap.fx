@@ -17,7 +17,7 @@ void CSMain( uint3 threadID : SV_DispatchThreadID )
 	float coneRatio = MAX_CONE_RATIO_SQ;
 
 	// relaxed conemap - new algo: choose limted amount of directions, walk along them and make cone wider and wider
-	const int NUM_DIRECTIONS = 80;
+	const int NUM_DIRECTIONS = 28;
 	//const int NUM_STEPS_PER_DIRECTION = 256;
 	const float PI2 = 6.28318530718f;
 	const float ANGLE_STEP = 6.28318530718f / NUM_DIRECTIONS;

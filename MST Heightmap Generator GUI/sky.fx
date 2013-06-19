@@ -11,6 +11,9 @@ static const float UpperHorizonHeight = -0.1;
 static const float SunAttenuation = 2;
 
 static const float3 LightDirection = float3(-0.577, 0.577, -0.577);
+//static const float3 LightDirection = float3(-0.707, 0.707, 0.0);
+//static const float3 LightDirection = float3(0.0, 0.707, -0.707);
+//static const float3 LightDirection = float3(0.0, 1.0, 0.0);
 
 float3 computeSkyColor(in float3 ray)
 {
