@@ -13,7 +13,8 @@ HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float hei
 	_heightThreshold(50.0f),
 	_quadraticIncreasePercentage(0.3f),
 	_seed( 1111 ),
-	_noiseIntensity(1.0f),
+	_noiseIntensity(0.5f),
+	_refractionNoiseIntensity(3.0f),
 	_frequencyHeightDependence(0.5f),
 	_useInverseDistance(true),
 	_numSummits(0), _summitList(nullptr)
@@ -106,6 +107,11 @@ void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsign
 		}
 		break;
 
+	case 10:
+		assert( width == 1 && height == 1 );
+		_refractionNoiseIntensity = data[0];
+		break;
+
 	default:
 		// Unimplemented parameter
 		assert( false );
@@ -172,6 +178,9 @@ void HeightmapFactory::GetParameter(unsigned int type, float* outData, unsigned 
 			outData[i*3+2] = _summitList[i].z * HEIGHT_CODE_FACTOR;
 		}
 
+	case 10:
+		outData[0] = _refractionNoiseIntensity;
+
 	default:
 		// Unimplemented parameter
 		assert( false );
@@ -205,16 +214,18 @@ void HeightmapFactory::Generate(float* dataDestination)
 	delete mst;
 	//delete[] uglyTestBuffer;
 
-	// Create more natural apeareance
+	// Create more natural apeareance by different noises
+	if( _refractionNoiseIntensity > 0.0f )
+		RefractWithNoise( dataDestination, GetWidth(), GetHeight(), _seed, _refractionNoiseIntensity );
+
 	if( _noiseIntensity > 0.0f )
 	{
-		RefractWithNoise( dataDestination, GetWidth(), GetHeight(), _seed, _noiseIntensity*3.0f );
-	/*	AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
+		AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
 			_heightThreshold,
 			_frequencyHeightDependence/_heightThreshold,
 			_frequencyGradientDependence,
 			_heightThreshold * _noiseIntensity,
-			0.01f );*/
+			0.01f );
 	}
 
 	// Normalize for visual output

@@ -66,6 +66,8 @@ public:
 	///		* 9: A list of points describing summits. The height determines the
 	///			number of summits whereby each point consists of three floats.
 	///			The width is always 3 for the three vector components.
+	///		* 10: Intensity of a refraction noise which is applied before the
+	///			additional noise to disturb the ridges horizontally.
 	void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
 
 	void GetParameter(unsigned int type, float* outData, unsigned int& outWidth, unsigned int& outHeight);
@@ -104,6 +106,7 @@ private:
 	float _heightThreshold;				///< Cuts the distance function at a certain level.
 	float _quadraticIncreasePercentage;	///< Percentage of the quadratic spline to smooth the mountain foots.
 
+	float _refractionNoiseIntensity;	///< Disturbtion of the terrain by a value noise refraction map.
 	float _noiseIntensity;				///< Amount of perlin noise added to the map.
 	float _frequencyHeightDependence;	///< Frequence shift depending on the terrain height.
 	float _frequencyGradientDependence;	///< Frequence shift depending on the terrain gradient.

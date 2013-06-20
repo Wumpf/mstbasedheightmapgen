@@ -131,5 +131,11 @@ namespace MST_Heightmap_Generator_GUI
             float[,] value = { { (float)GeneratorSelection.SelectedIndex } };
             _heightmapFactory.SetParameter(0, value);
         }
+
+        private void Sl_RefractionNoise_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            float[,] value = { { (float)e.NewValue } };
+            _heightmapFactory.SetParameter(10, value);
+        }
     }
 }
