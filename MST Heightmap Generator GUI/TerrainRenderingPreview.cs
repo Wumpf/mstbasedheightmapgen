@@ -209,8 +209,9 @@ namespace MST_Heightmap_Generator_GUI
             // render spheres
             if (spherePositions != null)
             {
-                sphereBillboardShader.Parameters["CameraRight"].SetValue(camera.Right);
-                sphereBillboardShader.Parameters["CameraUp"].SetValue(Vector3.Cross(camera.Right, camera.Direction));
+ //               sphereBillboardShader.Parameters["CameraRight"].SetValue(camera.Right);
+//                sphereBillboardShader.Parameters["CameraUp"].SetValue(Vector3.Cross(camera.Right, camera.Direction));
+                sphereBillboardShader.Parameters["CameraPosition"].SetValue(camera.Position);
                 sphereBillboardShader.Parameters["WorldViewProjection"].SetValue(viewProjection);
 
                 graphicsDevice.SetBlendState(graphicsDevice.BlendStates.NonPremultiplied);
