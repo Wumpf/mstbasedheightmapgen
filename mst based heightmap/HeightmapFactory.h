@@ -68,6 +68,7 @@ public:
 	///			The width is always 3 for the three vector components.
 	///		* 10: Intensity of a refraction noise which is applied before the
 	///			additional noise to disturb the ridges horizontally.
+	///		* 11: READ ONLY: real minimum and maximum height occuring in the terrain.
 	void SetParameter(unsigned int type, const float* data, unsigned int width, unsigned int height);
 
 	void GetParameter(unsigned int type, float* outData, unsigned int& outWidth, unsigned int& outHeight);
@@ -110,5 +111,9 @@ private:
 	float _noiseIntensity;				///< Amount of perlin noise added to the map.
 	float _frequencyHeightDependence;	///< Frequence shift depending on the terrain height.
 	float _frequencyGradientDependence;	///< Frequence shift depending on the terrain gradient.
+
+	// Statistics.
+	float _minHeight;					///< Minimum height in the current generated map
+	float _maxHeight;					///< Maximum height in the current generated map
 };
 

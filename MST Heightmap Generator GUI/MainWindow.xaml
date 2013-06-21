@@ -43,6 +43,9 @@
         <Slider Grid.Row="0" Grid.Column="1" Margin="10,100,11,0" VerticalAlignment="Top" Height="26" Maximum="10" LargeChange="0.5" SmallChange="0.1" ValueChanged="Sl_RefractionNoise_Changed" Value="3.0"/>
         <Label Grid.Row="0" Grid.Column="0" Content="Refraction Noise" Margin="-1,98,11,0" VerticalAlignment="Top" Height="26"/>
 
+        <Label Grid.Row="0" Grid.Column="0" Content="Visual Height Scale" Margin="-1,280,11,0" VerticalAlignment="Top" Height="26"/>
+        <Slider Name="VisualScaleSlider" Grid.Row="0" Grid.Column="1" Margin="9,280,11,0" VerticalAlignment="Top" Height="26" Maximum="1.5" LargeChange="0.15" SmallChange="0.025" Value="0.5"/>
+
         <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill"/>
     </Grid>
 </Window>

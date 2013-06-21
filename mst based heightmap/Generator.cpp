@@ -53,6 +53,29 @@ struct BufferDescriptor {
 
 inline float sqr( float _x )	{ return _x*_x; }
 
+
+// ************************************************************************* //
+// Use a global interpolation to generate a height for a certain point
+static float computeHeight(const OrE::ADT::Mesh* mst, float x, float y)
+{
+	// Calculate a weighted sum of all heights where the weight is the radial
+	// basis function.
+	auto it = mst->GetNodeIterator();
+	float height = 0;
+	float weightSum = 0;
+	while( ++it ) {
+		const Vec3& vPos = ((PNode*)&it)->GetPos();
+		//float distance = 1.0f/(sqr(vPos.y-y) + sqr(vPos.x-x));
+		float distance = 1.0f/(1.0f + (sqr(vPos.y-y) + sqr(vPos.x-x)));	// Inverse multiquadric RBF
+		//float distance = exp(-0.0004f*(sqr(vPos.y-y) + sqr(vPos.x-x)));
+		height += distance * HEIGHT_CODE_FACTOR * vPos.z;
+		weightSum += distance;
+	}
+	return height / weightSum;
+}
+
+
+// ************************************************************************* //
 static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, int numLines, const OrE::ADT::Mesh* mst,
 						   const GenerationDescriptor& generatorDesc )
 {
@@ -71,7 +94,7 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
 										((PNode*)it->GetDst())->GetPos(),
 										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize, r );
-				float parameterHeight = lrp( ((PNode*)it->GetSrc())->GetPos().z, ((PNode*)it->GetDst())->GetPos().z, r ) * HEIGHT_CODE_FACTOR;
+				float parameterHeight = 1.0f;//lrp( ((PNode*)it->GetSrc())->GetPos().z, ((PNode*)it->GetDst())->GetPos().z, r ) * HEIGHT_CODE_FACTOR;
 
 				height = min(height, generatorDesc._heightThreshold-(generatorDesc._heightThreshold-sqrtf(distance)) * parameterHeight);
 			}
@@ -86,10 +109,12 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				height = max( 0.0f, height );
 				bufferDesc->dataDestination[yw+x] = height*height/(4.0f*generatorDesc._quadraticIncrease);
 			}
+			bufferDesc->dataDestination[yw+x] = (bufferDesc->dataDestination[yw+x]+1.0f) * computeHeight(mst, x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize);
 		}
 	}
 }
 
+// ************************************************************************* //
 static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, int numLines, const OrE::ADT::Mesh* mst,
 						   const GenerationDescriptor& generatorDesc )
 {
@@ -114,8 +139,8 @@ static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, in
 				const Vec3& vP1 = ((PNode*)it->GetDst())->GetPos();
 				float distance = PointLineDistanceSq( vP0,
 										vP1,
-										py, x*bufferDesc->pixelSize , r );
-				float parameterHeight = lrp( vP0.z, vP1.z, r ) * HEIGHT_CODE_FACTOR;
+										x*bufferDesc->pixelSize, py, r );
+				float parameterHeight = 1.0f;//lrp( vP0.z, vP1.z, r ) * HEIGHT_CODE_FACTOR;
 
 				float unparametrizedHeight = maxHeight-sqrtf(distance);
 				// (height+t)^2/(4*t)
@@ -128,11 +153,12 @@ static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, in
 				height = max( unparametrizedHeight*parameterHeight, height );
 			}
 
-			bufferDesc->dataDestination[yw+x] = height;
+			bufferDesc->dataDestination[yw+x] = height * computeHeight(mst, x*bufferDesc->pixelSize, py);
 		}
 	}
 }
 
+// ************************************************************************* //
 // Generates the euklidean distance field to the MST.
 void GenerateGraphBased_1( float* dataDestination, int width, int height, float pixelSize, const OrE::ADT::Mesh& mst,
 						   const GenerationDescriptor& generatorDesc )

@@ -44,7 +44,7 @@ namespace MST_Heightmap_Generator_GUI
         {
         }
 
-        public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit, float[,] summits)
+        public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit, float minHeight, float maxHeight, float[,] summits)
         {
             if(heightmapTexture != null)
                 heightmapTexture.Dispose();
@@ -67,7 +67,7 @@ namespace MST_Heightmap_Generator_GUI
 
             // setup heightmap cbuffer
             var heightmapConstantBuffer = terrainShader.ConstantBuffers["HeightmapInfo"];
-            const float terrainScale = 50.0f;
+            float terrainScale = (maxHeight - minHeight) * 0.5f;
             heightmapConstantBuffer.Parameters["TerrainScale"].SetValue(terrainScale);
             heightmapConstantBuffer.Parameters["HeightmapSize"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
             heightmapConstantBuffer.Parameters["HeightmapSizeInv"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height));   // HeightmapSizeInv
@@ -84,7 +84,7 @@ namespace MST_Heightmap_Generator_GUI
 
             Vector3[] spherePositionArray = new Vector3[summits.GetLength(0)];
             for (int i = 0; i < spherePositionArray.Length; ++i)
-                spherePositionArray[i] = new Vector3(summits[i, 1], summits[i, 2] * terrainScale, summits[i, 0]) - new Vector3(heightmapTexture.Width, 0, heightmapTexture.Height) * 0.5f / heightmapPixelPerWorldUnit;
+                spherePositionArray[i] = new Vector3(summits[i, 0], summits[i, 2] * terrainScale, summits[i, 1]) - new Vector3(heightmapTexture.Width, 0, heightmapTexture.Height) * 0.5f / heightmapPixelPerWorldUnit;
             spherePositions = Buffer.Vertex.New<Vector3>(graphicsDevice, spherePositionArray, SharpDX.Direct3D11.ResourceUsage.Dynamic);
         }
 

@@ -23,26 +23,26 @@ static void Normalize_Kernel( float* dataDestination, int width, int yw, float f
 }
 
 // Transforms the range of values in the float image to the range [0,1].
-void Normalize( float* dataDestination, int width, int height )
+void Normalize( float* dataDestination, int width, int height, float& minHeight, float& maxHeight )
 {
 	// Hight must be devisible through 4
 	assert( (height & 3) == 0 );
 
 	// Search min and max sequentially (return values need so much code)
-	float fmin = *dataDestination;
-	float fmax = *dataDestination;
+	minHeight = *dataDestination;
+	maxHeight = *dataDestination;
 	for( int y=0; y<height; ++y )
 	{
 		int yw = y*width;
 		for( int x=0; x<height; ++x )
 		{
 			float value = dataDestination[x+yw];
-			fmin = min( value, fmin );
-			fmax = max( value, fmax );
+			minHeight = min( value, minHeight );
+			maxHeight = max( value, maxHeight );
 		}
 	}
 
-	float rangeInv = 1.0f / (fmax-fmin);
+	float rangeInv = 1.0f / (maxHeight-minHeight);
 
 	std::thread* threads[8];
 	for( int y=0; y<height; y+=32 )
@@ -50,7 +50,7 @@ void Normalize( float* dataDestination, int width, int height )
 		int num = min(8,(height-y)/4);
 		
 		for( int t=0; t<num; ++t )
-			threads[t] = new std::thread( Normalize_Kernel, dataDestination, width, (y+t*4)*width, fmin, rangeInv );
+			threads[t] = new std::thread( Normalize_Kernel, dataDestination, width, (y+t*4)*width, minHeight, rangeInv );
 		for( int t=0; t<num; ++t )
 		{
 			threads[t]->join();

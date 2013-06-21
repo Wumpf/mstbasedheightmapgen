@@ -134,6 +134,7 @@ void HeightmapFactory::GetParameter(unsigned int type, float* outData, unsigned 
 
 	case 1:
 		// Get _worldSize
+		outWidth = 2;
 		outData[0] = _worldSizeX;
 		outData[1] = _worldSizeY;
 		break;
@@ -177,9 +178,18 @@ void HeightmapFactory::GetParameter(unsigned int type, float* outData, unsigned 
 			outData[i*3+1] = _summitList[i].y;
 			outData[i*3+2] = _summitList[i].z * HEIGHT_CODE_FACTOR;
 		}
+		break;
 
 	case 10:
 		outData[0] = _refractionNoiseIntensity;
+		break;
+
+	case 11:
+		// Minimum and maximum height
+		outWidth = 2;
+		outData[0] = _minHeight;
+		outData[1] = _maxHeight;
+		break;
 
 	default:
 		// Unimplemented parameter
@@ -229,5 +239,5 @@ void HeightmapFactory::Generate(float* dataDestination)
 	}
 
 	// Normalize for visual output
-	Normalize( dataDestination, GetWidth(), GetHeight() );
+	Normalize( dataDestination, GetWidth(), GetHeight(), _minHeight, _maxHeight );
 }
