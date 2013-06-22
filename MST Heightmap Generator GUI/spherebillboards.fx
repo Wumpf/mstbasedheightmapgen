@@ -1,6 +1,7 @@
 //float3 CameraUp;
 //float3 CameraRight;
 float3 CameraPosition;
+float HeightScale;
 matrix WorldViewProjection;
 
 struct ParticleVertex
@@ -28,27 +29,30 @@ void GS_Render(point ParticleVertex inputArray[1], inout TriangleStream<Particle
 
 	const float SIZE = 2.0f;
 
-	float3 toCamera = input.Position-CameraPosition;
+	float3 position = input.Position;
+	position.y *= HeightScale;
+
+	float3 toCamera = position-CameraPosition;
 	float3 right = normalize(cross(toCamera,float3(0,1,0))) * SIZE;//CameraRight * SIZE;
 	float3 up = normalize(cross(right, toCamera)) * SIZE;
 
 	// Create and append four vertices to form a quad.
-    float4 positionWS = float4(input.Position + right + up, 1.f);
+    float4 positionWS = float4(position + right + up, 1.f);
 	v.Position = mul(positionWS, WorldViewProjection);
 	v.Texcoord = float2(1, 1);
     stream.Append(v);
 
-    positionWS = float4(input.Position - right + up, 1.f);
+    positionWS = float4(position - right + up, 1.f);
     v.Position = mul(positionWS, WorldViewProjection);
 	v.Texcoord = float2(0, 1);
     stream.Append(v);
 
-    positionWS = float4(input.Position + right - up, 1.f);
+    positionWS = float4(position + right - up, 1.f);
     v.Position = mul(positionWS, WorldViewProjection);
 	v.Texcoord = float2(1, 0);
     stream.Append(v);
 
-    positionWS = float4(input.Position - right - up, 1.f);
+    positionWS = float4(position - right - up, 1.f);
     v.Position = mul(positionWS, WorldViewProjection);
 	v.Texcoord = float2(0, 0);
     stream.Append(v);

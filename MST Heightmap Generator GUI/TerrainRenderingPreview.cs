@@ -44,7 +44,26 @@ namespace MST_Heightmap_Generator_GUI
         {
         }
 
-        public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit, float minHeight, float maxHeight, float[,] summits)
+        /// <summary>
+        /// The visual output can be rescaled without regeneration of the map.
+        /// 
+        /// This method should always be called together with LoadNewHeightMap.
+        /// </summary>
+        /// <param name="minHeight">Measured minimum terrain height times a scaling factor</param>
+        /// <param name="maxHeight">Measured maximum terrain height times a scaling factor</param>
+        public void RescaleHeight(float minHeight, float maxHeight)
+        {
+            var heightmapConstantBuffer = terrainShader.ConstantBuffers["HeightmapInfo"];
+            float terrainScale = maxHeight - minHeight;
+            heightmapConstantBuffer.Parameters["TerrainScale"].SetValue(terrainScale);
+            heightmapConstantBuffer.Parameters["MaxTerrainHeight"].SetValue(maxHeight);
+            heightmapConstantBuffer.Parameters["MinTerrainHeight"].SetValue(minHeight);
+            heightmapConstantBuffer.IsDirty = true;
+
+            sphereBillboardShader.Parameters["HeightScale"].SetValue(terrainScale);
+        }
+
+        public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit, float[,] summits)
         {
             if(heightmapTexture != null)
                 heightmapTexture.Dispose();
@@ -67,8 +86,6 @@ namespace MST_Heightmap_Generator_GUI
 
             // setup heightmap cbuffer
             var heightmapConstantBuffer = terrainShader.ConstantBuffers["HeightmapInfo"];
-            float terrainScale = (maxHeight - minHeight) * 0.5f;
-            heightmapConstantBuffer.Parameters["TerrainScale"].SetValue(terrainScale);
             heightmapConstantBuffer.Parameters["HeightmapSize"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
             heightmapConstantBuffer.Parameters["HeightmapSizeInv"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height));   // HeightmapSizeInv
             heightmapConstantBuffer.Parameters["WorldUnitToHeightmapTexcoord"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height) * heightmapPixelPerWorldUnit);
@@ -84,7 +101,7 @@ namespace MST_Heightmap_Generator_GUI
 
             Vector3[] spherePositionArray = new Vector3[summits.GetLength(0)];
             for (int i = 0; i < spherePositionArray.Length; ++i)
-                spherePositionArray[i] = new Vector3(summits[i, 0], summits[i, 2] * terrainScale, summits[i, 1]) - new Vector3(heightmapTexture.Width, 0, heightmapTexture.Height) * 0.5f / heightmapPixelPerWorldUnit;
+                spherePositionArray[i] = new Vector3(summits[i, 0], summits[i, 2], summits[i, 1]) - new Vector3(heightmapTexture.Width, 0, heightmapTexture.Height) * 0.5f / heightmapPixelPerWorldUnit;
             spherePositions = Buffer.Vertex.New<Vector3>(graphicsDevice, spherePositionArray, SharpDX.Direct3D11.ResourceUsage.Dynamic);
         }
 

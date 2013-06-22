@@ -15,13 +15,15 @@ cbuffer HeightmapInfo : register(b2)
 	float2 WorldUnitToHeightmapTexcoord;
 	float2 HeightmapPixelSizeInWorld;
 	float TerrainScale;
+	float MinTerrainHeight;
+	float MaxTerrainHeight;
 }
 
 // ------------------------------------------------
 // TERRAIN
 // ------------------------------------------------
-static const float maxTerrainHeight = TerrainScale;
-static const float minTerrainHeight = -10;
+//static const float maxTerrainHeight = TerrainScale;
+//static const float minTerrainHeight = -10;
 
 SamplerState LinearSampler;  
 Texture2D Heightmap;  
@@ -54,8 +56,8 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 //	if(abs(rayDirection.y) < 0.000001)
 //		return false;
 
-	float upperBound = (maxTerrainHeight - rayOrigin.y) / rayDirection.y;
-	float lowerBound = (0				 - rayOrigin.y) / rayDirection.y;
+	float upperBound = (MaxTerrainHeight - rayOrigin.y) / rayDirection.y;
+	float lowerBound = (MinTerrainHeight - rayOrigin.y) / rayDirection.y;
 	// Clip if ray upward from above or downward from below
 	if(lowerBound < 0.0 && upperBound < 0.0)
 		return false;

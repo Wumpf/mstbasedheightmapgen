@@ -65,14 +65,12 @@ namespace MST_Heightmap_Generator_GUI
                                             (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
 
             */   
-            uint width, height;
             float[,] heightmapPixelsPerWorld = new float[1, 1];
+            uint width, height;
             _heightmapFactory.GetParameter(2, heightmapPixelsPerWorld, out width, out height);
-            float[,] minmaxHeights = new float[2, 1];
-            _heightmapFactory.GetParameter(11, minmaxHeights, out width, out height);
-            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0],
-                minmaxHeights[0, 0] * (float)VisualScaleSlider.Value, minmaxHeights[1, 0] * (float)VisualScaleSlider.Value,
-                _summitList);
+            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0], _summitList);
+
+            Sl_VisualScaleSlider_Changed(null, null);
         }
 
         private void GenerateRandomSummits(int num)
@@ -140,6 +138,18 @@ namespace MST_Heightmap_Generator_GUI
         {
             float[,] value = { { (float)e.NewValue } };
             _heightmapFactory.SetParameter(10, value);
+        }
+
+        private void Sl_VisualScaleSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (terrainRenderingPreview != null)
+            {
+                // Query the terrain size and update shader constants
+                float[,] minmaxHeights = new float[2, 1];
+                uint width, height;
+                _heightmapFactory.GetParameter(11, minmaxHeights, out width, out height);
+                terrainRenderingPreview.RescaleHeight(minmaxHeights[0, 0] * (float)VisualScaleSlider.Value, minmaxHeights[1, 0] * (float)VisualScaleSlider.Value);
+            }
         }
     }
 }

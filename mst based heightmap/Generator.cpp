@@ -76,6 +76,7 @@ static float computeHeight(const OrE::ADT::Mesh* mst, float x, float y)
 
 
 // ************************************************************************* //
+// MST Distance function
 static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, int numLines, const OrE::ADT::Mesh* mst,
 						   const GenerationDescriptor& generatorDesc )
 {
@@ -94,9 +95,8 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				float distance = PointLineDistanceSq( ((PNode*)it->GetSrc())->GetPos(),
 										((PNode*)it->GetDst())->GetPos(),
 										x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize, r );
-				float parameterHeight = 1.0f;//lrp( ((PNode*)it->GetSrc())->GetPos().z, ((PNode*)it->GetDst())->GetPos().z, r ) * HEIGHT_CODE_FACTOR;
 
-				height = min(height, generatorDesc._heightThreshold-(generatorDesc._heightThreshold-sqrtf(distance)) * parameterHeight);
+				height = min(height, generatorDesc._heightThreshold-(generatorDesc._heightThreshold-sqrtf(distance)));
 			}
 		
 			// Transform foot of the mountain with quadratic spline
@@ -109,12 +109,14 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				height = max( 0.0f, height );
 				bufferDesc->dataDestination[yw+x] = height*height/(4.0f*generatorDesc._quadraticIncrease);
 			}
-			bufferDesc->dataDestination[yw+x] = (bufferDesc->dataDestination[yw+x]+1.0f) * computeHeight(mst, x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize);
+			//assert(bufferDesc->dataDestination[yw+x]>=generatorDesc._quadraticIncrease);
+			bufferDesc->dataDestination[yw+x] = (bufferDesc->dataDestination[yw+x]+1.0f-generatorDesc._quadraticIncrease) * computeHeight(mst, x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize);
 		}
 	}
 }
 
 // ************************************************************************* //
+// Inverse MST Distance function
 static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, int numLines, const OrE::ADT::Mesh* mst,
 						   const GenerationDescriptor& generatorDesc )
 {
@@ -140,7 +142,6 @@ static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, in
 				float distance = PointLineDistanceSq( vP0,
 										vP1,
 										x*bufferDesc->pixelSize, py, r );
-				float parameterHeight = 1.0f;//lrp( vP0.z, vP1.z, r ) * HEIGHT_CODE_FACTOR;
 
 				float unparametrizedHeight = maxHeight-sqrtf(distance);
 				// (height+t)^2/(4*t)
@@ -150,7 +151,7 @@ static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, in
 					unparametrizedHeight = max( 0.0f, unparametrizedHeight );
 					unparametrizedHeight = sqr(unparametrizedHeight)/(4.0f*generatorDesc._quadraticIncrease);
 				}
-				height = max( unparametrizedHeight*parameterHeight, height );
+				height = max( unparametrizedHeight, height );
 			}
 
 			bufferDesc->dataDestination[yw+x] = height * computeHeight(mst, x*bufferDesc->pixelSize, py);
