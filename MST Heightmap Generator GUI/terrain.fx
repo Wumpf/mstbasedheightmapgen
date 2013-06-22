@@ -40,9 +40,9 @@ float3 getTerrainNormal(in float3 pos)
 	h[1] = getTerrainHeight(pos.xz + float2( 0, HeightmapPixelSizeInWorld.y ));
 	h[2] = getTerrainHeight(pos.xz + float2( HeightmapPixelSizeInWorld.x, 0 ));
 	h[3] = getTerrainHeight(pos.xz + float2(-HeightmapPixelSizeInWorld.x, 0 ));
-	float3 vecdz = float3(0.0f, h[1] - h[0], 2);
-	float3 vecdx = float3(2, h[2] - h[3], 0.0f);
-    return normalize(cross(vecdz, vecdx));
+	//float3 vecdz = float3(0.0f, h[1] - h[0], 2);
+	//float3 vecdx = float3(2, h[2] - h[3], 0.0f);
+    return normalize(float3(h[2] - h[3], 2.0, h[1] - h[0]));
 }
 
 // ------------------------------------------------
@@ -76,7 +76,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	intersectionPoint = rayOrigin + rayDirection * start;
 	intersectionPoint.xz = intersectionPoint.xz * WorldUnitToHeightmapTexcoord + 0.5f;
 	float2 startOffset = (saturate(intersectionPoint.xz)-intersectionPoint.xz)/rayDirection_TextureSpace.xz;
-	intersectionPoint.y = intersectionPoint.y / TerrainScale;
+	intersectionPoint.y = (intersectionPoint.y - MinTerrainHeight) / TerrainScale;
 	intersectionPoint += max(startOffset.x, startOffset.y) * rayDirection_TextureSpace;
 
 	// cone stepping
@@ -119,7 +119,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 			// bring intersection point to world and output
 			intersectionPoint.xz -= 0.5f;
 			intersectionPoint.xz /= WorldUnitToHeightmapTexcoord;
-			intersectionPoint.y = height_cone.x * TerrainScale;
+			intersectionPoint.y = height_cone.x * TerrainScale + MinTerrainHeight;
 
 			return true;
 		}

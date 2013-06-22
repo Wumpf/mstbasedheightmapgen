@@ -65,13 +65,12 @@ static float computeHeight(const OrE::ADT::Mesh* mst, float x, float y)
 	float weightSum = 0;
 	while( ++it ) {
 		const Vec3& vPos = ((PNode*)&it)->GetPos();
-		//float distance = 1.0f/(sqr(vPos.y-y) + sqr(vPos.x-x));
-		float distance = 1.0f/(1.0f + (sqr(vPos.y-y) + sqr(vPos.x-x)));	// Inverse multiquadric RBF
-		//float distance = exp(-0.0004f*(sqr(vPos.y-y) + sqr(vPos.x-x)));
-		height += distance * HEIGHT_CODE_FACTOR * vPos.z;
+		//float distance = 1.0f/(1.0f + 2.0f*(sqr(vPos.y-y) + sqr(vPos.x-x)));	// Inverse multiquadric RBF
+		float distance = exp(-0.0006f*(sqr(vPos.y-y) + sqr(vPos.x-x)));		// Gaussian
+		height += distance * vPos.z;
 		weightSum += distance;
 	}
-	return height / weightSum;
+	return height * HEIGHT_CODE_FACTOR / weightSum;
 }
 
 
@@ -109,8 +108,10 @@ static void GenerateGraphBased_Kernel_1( BufferDescriptor* bufferDesc, int y, in
 				height = max( 0.0f, height );
 				bufferDesc->dataDestination[yw+x] = height*height/(4.0f*generatorDesc._quadraticIncrease);
 			}
-			//assert(bufferDesc->dataDestination[yw+x]>=generatorDesc._quadraticIncrease);
-			bufferDesc->dataDestination[yw+x] = (bufferDesc->dataDestination[yw+x]+1.0f-generatorDesc._quadraticIncrease) * computeHeight(mst, x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize);
+			// The points on the mst are 0 so multiplication is not possible.
+			// Therefore multiply the inverses.
+			bufferDesc->dataDestination[yw+x] = generatorDesc._heightThreshold - (generatorDesc._heightThreshold - bufferDesc->dataDestination[yw+x])
+				* (1-computeHeight(mst, x*bufferDesc->pixelSize, (y+i)*bufferDesc->pixelSize));	// TODO: The 1- has to be maxSummit-
 		}
 	}
 }
