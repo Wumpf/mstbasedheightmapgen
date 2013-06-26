@@ -81,7 +81,7 @@ float calculateFrequenceAmplitude( const AddNoiseParam& bufferDesc, float _fCurr
 {
 	float fHeightDependency = exp( (_fCurrentHeight-bufferDesc.frequenceDependencyOffset) * bufferDesc.frequenceHeightDependency);
 	float fGradientDependency = 1.0f + sqrt(_fGradientX*_fGradientX + _fGradientY*_fGradientY) * bufferDesc.frequenceGradientDependency;
-	return min( 10.0f, fHeightDependency*fGradientDependency / _fFrequence );
+	return min( 6.0f, fHeightDependency*fGradientDependency ) / _fFrequence;
 }
 
 // Uses several blending methods to add noise to the terrain.

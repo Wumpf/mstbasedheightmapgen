@@ -151,5 +151,11 @@ namespace MST_Heightmap_Generator_GUI
                 terrainRenderingPreview.RescaleHeight(minmaxHeights[0, 0] * (float)VisualScaleSlider.Value, minmaxHeights[1, 0] * (float)VisualScaleSlider.Value);
             }
         }
+
+        private void Sl_HeightDependencyOffset_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            float[,] value = { { (float)e.NewValue } };
+            _heightmapFactory.SetParameter(12, value);
+        }
     }
 }

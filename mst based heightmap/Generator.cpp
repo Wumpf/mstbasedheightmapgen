@@ -65,7 +65,7 @@ static float computeHeight(const OrE::ADT::Mesh* mst, float x, float y)
 	float weightSum = 0;
 	while( ++it ) {
 		const Vec3& vPos = ((PNode*)&it)->GetPos();
-		//float distance = 1.0f/(1.0f + 2.0f*(sqr(vPos.y-y) + sqr(vPos.x-x)));	// Inverse multiquadric RBF
+		//float distance = 1.0f/(1.0f + 2.0f*(sqr(vPos.y-y) + sqr(vPos.x-x)));	// Inverse quadric RBF
 		float distance = exp(-0.0006f*(sqr(vPos.y-y) + sqr(vPos.x-x)));		// Gaussian
 		height += distance * vPos.z;
 		weightSum += distance;
@@ -133,10 +133,6 @@ static void GenerateGraphBased_Kernel_2( BufferDescriptor* bufferDesc, int y, in
 			auto it = mst->GetEdgeIterator();
 			while( ++it )
 			{
-				// TODO: Lösung: Suche Punkt der in 2D am Nächsten am MST
-				// - für diesen Punkt: berechne Höhe (parameter Höhe für Punkt merken aber nicht mit vergleichen)
-				// - Problem: scharfe Abbrüche
-				// - Frage: Differenziere Fall für r=0 oder r=1 von r in (0,1)?
 				float r;
 				const Vec3& vP0 = ((PNode*)it->GetSrc())->GetPos();
 				const Vec3& vP1 = ((PNode*)it->GetDst())->GetPos();
