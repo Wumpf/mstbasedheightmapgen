@@ -98,6 +98,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Camera.cs" />
+    <Compile Include="ShaderAutoReload.cs" />
     <Compile Include="WPFHost\Disposer.cs" />
     <Compile Include="WPFHost\DPFCanvas.cs" />
     <Compile Include="WPFHost\DX11ImageSource.cs" />
