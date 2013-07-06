@@ -28,6 +28,8 @@ namespace WPFHost
         RenderTargetView RenderTargetView { get; }
         int RenderTargetWidth { get; }
         int RenderTargetHeight { get; }
+
+        System.Windows.IInputElement WindowsInputElement { get; }
     }
 
     public interface IScene

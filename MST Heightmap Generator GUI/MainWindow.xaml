@@ -49,6 +49,7 @@
         <Label Grid.Row="0" Grid.Column="0" Content="Visual Height Scale" Margin="-1,479,11,0" VerticalAlignment="Top" Height="26"/>
         <Slider Name="VisualScaleSlider" Grid.Row="0" Grid.Column="1" Margin="9,479,11,0" VerticalAlignment="Top" Height="26" Maximum="1.5" LargeChange="0.15" SmallChange="0.025" Value="0.5" ValueChanged="Sl_VisualScaleSlider_Changed"/>
 
-        <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill"/>
+        <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill" MouseLeftButtonDown="CanvasMouseLeftButtonDown"
+                           MouseLeftButtonUp="CanvasMouseLeftButtonUp" MouseMove="CanvasMouseMove" MouseLeave="CanvasMouseLeave"/>
     </Grid>
 </Window>

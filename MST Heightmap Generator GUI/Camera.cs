@@ -106,9 +106,10 @@ namespace MST_Heightmap_Generator_GUI
             projectionMatrix = Matrix.PerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
         }
 
-        public Ray GetPickingRay(int screenResolutionX, int screenResolutionY)
+        public Ray GetPickingRay(int screenResolutionX, int screenResolutionY, System.Windows.IInputElement realativeInputElement = null)
         {
-            Vector2 deviceCor = new Vector2((float)Mouse.GetPosition(null).X / screenResolutionX - 0.5f, -(float)Mouse.GetPosition(null).Y / screenResolutionY + 0.5f) * 2;
+            Vector2 deviceCor = new Vector2((float)Mouse.GetPosition(realativeInputElement).X / screenResolutionX - 0.5f,
+                                            -(float)Mouse.GetPosition(realativeInputElement).Y / screenResolutionY + 0.5f) * 2;
             Matrix viewProjection = ViewMatrix * ProjectionMatrix;
             Matrix viewProjectionInverse = viewProjection; viewProjectionInverse.Invert();
 

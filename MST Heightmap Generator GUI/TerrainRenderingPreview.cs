@@ -25,12 +25,17 @@ namespace MST_Heightmap_Generator_GUI
 
         private SamplerState linearSamplerState;
 
+        private float terrainScale;
+
         private bool resizeNeeded = false;
 
 
         #region Spheres
         
+        private const float SPHERE_RADIUS = 2.3f;
+
         private Buffer<Vector3> spherePositions;
+        private Vector3[] spherePositionArray;
         private VertexInputLayout sphereVertexInputLayout;
 
         private Effect sphereBillboardShader;
@@ -54,7 +59,7 @@ namespace MST_Heightmap_Generator_GUI
         public void RescaleHeight(float minHeight, float maxHeight)
         {
             var heightmapConstantBuffer = terrainShader.ConstantBuffers["HeightmapInfo"];
-            float terrainScale = maxHeight - minHeight;
+            terrainScale = maxHeight - minHeight;
             heightmapConstantBuffer.Parameters["TerrainScale"].SetValue(terrainScale);
             heightmapConstantBuffer.Parameters["MaxTerrainHeight"].SetValue(maxHeight);
             heightmapConstantBuffer.Parameters["MinTerrainHeight"].SetValue(minHeight);
@@ -99,7 +104,7 @@ namespace MST_Heightmap_Generator_GUI
             if (spherePositions != null)
                 spherePositions.Dispose();
 
-            Vector3[] spherePositionArray = new Vector3[summits.GetLength(0)];
+            spherePositionArray = new Vector3[summits.GetLength(0)];
             for (int i = 0; i < spherePositionArray.Length; ++i)
                 spherePositionArray[i] = new Vector3(summits[i, 0], summits[i, 2], summits[i, 1]) - new Vector3(heightmapTexture.Width, 0, heightmapTexture.Height) * 0.5f / heightmapPixelPerWorldUnit;
             spherePositions = Buffer.Vertex.New<Vector3>(graphicsDevice, spherePositionArray, SharpDX.Direct3D11.ResourceUsage.Dynamic);
@@ -249,6 +254,60 @@ namespace MST_Heightmap_Generator_GUI
             lock (this)
             {
                 resizeNeeded = true;
+            }
+        }
+
+        int selectedSphere = -1;
+
+        public void OnLeftMouseDown()
+        {
+            if (spherePositionArray == null)
+                return;
+
+            Ray ray = camera.GetPickingRay(graphicsDevice.BackBuffer.Width, graphicsDevice.BackBuffer.Height, host.WindowsInputElement);
+            for (int i = 0; i < spherePositionArray.Length; ++i)
+            {
+                Vector3 pos = spherePositionArray[i];
+                pos.Y *= terrainScale;
+                if (new BoundingSphere(pos, SPHERE_RADIUS).Intersects(ref ray))
+                    selectedSphere = i;
+            }
+        }
+
+        public void OnLeftMouseUp()
+        {
+            selectedSphere = -1;
+        }
+
+
+        private System.Windows.Point lastMousePosition;
+
+        public void OnMouseMove()
+        {
+            System.Windows.Point currentMousePosition = System.Windows.Input.Mouse.GetPosition(host.WindowsInputElement);
+            if (selectedSphere >= 0)
+            {
+                spherePositionArray[selectedSphere].Y += (float)(lastMousePosition.Y - currentMousePosition.Y) / terrainScale;
+                UpdateSpherePositionsBuffer();
+            }
+
+            lastMousePosition = currentMousePosition;
+        }
+
+        private void UpdateSpherePositionsBuffer()
+        {
+            unsafe
+            {
+                fixed (Vector3* pArray = spherePositionArray)
+                {
+                    IntPtr intPtr = new IntPtr((void*)pArray);
+                    spherePositions.SetDynamicData(graphicsDevice, (x) =>
+                    {
+                        Vector3* vecArray = (Vector3*)x;
+                        for (int i = 0; i < spherePositionArray.Length; ++i)
+                            vecArray[i] = spherePositionArray[i];
+                    });
+                }
             }
         }
     }
