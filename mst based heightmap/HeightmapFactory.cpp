@@ -15,8 +15,9 @@ HeightmapFactory::HeightmapFactory(float worldSizeX, float worldSizeY, float hei
 	_seed( 1111 ),
 	_noiseIntensity(0.5f),
 	_refractionNoiseIntensity(3.0f),
-	_frequencyHeightDependence(0.5f),
+	_frequencyHeightDependency(0.5f),
 	_heightDependenceOffset(1.0f),
+	_frequencyGradientDependency(0.005f),
 	_useInverseDistance(true),
 	_numSummits(0), _summitList(nullptr)
 {
@@ -87,12 +88,12 @@ void HeightmapFactory::SetParameter(unsigned int type, const float* data, unsign
 
 	case 7:
 		assert( width == 1 && height == 1 );
-		_frequencyHeightDependence = data[0];
+		_frequencyHeightDependency = data[0];
 		break;
 
 	case 8:
 		assert( width == 1 && height == 1 );
-		_frequencyGradientDependence = data[0];
+		_frequencyGradientDependency = data[0];
 		break;
 
 	case 9:
@@ -169,11 +170,11 @@ void HeightmapFactory::GetParameter(unsigned int type, float* outData, unsigned 
 		break;
 
 	case 7:
-		outData[0] = _frequencyHeightDependence;
+		outData[0] = _frequencyHeightDependency;
 		break;
 
 	case 8:
-		outData[0] = _frequencyGradientDependence;
+		outData[0] = _frequencyGradientDependency;
 		break;
 
 	case 9:
@@ -243,8 +244,8 @@ void HeightmapFactory::Generate(float* dataDestination)
 		float maxGeneratedHeight = (_quadraticIncreasePercentage + 1) * _heightThreshold;
 		AddNoise( dataDestination, GetWidth(), GetHeight(), _seed,
 			_heightDependenceOffset * maxGeneratedHeight,
-			_frequencyHeightDependence / 100,
-			_frequencyGradientDependence,
+			_frequencyHeightDependency / 100,
+			_frequencyGradientDependency,
 			100 * _noiseIntensity,
 			0.01f );
 	}

@@ -110,9 +110,9 @@ private:
 
 	float _refractionNoiseIntensity;	///< Disturbtion of the terrain by a value noise refraction map.
 	float _noiseIntensity;				///< Amount of perlin noise added to the map.
-	float _frequencyHeightDependence;	///< Frequence shift depending on the terrain height.
+	float _frequencyHeightDependency;	///< Frequence shift depending on the terrain height.
 	float _heightDependenceOffset;		///< Where to start to change the frequence
-	float _frequencyGradientDependence;	///< Frequence shift depending on the terrain gradient.
+	float _frequencyGradientDependency;	///< Frequence shift depending on the terrain gradient.
 
 	// Statistics.
 	float _minHeight;					///< Minimum height in the current generated map
