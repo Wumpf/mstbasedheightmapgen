@@ -106,9 +106,10 @@ namespace MST_Heightmap_Generator_GUI
             projectionMatrix = Matrix.PerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
         }
 
-        public Ray GetPickingRay(int screenResolutionX, int screenResolutionY)
+        public Ray GetPickingRay(int screenResolutionX, int screenResolutionY, System.Windows.IInputElement realativeInputElement = null)
         {
-            Vector2 deviceCor = new Vector2((float)Mouse.GetPosition(null).X / screenResolutionX - 0.5f, -(float)Mouse.GetPosition(null).Y / screenResolutionY + 0.5f) * 2;
+            Vector2 deviceCor = new Vector2((float)Mouse.GetPosition(realativeInputElement).X / screenResolutionX - 0.5f,
+                                            -(float)Mouse.GetPosition(realativeInputElement).Y / screenResolutionY + 0.5f) * 2;
             Matrix viewProjection = ViewMatrix * ProjectionMatrix;
             Matrix viewProjectionInverse = viewProjection; viewProjectionInverse.Invert();
 
@@ -140,19 +141,22 @@ namespace MST_Heightmap_Generator_GUI
             // compute side
             Right = Vector3.Cross(upVec, viewDirection);
 
-            float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
+            if (Mouse.RightButton == MouseButtonState.Pressed)
+            {
+                float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
 
-            // forward movement
-            float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f);
-            Position += forward * forwardSpeed * viewDirection * speedUp;
+                // forward movement
+                float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f);
+                Position += forward * forwardSpeed * viewDirection * speedUp;
 
-            // side movement
-            float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f);
-            Position += side * sideSpeed * Right * speedUp;
+                // side movement
+                float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f);
+                Position += side * sideSpeed * Right * speedUp;
 
-            // upward movement
-            float up = Keyboard.IsKeyDown(Key.Space) ? 1.0f : 0.0f;
-            Position += up * upSpeed * upVec;
+                // upward movement
+                float up = Keyboard.IsKeyDown(Key.Space) ? 1.0f : 0.0f;
+                Position += up * upSpeed * upVec;
+            }
 
             // compute view matrix
             viewMatrix = Matrix.LookAtLH(Position, Position + viewDirection, upVec);

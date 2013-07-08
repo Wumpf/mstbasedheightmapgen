@@ -42,7 +42,7 @@ float3 getTerrainNormal(in float3 pos)
 	h[3] = getTerrainHeight(pos.xz + float2(-HeightmapPixelSizeInWorld.x, 0 ));
 	//float3 vecdz = float3(0.0f, h[1] - h[0], 2);
 	//float3 vecdx = float3(2, h[2] - h[3], 0.0f);
-    return normalize(float3(h[2] - h[3], 2.0, h[1] - h[0]));
+    return normalize(float3(-h[2] + h[3], 2.0, -h[1] + h[0]));
 }
 
 // ------------------------------------------------
@@ -51,7 +51,8 @@ float3 getTerrainNormal(in float3 pos)
 static const float FarPlane = 1000;
 static const float NearPlane = 3;
 static const float RayStepToHeightmapLod = 0.01f;
-bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectionPoint)
+static const float SoftShadowFactor = 300.0f;	// lower means softer
+bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectionPoint, out float shadowTerm)
 {
 //	if(abs(rayDirection.y) < 0.000001)
 //		return false;
@@ -76,14 +77,17 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	intersectionPoint = rayOrigin + rayDirection * start;
 	intersectionPoint.xz = intersectionPoint.xz * WorldUnitToHeightmapTexcoord + 0.5f;
 	float2 startOffset = (saturate(intersectionPoint.xz)-intersectionPoint.xz)/rayDirection_TextureSpace.xz;
+	float startOffsetMax = max(startOffset.x, startOffset.y);
 	intersectionPoint.y = (intersectionPoint.y - MinTerrainHeight) / TerrainScale;
-	intersectionPoint += max(startOffset.x, startOffset.y) * rayDirection_TextureSpace;
+	intersectionPoint += startOffsetMax* rayDirection_TextureSpace;
 
 	// cone stepping
+	shadowTerm = 1.0f;
 	const int MaxNumConeSteps = 80;
 	float minDistOffset = HeightmapSizeInv.x / dirXZlen * 0.25;
 	float distOffset;
 	float deltaHeight;
+	float travelled = 0.0;
 	for(int i = 0; i < MaxNumConeSteps; ++i)
 	{
 		float2 height_cone = Heightmap.SampleLevel(LinearSampler, intersectionPoint.xz, 0).xy;
@@ -93,17 +97,20 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 		distOffset = deltaHeight * height_cone.y / (dirXZlen - rayDirection_TextureSpace.y * height_cone.y);
 		distOffset = max(minDistOffset, distOffset);
 		intersectionPoint += rayDirection_TextureSpace * distOffset;
+		travelled += distOffset;
 
 		// outside?
 		if(any(intersectionPoint.xz != saturate(intersectionPoint.xz)) || (intersectionPoint.y > 1))
 			return false;
-		
+
+			shadowTerm = min(shadowTerm, deltaHeight*SoftShadowFactor / travelled);
+
 		// below terrain? done.
 		if(deltaHeight < 0.0)
 		{
 			// binary steps
 			// dist update missing
-			const int NumBinarySteps = 5;
+			const int NumBinarySteps = 10;
 			distOffset *= 0.5f;
 			intersectionPoint -= rayDirection_TextureSpace * distOffset;
 			for(int i = 0; i < NumBinarySteps; ++i)
@@ -169,18 +176,16 @@ float4 PS(PS_INPUT input) : SV_Target
 
 	//int steps = 0;
 	float3 outColor;
-	if(rayCast(CameraPosition, rayDirection, terrainPosition))
+	float shadowTerm;
+	if(rayCast(CameraPosition, rayDirection, terrainPosition, shadowTerm))
 	{
 		// LIGHTING
 		float3 normal = getTerrainNormal(terrainPosition);
-		float lighting = max(0, dot(normal, LightDirection));
+		float NDotL = dot(normal, LightDirection);
+		float lighting = max(0, NDotL);
 		float3 shadowCastPos;
-		if(rayCast(terrainPosition, LightDirection, shadowCastPos))
-		{
-			float3 toOccluder = shadowCastPos - terrainPosition;
-			float distToShadowCasterSq = dot(toOccluder,toOccluder);
-			lighting *= min(max(0.3, distToShadowCasterSq*0.01), 1.0);
-		}
+		rayCast(terrainPosition, LightDirection, shadowCastPos, shadowTerm);
+		lighting *= saturate(shadowTerm);
 		
 		outColor = float3(1,1,1) * lighting + computeSkyColor(normal)*0.4;
 		//outColor = Heightmap.SampleLevel(LinearSampler, terrainPosition.xz*WorldUnitToHeightmapTexcoord + 0.5, 0).y;

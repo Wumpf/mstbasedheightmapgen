@@ -267,5 +267,7 @@ namespace WPFHost
 
         public int RenderTargetWidth { get {return RenderTarget.Description.Width; } }
         public int RenderTargetHeight { get { return RenderTarget.Description.Height; } }
+
+        public System.Windows.IInputElement WindowsInputElement { get { return this; } }
     }
 }

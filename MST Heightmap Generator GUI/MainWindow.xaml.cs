@@ -158,6 +158,25 @@ namespace MST_Heightmap_Generator_GUI
             float[,] value = { { (float)e.NewValue } };
             _heightmapFactory.SetParameter(12, value);
         }
+        private void CanvasMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            terrainRenderingPreview.OnLeftMouseDown();
+        }
+
+        private void CanvasMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            terrainRenderingPreview.OnLeftMouseUp();
+        }
+
+        private void CanvasMouseMove(object sender, MouseEventArgs e)
+        {
+            terrainRenderingPreview.OnMouseMove();
+        }
+
+        private void CanvasMouseLeave(object sender, MouseEventArgs e)
+        {
+            terrainRenderingPreview.OnLeftMouseUp();
+        }
 
         private void AddSliderProperty(TreeViewItem parent, string name, double min, double max)
         {

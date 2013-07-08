@@ -25,7 +25,7 @@ void CSMain( uint3 threadID : SV_DispatchThreadID )
 
 	float stepLen = length(pixelSize) * STEP_LEN;
 	
-
+	/*
 	// loop over directions
 	for(float angle = 0.0f; angle<PI2; angle+=ANGLE_STEP)
 	{
@@ -57,10 +57,10 @@ void CSMain( uint3 threadID : SV_DispatchThreadID )
 		}
 	}
 
-
+	*/
 	// CONEMAP, NO RELAXING
 	
-/*	const int AREA_SIZE = 100;
+	const int AREA_SIZE = 100;
 
 	// loop over all pixels...
 	int2 dstTexPosMin = max(int2(0,0), threadID.xy - AREA_SIZE);
@@ -79,7 +79,7 @@ void CSMain( uint3 threadID : SV_DispatchThreadID )
 			}
 		}
 	}
-*/
+
 		
 	// output
 	coneRatio = sqrt(coneRatio);

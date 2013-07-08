@@ -49,7 +49,8 @@
         <Label Grid.Row="0" Grid.Column="0" Content="Visual Height Scale" Margin="-1,246,11,0" VerticalAlignment="Top" Height="26"/>
         <Slider Name="VisualScaleSlider" Grid.Row="0" Grid.Column="1" Margin="9,246,11,0" VerticalAlignment="Top" Height="26" Maximum="1.5" LargeChange="0.15" SmallChange="0.025" Value="0.5" ValueChanged="Sl_VisualScaleSlider_Changed" AutoToolTipPlacement="TopLeft"/>
 
-        <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill"/>
+        <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill" MouseLeftButtonDown="CanvasMouseLeftButtonDown"
+                           MouseLeftButtonUp="CanvasMouseLeftButtonUp" MouseMove="CanvasMouseMove" MouseLeave="CanvasMouseLeave"/>
         
         <TreeView Name="Layers" HorizontalAlignment="Left" Height="246" Margin="10,277,0,0" VerticalAlignment="Top" Width="280" Grid.ColumnSpan="2">
         </TreeView>
