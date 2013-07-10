@@ -99,6 +99,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Camera.cs" />
+    <Compile Include="PointSet.cs" />
     <Compile Include="ShaderAutoReload.cs" />
     <Compile Include="WPFHost\Disposer.cs" />
     <Compile Include="WPFHost\DPFCanvas.cs" />
