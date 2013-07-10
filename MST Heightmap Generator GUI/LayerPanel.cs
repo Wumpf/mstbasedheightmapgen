@@ -10,6 +10,18 @@ namespace MST_Heightmap_Generator_GUI
 {
     public partial class MainWindow
     {
+        private void Layers_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            LayerBlending.SelectedIndex = (int)((GeneralLayerProperties)((TreeViewItem)e.NewValue).Tag).Blending;
+        }
+
+        private void LayerBlending_Selected(object sender, RoutedEventArgs e)
+        {
+            if (Layers.SelectedItem != null)
+                ((GeneralLayerProperties)((TreeViewItem)Layers.SelectedItem).Tag).Blending = (GeneralLayerProperties.BlendOp)LayerBlending.SelectedIndex;
+        }
+
+
         private void AddSliderProperty(TreeViewItem parent, string name, double min, double max)
         {
             Label text = new Label();
@@ -77,19 +89,28 @@ namespace MST_Heightmap_Generator_GUI
         {
             TreeViewItem newItem = new TreeViewItem();
             newItem.Header = ((ComboBoxItem)LayerChoose.SelectedItem).Content;
+            GeneralLayerProperties props = new GeneralLayerProperties();
+            newItem.Tag = props;
             switch (LayerChoose.SelectedIndex)
             {
                 case 0:
+                    AddSliderProperty(newItem, "Height", 1, 100);
+                    AddSliderProperty(newItem, "Quadratic Spline", 0, 1);
+                    AddPointSetProperty(newItem);
+                    props.Type = GeneralLayerProperties.LayerType.MST_DISTANCE;
+                    break;
                 case 1:
                     AddSliderProperty(newItem, "Height", 1, 100);
                     AddSliderProperty(newItem, "Quadratic Spline", 0, 1);
                     AddPointSetProperty(newItem);
+                    props.Type = GeneralLayerProperties.LayerType.MST_INV_DISTANCE;
                     break;
                 case 2:
                     AddSliderProperty(newItem, "Height", 1, 100);
                     AddSliderProperty(newItem, "Height Dependency", 0, 2.5);
                     AddSliderProperty(newItem, "Height Dependency Offset", 0, 1);
                     AddSliderProperty(newItem, "Gradient Dependency", 0, 0.025);
+                    props.Type = GeneralLayerProperties.LayerType.VALUE_NOISE;
                     break;
             }
             if (Layers.Items.IsEmpty || (Layers.SelectedItem == null))
@@ -124,6 +145,11 @@ namespace MST_Heightmap_Generator_GUI
                     Layers.Items.Insert(index, swap);
                 }
             }
+        }
+
+        private void DeleteLayer(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

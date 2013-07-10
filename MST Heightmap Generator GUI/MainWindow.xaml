@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:WPFHost="clr-namespace:WPFHost" x:Class="MST_Heightmap_Generator_GUI.MainWindow"
-        Title="MainWindow" Height="600" Width="1000" Closed="Window_Closed">
+        Title="MainWindow" Height="797.015" Width="1000" Closed="Window_Closed">
     <Grid>
         <Grid.Margin>
             <Thickness>5</Thickness>
@@ -51,15 +51,22 @@
 
         <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill" MouseLeftButtonDown="CanvasMouseLeftButtonDown"
                            MouseLeftButtonUp="CanvasMouseLeftButtonUp" MouseMove="CanvasMouseMove" MouseLeave="CanvasMouseLeave"/>
-        
-        <TreeView Name="Layers" HorizontalAlignment="Left" Height="246" Margin="10,277,0,0" VerticalAlignment="Top" Width="280" Grid.ColumnSpan="2"/>
-        <ComboBox Name="LayerChoose" HorizontalAlignment="Left" Height="24" Margin="13,528,0,0" VerticalAlignment="Top" Width="127" SelectedIndex="0">
+
+        <TreeView Name="Layers" HorizontalAlignment="Left" Height="246" Margin="12,471,0,0" VerticalAlignment="Top" Width="280" Grid.ColumnSpan="2" SelectedItemChanged="Layers_SelectedItemChanged"/>
+        <ComboBox Name="LayerChoose" HorizontalAlignment="Left" Height="24" Margin="15,722,0,0" VerticalAlignment="Top" Width="127" SelectedIndex="0" Grid.ColumnSpan="2">
             <ComboBoxItem Content="MST Distance"/>
             <ComboBoxItem Content="MST Inverse Distance"/>
-            <ComboBoxItem Content="Perlin Noise"/>
+            <ComboBoxItem Content="Value Noise"/>
         </ComboBox>
-        <Button Content="+" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="9,528,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Arial Black" Click="AddLayer"/>
-        <Button Content="↑" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="38,528,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerUp"  RenderTransformOrigin="1.833,0.542"/>
-        <Button Content="↓" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="67,528,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerDown" RenderTransformOrigin="1.833,0.542"/>
+        <Button Content="+" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="11,722,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Arial Black" Click="AddLayer"/>
+        <Button Content="↑" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="40,722,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerUp"  RenderTransformOrigin="1.833,0.542"/>
+        <Button Content="↓" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="69,722,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerDown" RenderTransformOrigin="1.833,0.542"/>
+        <Button Content="X" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="98,722,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="DeleteLayer" RenderTransformOrigin="1.833,0.542"/>
+        <ComboBox x:Name="LayerBlending" HorizontalAlignment="Left" Height="24" Margin="10,442,0,0" VerticalAlignment="Top" Width="142" SelectedIndex="0" Grid.Column="1" SelectionChanged="LayerBlending_Selected">
+            <ComboBoxItem Content="Additive"/>
+            <ComboBoxItem Content="Multiplicative"/>
+            <ComboBoxItem Content="Refractive"/>
+        </ComboBox>
+        <Label Content="Blending" HorizontalAlignment="Left" Height="26" Margin="10,442,0,0" VerticalAlignment="Top" Width="99"/>
     </Grid>
 </Window>
