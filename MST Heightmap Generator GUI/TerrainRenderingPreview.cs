@@ -1,54 +1,51 @@
 ﻿using SharpDX;
-using SharpDX.D3DCompiler;
 
 using System;
-using System.Diagnostics;
-using System.Threading;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace MST_Heightmap_Generator_GUI
 {
     using SharpDX.Toolkit.Graphics;
+    
 
     public class TerrainRenderingPreview : WPFHost.IScene
     {
+        private WPFHost.ISceneHost host;
+        public GraphicsDevice GraphicsDevice { get; private set; }
+
         private ShaderAutoReload terrainShader;
         private ShaderAutoReload computeRelaxedConeShader;
 
+        private VertexInputLayout sphereVertexInputLayout;
+        private ShaderAutoReload sphereBillboardShader;
+
+        private List<PointSet> pointSets = new List<PointSet>();
+        PointSet containingSelectedSphere = null;
 
         private Camera camera;
-
-        public bool Closing { get; set; }
-
-        private WPFHost.ISceneHost host;
-        private GraphicsDevice graphicsDevice;
         
+        #region heightmap properties
+
         private Texture heightmapTexture;
 
-        #region heightmap properties
         private float heightmapPixelPerWorldUnit;
         private float minHeight;
         private float maxHeight;
+
+        private float terrainScale;
+
         #endregion
 
         private SamplerState linearSamplerState;
 
-        private float terrainScale;
-
-        private bool resizeNeeded = false;
-
-
-        #region Spheres
         
-        private const float SPHERE_RADIUS = 2.3f;
 
-        private Buffer<Vector3> spherePositions;
-        private Vector3[] spherePositionArray;
-        private VertexInputLayout sphereVertexInputLayout;
 
-        private ShaderAutoReload sphereBillboardShader;
+        public bool Closing { get; set; }
+        private bool resizeNeeded = false;
+        private System.Windows.Point lastMousePosition;
 
-        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HelloWorldGame" /> class.
@@ -56,6 +53,22 @@ namespace MST_Heightmap_Generator_GUI
         public TerrainRenderingPreview()
         {
         }
+
+        #region PointSet Functions
+        public void ClearPointSet()
+        {
+            pointSets.Clear();
+        }
+        public void AddPointSet(PointSet newPointSet)
+        {
+            pointSets.Add(newPointSet);
+        }
+        public void RemovePointSet(PointSet pointSet)
+        {
+            pointSets.Remove(pointSet);
+        }
+        #endregion
+
 
         /// <summary>
         /// The visual output can be rescaled without regeneration of the map.
@@ -79,22 +92,22 @@ namespace MST_Heightmap_Generator_GUI
             sphereBillboardShader.Effect.Parameters["HeightScale"].SetValue(terrainScale);
         }
 
-        public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit, float[,] summits)
+        public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit)
         {
             this.heightmapPixelPerWorldUnit = heightmapPixelPerWorldUnit;
 
             if(heightmapTexture != null)
                 heightmapTexture.Dispose();
 
-            var heightOnlyTexture = Texture2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource);
+            var heightOnlyTexture = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource);
             heightOnlyTexture.SetData<float>(heightmap.Cast<float>().ToArray());
-            heightmapTexture = Texture2D.New(graphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R16G16.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
+            heightmapTexture = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R16G16.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
             computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource(heightOnlyTexture);
             computeRelaxedConeShader.Effect.Parameters["HeightWithConesOutput"].SetResource(heightmapTexture);
             //computeRelaxedConeShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
             computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
            
-            graphicsDevice.Dispatch(heightmap.GetLength(0) / 32, heightmap.GetLength(1) / 32, 1);
+            GraphicsDevice.Dispatch(heightmap.GetLength(0) / 32, heightmap.GetLength(1) / 32, 1);
            
             computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(true);
             heightOnlyTexture.Dispose();
@@ -104,18 +117,9 @@ namespace MST_Heightmap_Generator_GUI
 
             // setup heightmap cbuffer
             SetupHeightmapConstants();
-
-            // setup spherepositions
-            if (spherePositions != null)
-                spherePositions.Dispose();
-
-            spherePositionArray = new Vector3[summits.GetLength(0)];
-            for (int i = 0; i < spherePositionArray.Length; ++i)
-                spherePositionArray[i] = new Vector3(summits[i, 0], summits[i, 2], summits[i, 1]) - new Vector3(heightmapTexture.Width, 0, heightmapTexture.Height) * 0.5f / heightmapPixelPerWorldUnit;
-            spherePositions = Buffer.Vertex.New<Vector3>(graphicsDevice, spherePositionArray, SharpDX.Direct3D11.ResourceUsage.Dynamic);
         }
 
-        void SetupHeightmapConstants()
+        private void SetupHeightmapConstants()
         {
             var heightmapConstantBuffer = terrainShader.Effect.ConstantBuffers["HeightmapInfo"];
             heightmapConstantBuffer.Parameters["HeightmapSize"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
@@ -127,7 +131,7 @@ namespace MST_Heightmap_Generator_GUI
             terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
             terrainShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
         }
-  
+
         void WPFHost.IScene.Attach(WPFHost.ISceneHost host)
         {
             this.host = host;
@@ -136,17 +140,17 @@ namespace MST_Heightmap_Generator_GUI
             // device setup
             if (host.Device == null)
                 throw new Exception("Scene host device is null");
-            graphicsDevice = GraphicsDevice.New(host.Device);
-            RenderTarget2D backbufferRenderTarget = RenderTarget2D.New(graphicsDevice, host.RenderTargetView, true);
-            graphicsDevice.Presenter = new RenderTargetGraphicsPresenter(graphicsDevice, backbufferRenderTarget);
-            graphicsDevice.SetRenderTargets(backbufferRenderTarget);
+            GraphicsDevice = GraphicsDevice.New(host.Device);
+            RenderTarget2D backbufferRenderTarget = RenderTarget2D.New(GraphicsDevice, host.RenderTargetView, true);
+            GraphicsDevice.Presenter = new RenderTargetGraphicsPresenter(GraphicsDevice, backbufferRenderTarget);
+            GraphicsDevice.SetRenderTargets(backbufferRenderTarget);
             
   
 
             // load shader
-            computeRelaxedConeShader = new ShaderAutoReload("computerelaxedconemap.fx", graphicsDevice);
-            terrainShader = new ShaderAutoReload("terrain.fx", graphicsDevice);
-            sphereBillboardShader = new ShaderAutoReload("spherebillboards.fx", graphicsDevice);
+            computeRelaxedConeShader = new ShaderAutoReload("computerelaxedconemap.fx", GraphicsDevice);
+            terrainShader = new ShaderAutoReload("terrain.fx", GraphicsDevice);
+            sphereBillboardShader = new ShaderAutoReload("spherebillboards.fx", GraphicsDevice);
             terrainShader.OnReload += SetupHeightmapConstants;
             terrainShader.OnReload += () => RescaleHeight(minHeight, maxHeight);
 
@@ -156,10 +160,10 @@ namespace MST_Heightmap_Generator_GUI
             samplerStateDesc.AddressU = SharpDX.Direct3D11.TextureAddressMode.Border;
             samplerStateDesc.Filter = SharpDX.Direct3D11.Filter.MinMagMipLinear;
             samplerStateDesc.BorderColor = Color4.Black;
-            linearSamplerState = SamplerState.New(graphicsDevice, "LinearSampler", samplerStateDesc);
+            linearSamplerState = SamplerState.New(GraphicsDevice, "LinearSampler", samplerStateDesc);
 
             // dummy heightmap
-            heightmapTexture = Texture2D.New(graphicsDevice, 1, 1, MipMapCount.Auto, PixelFormat.R32.Float);
+            heightmapTexture = Texture2D.New(GraphicsDevice, 1, 1, MipMapCount.Auto, PixelFormat.R32.Float);
             heightmapTexture.SetData<float>(new float[] { 0.0f });
 
             // vertex input layout
@@ -168,8 +172,8 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Detach()
         {
-            graphicsDevice.Dispose();
-            graphicsDevice = null;
+            GraphicsDevice.Dispose();
+            GraphicsDevice = null;
         }
 
         void WPFHost.IScene.Update(TimeSpan sceneTime)
@@ -184,9 +188,9 @@ namespace MST_Heightmap_Generator_GUI
                     camera.AspectRatio = (float)host.RenderTargetWidth / host.RenderTargetHeight;   
 
                     // set new backbuffer
-                    RenderTarget2D backbufferRenderTarget = RenderTarget2D.New(graphicsDevice, host.RenderTargetView, true);
-                    graphicsDevice.Presenter = new RenderTargetGraphicsPresenter(graphicsDevice, backbufferRenderTarget);
-                    graphicsDevice.SetRenderTargets(backbufferRenderTarget);
+                    RenderTarget2D backbufferRenderTarget = RenderTarget2D.New(GraphicsDevice, host.RenderTargetView, true);
+                    GraphicsDevice.Presenter = new RenderTargetGraphicsPresenter(GraphicsDevice, backbufferRenderTarget);
+                    GraphicsDevice.SetRenderTargets(backbufferRenderTarget);
 
                     terrainShader.Effect.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
                 }
@@ -195,7 +199,7 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Render()
         {
-            graphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
             
             // setup camera
             Matrix viewProjection = camera.ViewMatrix * camera.ProjectionMatrix;
@@ -208,34 +212,27 @@ namespace MST_Heightmap_Generator_GUI
             terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
             terrainShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
 
-            graphicsDevice.SetVertexInputLayout(null);
-            graphicsDevice.SetVertexBuffer(0, (Buffer<Vector3>)null);
+            GraphicsDevice.SetVertexInputLayout(null);
+            GraphicsDevice.SetVertexBuffer(0, (Buffer<Vector3>)null);
 
             // render screenspace terrain!
             terrainShader.Effect.CurrentTechnique.Passes[0].Apply();
-            graphicsDevice.Draw(PrimitiveType.PointList, 1);
+            GraphicsDevice.Draw(PrimitiveType.PointList, 1);
 
             // render spheres
-            if (spherePositions != null)
-            {
- //               sphereBillboardShader.Parameters["CameraRight"].SetValue(camera.Right);
-//                sphereBillboardShader.Parameters["CameraUp"].SetValue(Vector3.Cross(camera.Right, camera.Direction));
-                sphereBillboardShader.Effect.Parameters["CameraPosition"].SetValue(camera.Position);
-                sphereBillboardShader.Effect.Parameters["WorldViewProjection"].SetValue(viewProjection);
-
-                graphicsDevice.SetBlendState(graphicsDevice.BlendStates.NonPremultiplied);
-                graphicsDevice.SetVertexBuffer(spherePositions);
-                graphicsDevice.SetVertexInputLayout(sphereVertexInputLayout);
-                sphereBillboardShader.Effect.CurrentTechnique.Passes[0].Apply();
-                graphicsDevice.Draw(PrimitiveType.PointList, spherePositions.ElementCount);
-
-                graphicsDevice.SetBlendState(graphicsDevice.BlendStates.Opaque);
-            }
+            GraphicsDevice.SetVertexInputLayout(sphereVertexInputLayout);
+            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.NonPremultiplied);
+            sphereBillboardShader.Effect.Parameters["CameraPosition"].SetValue(camera.Position);
+            sphereBillboardShader.Effect.Parameters["WorldViewProjection"].SetValue(viewProjection);
+            sphereBillboardShader.Effect.CurrentTechnique.Passes[0].Apply();
+            foreach (PointSet pointSet in pointSets)
+                pointSet.Draw(GraphicsDevice);
+            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Opaque);
         }
 
         void WPFHost.IScene.OnResize(WPFHost.ISceneHost host)
         {
-            if (graphicsDevice == null)
+            if (GraphicsDevice == null)
                 return;
 
             lock (this)
@@ -244,58 +241,29 @@ namespace MST_Heightmap_Generator_GUI
             }
         }
 
-        int selectedSphere = -1;
-
         public void OnLeftMouseDown()
         {
-            if (spherePositionArray == null)
-                return;
-
-            Ray ray = camera.GetPickingRay(graphicsDevice.BackBuffer.Width, graphicsDevice.BackBuffer.Height, host.WindowsInputElement);
-            for (int i = 0; i < spherePositionArray.Length; ++i)
+            Ray ray = camera.GetPickingRay(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, host.WindowsInputElement);
+            containingSelectedSphere = null;
+            foreach (PointSet pointSet in pointSets)
             {
-                Vector3 pos = spherePositionArray[i];
-                pos.Y *= terrainScale;
-                if (new BoundingSphere(pos, SPHERE_RADIUS).Intersects(ref ray))
-                    selectedSphere = i;
+                if(pointSet.SelectSphere(ray, terrainScale))
+                    containingSelectedSphere = pointSet;
             }
         }
 
         public void OnLeftMouseUp()
         {
-            selectedSphere = -1;
+            containingSelectedSphere = null;
         }
-
-
-        private System.Windows.Point lastMousePosition;
 
         public void OnMouseMove()
         {
             System.Windows.Point currentMousePosition = System.Windows.Input.Mouse.GetPosition(host.WindowsInputElement);
-            if (selectedSphere >= 0)
-            {
-                spherePositionArray[selectedSphere].Y += (float)(lastMousePosition.Y - currentMousePosition.Y) / terrainScale;
-                UpdateSpherePositionsBuffer();
-            }
+            if (containingSelectedSphere != null)
+                containingSelectedSphere.MoveSelectedSphere(new Vector3(0, (float)(lastMousePosition.Y - currentMousePosition.Y) / terrainScale, 0));
 
             lastMousePosition = currentMousePosition;
-        }
-
-        private void UpdateSpherePositionsBuffer()
-        {
-            unsafe
-            {
-                fixed (Vector3* pArray = spherePositionArray)
-                {
-                    IntPtr intPtr = new IntPtr((void*)pArray);
-                    spherePositions.SetDynamicData(graphicsDevice, (x) =>
-                    {
-                        Vector3* vecArray = (Vector3*)x;
-                        for (int i = 0; i < spherePositionArray.Length; ++i)
-                            vecArray[i] = spherePositionArray[i];
-                    });
-                }
-            }
         }
     }
 }

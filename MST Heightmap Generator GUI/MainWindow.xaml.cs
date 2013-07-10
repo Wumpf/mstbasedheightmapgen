@@ -69,7 +69,9 @@ namespace MST_Heightmap_Generator_GUI
             float[,] heightmapPixelsPerWorld = new float[1, 1];
             uint width, height;
             _heightmapFactory.GetParameter(2, heightmapPixelsPerWorld, out width, out height);
-            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0], _summitList);
+            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0]);
+            terrainRenderingPreview.ClearPointSet();
+            terrainRenderingPreview.AddPointSet(new PointSet(_summitList, heightmapPixelsPerWorld[0, 0], _heightmapData.GetLength(0), _heightmapData.GetLength(1), terrainRenderingPreview.GraphicsDevice));
 
             Sl_VisualScaleSlider_Changed(null, null);
         }
