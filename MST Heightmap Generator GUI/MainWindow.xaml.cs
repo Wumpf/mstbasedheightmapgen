@@ -36,6 +36,7 @@ namespace MST_Heightmap_Generator_GUI
         public MainWindow()
         {
             InitializeComponent();
+            InitLayerChooseComobBox();
 
             terrainRenderingPreview = new TerrainRenderingPreview();
             DX11Display.Scene = terrainRenderingPreview;

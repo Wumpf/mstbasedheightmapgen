@@ -99,8 +99,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Camera.cs" />
-    <Compile Include="GeneralLayerProperties.cs" />
+    <Compile Include="LayerAttributes\LayerAttributePointSet.cs" />
+    <Compile Include="LayerAttributes\LayerAttribute.cs" />
+    <Compile Include="Layers\ValueNoise.cs" />
+    <Compile Include="Layers\Layer.cs" />
+    <Compile Include="LayerAttributes\LayerAttributeFloat.cs" />
     <Compile Include="LayerPanel.cs" />
+    <Compile Include="Layers\MSTDistance.cs" />
     <Compile Include="PointSet.cs" />
     <Compile Include="ShaderAutoReload.cs" />
     <Compile Include="WPFHost\Disposer.cs" />
