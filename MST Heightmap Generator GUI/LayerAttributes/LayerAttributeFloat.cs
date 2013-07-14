@@ -31,6 +31,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             tip.Height = 22;
             tip.Padding = text.Padding;
 
+            slider.ValueChanged += (s, value) => valueSetFunc((float)value.NewValue);
             slider.Width = width - 48;  // TODO: does this work without width? some auto alignment stuff would be nice
             slider.Height = 22;
             slider.Minimum = MinValue;
@@ -41,7 +42,6 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             slider.AutoToolTipPrecision = (int)(-Math.Min(0, Math.Log10(MaxValue - MinValue) - 2));
             slider.MouseEnter += (s, b) => { tip.IsOpen = true; };
             slider.MouseLeave += (s, b) => { Slider sl = (Slider)s; tip.IsOpen = false; text.Content = tip.Content + ": " + Math.Round(sl.Value, sl.AutoToolTipPrecision); parent.Items[index] = text; };
-            slider.ValueChanged += (s, value) => valueSetFunc(value);
         }
     }
 }

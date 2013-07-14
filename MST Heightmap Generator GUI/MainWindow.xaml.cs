@@ -15,6 +15,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
 using SharpDX;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using MST_Heightmap_Generator_GUI.Layers;
 
 namespace MST_Heightmap_Generator_GUI
 {
@@ -24,7 +27,8 @@ namespace MST_Heightmap_Generator_GUI
     public partial class MainWindow : Window
     {
         const int MAP_SIZE = 256;
-        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(MAP_SIZE, MAP_SIZE, 2);
+        const float heightmapPixelPerWorldUnit = 2.0f;
+        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(MAP_SIZE, MAP_SIZE, heightmapPixelPerWorldUnit);
         float[,] _heightmapData;
 
         // Second dimension is always 3
@@ -179,6 +183,30 @@ namespace MST_Heightmap_Generator_GUI
         private void CanvasMouseLeave(object sender, MouseEventArgs e)
         {
             terrainRenderingPreview.OnLeftMouseUp();
+        }
+
+        private string SerializeSettingsToJSON()
+        {
+            JObject json = new JObject();
+            json["HeightmapWidth"] = MAP_SIZE;
+            json["HeightmapWidth"] = MAP_SIZE;
+            json["HeightmapPixelPerWorldUnit"] = heightmapPixelPerWorldUnit;
+            
+            var jsonSerializer = JsonSerializer.CreateDefault();
+            jsonSerializer.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());    // convert enums directly to string -> default would be int
+            json["Layers"] = new JArray(Layers.Items.OfType<TreeViewItem>().Select(treeViewItem => 
+                {
+                    JToken jlayer = JValue.FromObject(treeViewItem.Tag, jsonSerializer);
+                    jlayer["Type"] = Layer.LayerTypes[treeViewItem.Tag.GetType()];
+                    return jlayer;
+                }));
+
+            return json.ToString();
+        }
+
+        private void RegenerateHeightmap(object sender, RoutedEventArgs e)
+        {
+            string json = SerializeSettingsToJSON();
         }
     }
 }

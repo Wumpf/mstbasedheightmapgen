@@ -52,17 +52,18 @@
         <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill" MouseLeftButtonDown="CanvasMouseLeftButtonDown"
                            MouseLeftButtonUp="CanvasMouseLeftButtonUp" MouseMove="CanvasMouseMove" MouseLeave="CanvasMouseLeave"/>
 
-        <TreeView Name="Layers" HorizontalAlignment="Left" Height="246" Margin="12,471,0,0" VerticalAlignment="Top" Width="280" Grid.ColumnSpan="2" SelectedItemChanged="Layers_SelectedItemChanged"/>
-        <ComboBox Name="LayerChoose" HorizontalAlignment="Left" Height="24" Margin="15,722,0,0" VerticalAlignment="Top" Width="127" SelectedIndex="0" Grid.ColumnSpan="2"></ComboBox>
-        <Button Content="+" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="11,722,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Arial Black" Click="AddLayer"/>
-        <Button Content="↑" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="40,722,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerUp"  RenderTransformOrigin="1.833,0.542"/>
-        <Button Content="↓" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="69,722,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerDown" RenderTransformOrigin="1.833,0.542"/>
-        <Button Content="X" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="98,722,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="DeleteLayer" RenderTransformOrigin="1.833,0.542"/>
-        <ComboBox x:Name="LayerBlending" HorizontalAlignment="Left" Height="24" Margin="10,442,0,0" VerticalAlignment="Top" Width="142" SelectedIndex="0" Grid.Column="1" SelectionChanged="LayerBlending_Selected">
+        <TreeView Name="Layers" HorizontalAlignment="Left" Height="246" Margin="12,422,0,0" VerticalAlignment="Top" Width="280" Grid.ColumnSpan="2" SelectedItemChanged="Layers_SelectedItemChanged"/>
+        <ComboBox Name="LayerChoose" HorizontalAlignment="Left" Height="24" Margin="13,673,0,0" VerticalAlignment="Top" Width="133" SelectedIndex="0" Grid.ColumnSpan="2"/>
+        <Button Content="+" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="11,673,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Arial Black" Click="AddLayer"/>
+        <Button Content="↑" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="40,673,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerUp"  RenderTransformOrigin="1.833,0.542"/>
+        <Button Content="↓" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="69,673,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerDown" RenderTransformOrigin="1.833,0.542"/>
+        <Button Content="X" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="98,673,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="DeleteLayer" RenderTransformOrigin="1.833,0.542"/>
+        <ComboBox x:Name="LayerBlending" HorizontalAlignment="Left" Height="24" Margin="9,398,0,0" VerticalAlignment="Top" Width="142" SelectedIndex="0" Grid.Column="1" SelectionChanged="LayerBlending_Selected">
             <ComboBoxItem Content="Additive"/>
             <ComboBoxItem Content="Multiplicative"/>
             <ComboBoxItem Content="Refractive"/>
         </ComboBox>
-        <Label Content="Blending" HorizontalAlignment="Left" Height="26" Margin="10,442,0,0" VerticalAlignment="Top" Width="99"/>
+        <Label Content="Blending" HorizontalAlignment="Left" Height="26" Margin="13,396,0,0" VerticalAlignment="Top" Width="99"/>
+        <Button Content="Generate!" VerticalAlignment="Top" Height="23" Click="RegenerateHeightmap" Margin="12,723,148,0" Focusable="False" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

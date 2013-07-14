@@ -47,7 +47,8 @@ namespace MST_Heightmap_Generator_GUI
                 LayerAttributes.LayerAttribute[] layerAttributeList = (LayerAttributes.LayerAttribute[])
                                         property.GetCustomAttributes(typeof(LayerAttributes.LayerAttribute), false);
                 if(layerAttributeList.Length > 0)
-                {                    
+                {
+                    Type floattype = typeof(float);
                     layerAttributeList[0].CreateTreeViewSubElement(newItem, (int)Layers.Width,
                                 () => { return property.GetMethod.Invoke(newLayerClass, new object[0]); },
                                 (value) => { property.SetMethod.Invoke(newLayerClass, new object[] { value }); });
