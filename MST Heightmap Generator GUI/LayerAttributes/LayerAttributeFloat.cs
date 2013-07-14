@@ -41,6 +41,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             slider.AutoToolTipPrecision = (int)(-Math.Min(0, Math.Log10(MaxValue - MinValue) - 2));
             slider.MouseEnter += (s, b) => { tip.IsOpen = true; };
             slider.MouseLeave += (s, b) => { Slider sl = (Slider)s; tip.IsOpen = false; text.Content = tip.Content + ": " + Math.Round(sl.Value, sl.AutoToolTipPrecision); parent.Items[index] = text; };
+            slider.ValueChanged += (s, value) => valueSetFunc(value);
         }
     }
 }
