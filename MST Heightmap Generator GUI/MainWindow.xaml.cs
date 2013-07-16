@@ -180,6 +180,11 @@ namespace MST_Heightmap_Generator_GUI
             terrainRenderingPreview.OnMouseMove();
         }
 
+        private void CanvasMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            terrainRenderingPreview.OnMouseWheel(e.Delta);
+        }
+
         private void CanvasMouseLeave(object sender, MouseEventArgs e)
         {
             terrainRenderingPreview.OnLeftMouseUp();

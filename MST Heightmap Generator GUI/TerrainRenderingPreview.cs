@@ -44,7 +44,6 @@ namespace MST_Heightmap_Generator_GUI
 
         public bool Closing { get; set; }
         private bool resizeNeeded = false;
-        private System.Windows.Point lastMousePosition;
 
 
         /// <summary>
@@ -259,11 +258,15 @@ namespace MST_Heightmap_Generator_GUI
 
         public void OnMouseMove()
         {
-            System.Windows.Point currentMousePosition = System.Windows.Input.Mouse.GetPosition(host.WindowsInputElement);
+            Ray ray = camera.GetPickingRay(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, host.WindowsInputElement);
             if (containingSelectedSphere != null)
-                containingSelectedSphere.MoveSelectedSphere(new Vector3(0, (float)(lastMousePosition.Y - currentMousePosition.Y) / terrainScale, 0));
+                containingSelectedSphere.MoveSelectedSphere(ref ray, terrainScale);
+        }
 
-            lastMousePosition = currentMousePosition;
+        internal void OnMouseWheel(int delta)
+        {
+            if (containingSelectedSphere != null)
+                containingSelectedSphere.MoveSelectedSphere(delta);
         }
     }
 }

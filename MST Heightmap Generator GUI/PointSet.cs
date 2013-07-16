@@ -19,9 +19,14 @@ namespace MST_Heightmap_Generator_GUI
         private Buffer<Vector3> vertexBuffer;
         private Vector3[] spherePositionArray;
 
+        private Vector3 pointRenderingTranslationOffset;
+
         private int selectedSphere = -1;
 
         private const float SPHERE_RADIUS = 2.3f;
+        private const float UPDOWN_MOVESPEED = 0.0001f;
+        private static readonly Vector3 POS_MAX = new Vector3(2048, 1, 2048);
+        private static readonly Vector3 POS_MIN = new Vector3(-2048, 0, -2048);
 
         public PointSet(float[,] points, float heightmapPixelPerWorldUnit, float heightmapTextureWidth, float heightmapTextureHeight, GraphicsDevice graphicsDevice) : 
             this(points, new Vector3(-heightmapTextureWidth, 0, -heightmapTextureHeight) * 0.5f / heightmapPixelPerWorldUnit, graphicsDevice)
@@ -30,6 +35,8 @@ namespace MST_Heightmap_Generator_GUI
 
         public PointSet(float[,] points, Vector3 pointRenderingTranslationOffset, GraphicsDevice graphicsDevice)
         {
+            this.pointRenderingTranslationOffset = pointRenderingTranslationOffset;
+
             // setup spherepositions
             if (vertexBuffer != null)
                 vertexBuffer.Dispose();
@@ -72,14 +79,36 @@ namespace MST_Heightmap_Generator_GUI
 
         /// <summary>
         /// moves the currently selected sphere
-        /// TODO: Change interface for practical supporting for moving on ray and planw
         /// </summary>
         /// <param name="moveVec"></param>
-        public void MoveSelectedSphere(Vector3 moveVec)
+        public void MoveSelectedSphere(ref Ray pickingRay, float terrainScale)
         {
             if (selectedSphere >= 0)
             {
-                spherePositionArray[selectedSphere] += moveVec;
+                Vector3 intersect;
+                bool hit = false;
+                // vertical
+                if (System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.LeftCtrl))
+                    hit = new Plane(Vector3.UnitX, -spherePositionArray[selectedSphere].X).Intersects(ref pickingRay, out intersect);
+                // horizontal
+                else
+                    hit = new Plane(Vector3.UnitY, -spherePositionArray[selectedSphere].Y * terrainScale).Intersects(ref pickingRay, out intersect);
+
+                if (hit)
+                {
+                    spherePositionArray[selectedSphere] = intersect;
+                    spherePositionArray[selectedSphere].X = MathUtil.Clamp(spherePositionArray[selectedSphere].X, POS_MIN.X, POS_MAX.X);
+                    spherePositionArray[selectedSphere].Y = MathUtil.Clamp(spherePositionArray[selectedSphere].Y / terrainScale, POS_MIN.Y, POS_MAX.Y);
+                    spherePositionArray[selectedSphere].Z = MathUtil.Clamp(spherePositionArray[selectedSphere].Z, POS_MIN.Z, POS_MAX.Z);
+                    UpdateSpherePositionsBuffer();
+                }
+            }
+        }
+        public void MoveSelectedSphere(int mouseWheelDelta)
+        {
+            if (selectedSphere >= 0)
+            {
+                spherePositionArray[selectedSphere].Y = MathUtil.Clamp(spherePositionArray[selectedSphere].Y + mouseWheelDelta * UPDOWN_MOVESPEED, POS_MIN.Y, POS_MAX.Y);
                 UpdateSpherePositionsBuffer();
             }
         }
