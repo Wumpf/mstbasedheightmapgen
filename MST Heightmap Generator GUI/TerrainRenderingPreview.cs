@@ -98,18 +98,42 @@ namespace MST_Heightmap_Generator_GUI
             if(heightmapTexture != null)
                 heightmapTexture.Dispose();
 
-            var heightOnlyTexture = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource);
-            heightOnlyTexture.SetData<float>(heightmap.Cast<float>().ToArray());
-            heightmapTexture = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R16G16.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
-            computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource(heightOnlyTexture);
-            computeRelaxedConeShader.Effect.Parameters["HeightWithConesOutput"].SetResource(heightmapTexture);
-            //computeRelaxedConeShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
-            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
+            // compute
+            var tempHeights = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource);
+            tempHeights.SetData<float>(heightmap.Cast<float>().ToArray());
+            var tempCones = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
+            GraphicsDevice.Clear(tempCones, new Color4(100,100,100,100));
+
+            computeRelaxedConeShader.Effect.CurrentTechnique = computeRelaxedConeShader.Effect.Techniques["Compute"];
+            computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource(tempHeights);
+            computeRelaxedConeShader.Effect.Parameters["ConesOutput"].SetResource(tempCones);
+            computeRelaxedConeShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
            
-            GraphicsDevice.Dispatch(heightmap.GetLength(0) / 32, heightmap.GetLength(1) / 32, 1);
-           
+            const int TILE_SIZE = 16;   // if you change this value, you also have to change " AreaPerCall in computerelaxedconemap.fx
+            for (int x = 0; x < heightmap.GetLength(0); x += TILE_SIZE)
+            {
+                for (int y = 0; y < heightmap.GetLength(1); y += TILE_SIZE)
+                {
+                    computeRelaxedConeShader.Effect.Parameters["TextureAreaMin"].SetValue<int>(new int[]{x,y});
+                    computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
+                    GraphicsDevice.Dispatch(heightmap.GetLength(0) / 16, heightmap.GetLength(1) / 16, 1);
+                    
+                }
+            }
             computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(true);
-            heightOnlyTexture.Dispose();
+            
+            // compose to heightmap texture
+            heightmapTexture = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R16G16.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
+            computeRelaxedConeShader.Effect.CurrentTechnique = computeRelaxedConeShader.Effect.Techniques["Combine"];
+            computeRelaxedConeShader.Effect.Parameters["CombinedOutput"].SetResource(heightmapTexture);
+            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
+
+            GraphicsDevice.Dispatch(heightmap.GetLength(0) / 16, heightmap.GetLength(1) / 16, 1);
+            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(true);
+
+            // clean
+            tempHeights.Dispose();
+            tempCones.Dispose();
 
             // setup camera
            // camera.Position = new Vector3(heightmapTexture.Width/2, 100.0f, heightmapTexture.Height / 2);

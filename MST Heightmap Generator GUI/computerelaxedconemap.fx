@@ -1,90 +1,67 @@
-
 Texture2D<float> HeightInput;
-RWTexture2D<float2> HeightWithConesOutput;
+RWTexture2D<float> ConesOutput;
+RWTexture2D<float2> CombinedOutput;
 SamplerState LinearSampler;
 
-[numthreads(32, 32, 1)]
+int2 TextureAreaMin;
+
+static const int2 AreaPerCall = int2(16,16);
+
+[numthreads(16, 16, 1)]
 void CSMain( uint3 threadID : SV_DispatchThreadID )
 {
 	uint2 textureSize;
 	HeightInput.GetDimensions(textureSize.x, textureSize.y);
+
 	float2 pixelSize = float2(1.0f / textureSize.y, 1.0f / textureSize.y);
-
 	float2 srcTexcoord = pixelSize * threadID.xy;
+
+	// pixel height
 	float srcHeight = HeightInput[threadID.xy];
+	// load cone ratio
+	float coneRatio = ConesOutput[threadID.xy];
 
-	const float MAX_CONE_RATIO_SQ = 1.0f;
-	float coneRatio = MAX_CONE_RATIO_SQ;
+	const float MAXCHECK_STEP_LEN = 0.01f;
+	float maxcheckStepLen = length(pixelSize) * MAXCHECK_STEP_LEN;
 
-	// relaxed conemap - new algo: choose limted amount of directions, walk along them and make cone wider and wider
-	const int NUM_DIRECTIONS = 28;
-	//const int NUM_STEPS_PER_DIRECTION = 256;
-	const float PI2 = 6.28318530718f;
-	const float ANGLE_STEP = 6.28318530718f / NUM_DIRECTIONS;
-	const float STEP_LEN = 0.3f;
-
-	float stepLen = length(pixelSize) * STEP_LEN;
-	
-	/*
-	// loop over directions
-	for(float angle = 0.0f; angle<PI2; angle+=ANGLE_STEP)
-	{
-		float2 dirStep = float2(cos(angle), sin(angle)) * stepLen;
-		
-		float2 pos = srcTexcoord;
-		float startHeight = HeightInput.SampleLevel(LinearSampler, pos, 0.0f);
-		float lastHeight = startHeight;
-
-		bool ascending = false;
-
-		// run along one direction until a local max is found
-		for(; !any(pos != saturate(pos)); pos += dirStep)
-		{
-			float height = HeightInput.SampleLevel(LinearSampler, pos, 0.0f);
-			if(height > lastHeight)
-				ascending = true;
-			
-			// now we're falling again after increasing height - that means there is a max! compute cone!
-			else if(ascending)
-			{
-				float2 toDst = pos - srcTexcoord - dirStep;
-				float deltaHeight = lastHeight - startHeight;
-				coneRatio = min(dot(toDst,toDst) / (deltaHeight*deltaHeight), coneRatio);
-				ascending = false;
-			}
-
-			lastHeight = height;
-		}
-	}
-
-	*/
-	// CONEMAP, NO RELAXING
-	
-	const int AREA_SIZE = 100;
-
-	// loop over all pixels...
-	int2 dstTexPosMin = max(int2(0,0), threadID.xy - AREA_SIZE);
-	int2 dstTexPosMax = min((int2)textureSize, threadID.xy + AREA_SIZE);
+	// loop over pixels and compute rays to them
 	int2 dstTexPos;
-	for(dstTexPos.y = dstTexPosMin.y; dstTexPos.y < dstTexPosMax.y; ++dstTexPos.y)
+	int2 dstTexPosMax = TextureAreaMin + AreaPerCall;
+	for(dstTexPos.y = TextureAreaMin.y; dstTexPos.y < dstTexPosMax.y; ++dstTexPos.y)
 	{
-		for(dstTexPos.x = dstTexPosMin.x; dstTexPos.x < dstTexPosMax.x; ++dstTexPos.x)
+		for(dstTexPos.x = TextureAreaMin.x; dstTexPos.x < dstTexPosMax.x; ++dstTexPos.x)
 		{
 			float dstHeight = HeightInput[dstTexPos];
 			[flatten]if(srcHeight < dstHeight)
 			{
-				float2 toDstTexcoord = pixelSize * (float2)dstTexPos - srcTexcoord;
-				float deltaHeight = dstHeight - srcHeight;
-				coneRatio = min(dot(toDstTexcoord, toDstTexcoord) / (deltaHeight*deltaHeight), coneRatio);
+				float2 dstTexcoord = pixelSize * (float2)dstTexPos;
+				float2 toDstTexcoord = dstTexcoord - srcTexcoord;
+
+				// is this pixel a max?
+				float2 step = normalize(toDstTexcoord) * maxcheckStepLen;
+				float forward = HeightInput.SampleLevel(LinearSampler, dstTexcoord + step, 0.0f);
+				float backward = HeightInput.SampleLevel(LinearSampler, dstTexcoord - step, 0.0f);
+				[flatten]if(forward < dstHeight && backward < dstHeight)	// this should be sufficient for relaxing
+				{
+					float deltaHeight = dstHeight - srcHeight;
+					coneRatio = min(dot(toDstTexcoord, toDstTexcoord) / (deltaHeight*deltaHeight), coneRatio);
+				}
 			}
 		}
 	}
 
 		
 	// output
-	coneRatio = sqrt(coneRatio);
-	HeightWithConesOutput[threadID.xy] = float2(srcHeight, coneRatio);
+	//coneRatio = sqrt(coneRatio);
+	ConesOutput[threadID.xy] = coneRatio;
 }  
+
+[numthreads(16, 16, 1)]
+void CombineTextures( uint3 threadID : SV_DispatchThreadID )
+{
+	const float CONE_BIAS = 0.02f;
+	CombinedOutput[threadID.xy] = float2(HeightInput[threadID.xy], sqrt(ConesOutput[threadID.xy]) - CONE_BIAS);
+}
 
 technique10 Compute
 {
@@ -92,5 +69,14 @@ technique10 Compute
     {
         Profile = 11.0;
 		ComputeShader = CSMain;
+    }
+}
+
+technique10 Combine
+{
+    pass P0
+    {
+        Profile = 11.0;
+		ComputeShader = CombineTextures;
     }
 }

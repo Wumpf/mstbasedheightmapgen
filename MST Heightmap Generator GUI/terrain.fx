@@ -88,6 +88,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	float distOffset;
 	float deltaHeight;
 	float travelled = 0.0;
+	float softShadowingTravelFactor = SoftShadowFactor / dirXZlen;
 	for(int i = 0; i < MaxNumConeSteps; ++i)
 	{
 		float2 height_cone = Heightmap.SampleLevel(LinearSampler, intersectionPoint.xz, 0).xy;
@@ -97,29 +98,29 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 		distOffset = deltaHeight * height_cone.y / (dirXZlen - rayDirection_TextureSpace.y * height_cone.y);
 		distOffset = max(minDistOffset, distOffset);
 		intersectionPoint += rayDirection_TextureSpace * distOffset;
-		travelled += distOffset;
 
 		// outside?
 		if(any(intersectionPoint.xz != saturate(intersectionPoint.xz)) || (intersectionPoint.y > 1))
 			return false;
 
-			shadowTerm = min(shadowTerm, deltaHeight*SoftShadowFactor / travelled);
+		travelled += distOffset;
+		shadowTerm = min(shadowTerm, deltaHeight*SoftShadowFactor / travelled);
 
 		// below terrain? done.
 		if(deltaHeight < 0.0)
 		{
 			// binary steps
 			// dist update missing
-			const int NumBinarySteps = 10;
+			const int NumBinarySteps = 5;
 			distOffset *= 0.5f;
 			intersectionPoint -= rayDirection_TextureSpace * distOffset;
-			for(int i = 0; i < NumBinarySteps; ++i)
+			[unroll] for(int i = 0; i < NumBinarySteps; ++i)
 			{  
 				float height = Heightmap.SampleLevel(LinearSampler, intersectionPoint.xz, 0).x; 
 				distOffset *= 0.5;  
-				if (intersectionPoint.y > height)  // If outside  
-					intersectionPoint += rayDirection_TextureSpace * distOffset;  // Move forward  
-				 else  
+				[flatten] if (intersectionPoint.y > height)  // If outside  
+					intersectionPoint += rayDirection_TextureSpace * distOffset;  // Move forward
+				else  
 					intersectionPoint -= rayDirection_TextureSpace * distOffset;  // Move backward  
 			}
 			
@@ -145,7 +146,7 @@ bool RenderHeightmapInCorner(float2 deviceCor, out float4 color)
 	float2 heightmapCor = (float2(deviceCor.x, -deviceCor.y) - onScreenHeightmapZero) / heightmapArea;
 	if(heightmapCor.x > 0 && heightmapCor.x < 1 && heightmapCor.y > 0 && heightmapCor.y < 1)
 	{
-		color = float4(Heightmap.SampleLevel(LinearSampler, heightmapCor, 0).rrr, 1);
+		color = float4(Heightmap.SampleLevel(LinearSampler, heightmapCor, 0).rg, 0, 1);
 		return true;
 	}
 	else
