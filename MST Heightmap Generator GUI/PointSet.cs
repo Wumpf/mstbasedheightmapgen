@@ -89,7 +89,11 @@ namespace MST_Heightmap_Generator_GUI
                 bool hit = false;
                 // vertical
                 if (System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.LeftCtrl))
+                {
                     hit = new Plane(Vector3.UnitX, -spherePositionArray[selectedSphere].X).Intersects(ref pickingRay, out intersect);
+                    intersect.X = spherePositionArray[selectedSphere].X;
+                    intersect.Z = spherePositionArray[selectedSphere].Z;
+                }
                 // horizontal
                 else
                     hit = new Plane(Vector3.UnitY, -spherePositionArray[selectedSphere].Y * terrainScale).Intersects(ref pickingRay, out intersect);
