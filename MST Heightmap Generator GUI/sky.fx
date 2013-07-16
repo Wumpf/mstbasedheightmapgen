@@ -8,7 +8,7 @@ static const float3 UpperSkyColour = float3(0.16, 0.27, 0.43)*0.8;
 static const float3 GroundColour = float3(0.31, 0.41, 0.5)*0.8;
 static const float LowerHorizonHeight = -0.4;
 static const float UpperHorizonHeight = -0.1;
-static const float SunAttenuation = 2;
+static const float SunAttenuation = 1.8;
 
 static const float3 LightDirection = float3(0.666666, 0.3333333, 0.666666); // float3(0.471929, 0.849473, 0.235965);
 //static const float3 LightDirection = float3(-0.707, 0.707, 0.0);
@@ -30,7 +30,7 @@ float3 computeSkyColor(in float3 ray)
 	
 	// Sun
 	float angle = max(0, dot(ray, LightDirection));
-	color += (pow(angle, SunAttenuation) + pow(angle, 10000)*10) * AdditonalSunColor;
+	color += (pow(angle, SunAttenuation) + pow(angle, SunAttenuation*1000)*10) * AdditonalSunColor;
 
 	return color;
 }
