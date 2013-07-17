@@ -45,6 +45,9 @@
     <ClInclude Include="Noise.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="CommandInfo.h">
+      <Filter>c++ interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -78,6 +81,21 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="Noise.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateLayer.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdValueNoise.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandExec.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdBlendAdd.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdBlendMultiply.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
