@@ -83,8 +83,8 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 
 	// cone stepping
 	shadowTerm = 1.0f;
-	const int MaxNumConeSteps = 80;
-	float minDistOffset = HeightmapSizeInv.x / dirXZlen * 0.25;
+	const int MaxNumConeSteps = 100;
+	float minDistOffset = HeightmapSizeInv.x / dirXZlen * 0.01;
 	float distOffset;
 	float deltaHeight;
 	float travelled = 0.0;
@@ -111,7 +111,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 		{
 			// binary steps
 			// dist update missing
-			const int NumBinarySteps = 5;
+			const int NumBinarySteps = 4;
 			distOffset *= 0.5f;
 			intersectionPoint -= rayDirection_TextureSpace * distOffset;
 			[unroll] for(int i = 0; i < NumBinarySteps; ++i)
@@ -188,7 +188,7 @@ float4 PS(PS_INPUT input) : SV_Target
 		rayCast(terrainPosition, LightDirection, shadowCastPos, shadowTerm);
 		lighting *= saturate(shadowTerm);
 		
-		outColor = float3(1,1,1) * lighting + computeSkyColor(normal)*0.4;
+		outColor = float3(1,1,1) * lighting + computeSkyColor(normal, false)*0.4;
 		//outColor = Heightmap.SampleLevel(LinearSampler, terrainPosition.xz*WorldUnitToHeightmapTexcoord + 0.5, 0).y;
 		//outColor += terrainPosition;
 
@@ -196,11 +196,11 @@ float4 PS(PS_INPUT input) : SV_Target
 		// clever fog http://www.iquilezles.org/www/articles/fog/fog.htm
 		float dist = length(terrainPosition - rayOrigin);
 		float fogAmount = min(1, 0.5 * exp(-CameraPosition.y  * 0.01) * (1.0 - exp( -dist*rayDirection.y* 0.01)) / rayDirection.y);
-		outColor = lerp(outColor, computeSkyColor(rayDirection), fogAmount);
+		outColor = lerp(outColor, computeSkyColor(rayDirection, false), fogAmount);
 	}
 	else
 	{
-		outColor = computeSkyColor(rayDirection);
+		outColor = computeSkyColor(rayDirection, true);
 	}
 
 	return float4(outColor, 1.0f);

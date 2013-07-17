@@ -15,7 +15,7 @@ static const float3 LightDirection = float3(0.666666, 0.3333333, 0.666666); // f
 //static const float3 LightDirection = float3(0.0, 0.707, -0.707);
 //static const float3 LightDirection = float3(0.0, 1.0, 0.0);
 
-float3 computeSkyColor(in float3 ray)
+float3 computeSkyColor(in float3 ray, in bool sun)
 {
 	float3 color;
 
@@ -29,8 +29,11 @@ float3 computeSkyColor(in float3 ray)
 		color = lerp(UpperHorizonColour, UpperSkyColour, (heightValue-UpperHorizonHeight) / (1.0-UpperHorizonHeight));
 	
 	// Sun
-	float angle = max(0, dot(ray, LightDirection));
-	color += (pow(angle, SunAttenuation) + pow(angle, SunAttenuation*1000)*10) * AdditonalSunColor;
+	if(sun)
+	{
+		float angle = max(0, dot(ray, LightDirection));
+		color += (pow(angle, SunAttenuation) + pow(angle, SunAttenuation*1000)*10) * AdditonalSunColor;
+	}
 
 	return color;
 }
