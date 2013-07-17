@@ -10,6 +10,9 @@
     <Filter Include="core">
       <UniqueIdentifier>{0c3125ac-9403-461a-acfd-8dd8c7b3b806}</UniqueIdentifier>
     </Filter>
+    <Filter Include="json parser">
+      <UniqueIdentifier>{d385fc66-6d0c-4cde-81b2-27b7515b55cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mst based heightmap.h">
@@ -47,6 +50,15 @@
     </ClInclude>
     <ClInclude Include="CommandInfo.h">
       <Filter>c++ interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandBuffer.hpp">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="json-parser\json.h">
+      <Filter>json parser</Filter>
+    </ClInclude>
+    <ClInclude Include="json-parser\json-forwards.h">
+      <Filter>json parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +109,12 @@
     </ClCompile>
     <ClCompile Include="CmdBlendMultiply.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandBuffer.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="json-parser\jsoncpp.cpp">
+      <Filter>json parser</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

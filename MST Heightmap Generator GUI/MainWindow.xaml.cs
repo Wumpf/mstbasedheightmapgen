@@ -194,7 +194,7 @@ namespace MST_Heightmap_Generator_GUI
         {
             JObject json = new JObject();
             json["HeightmapWidth"] = MAP_SIZE;
-            json["HeightmapWidth"] = MAP_SIZE;
+            json["HeightmapHeight"] = MAP_SIZE;
             json["HeightmapPixelPerWorldUnit"] = heightmapPixelPerWorldUnit;
             
             var jsonSerializer = JsonSerializer.CreateDefault();
