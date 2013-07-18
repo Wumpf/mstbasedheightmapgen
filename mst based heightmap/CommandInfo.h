@@ -126,9 +126,32 @@ class CmdBlendMultiply : public Command
 	float BlendKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult );
 
 public:
-	CmdBlendMultiply() : Command(CommandType::ADD) {}
+	CmdBlendMultiply() : Command(CommandType::MULTIPLY) {}
 
 	/// Multiply two prior results.
+	/// \details If `prevResult` is not defined the result is copied from
+	///		currentResult.
+	virtual void Execute( const MapBufferInfo& bufferInfo,
+						  const float* prevResult,
+						  const float* currentResult,
+						  float* destination) override;
+};
+
+/// The current result is interpreted as perfect refractive surface and the
+/// previous result is distroted.
+class CmdBlendRefract : public Command
+{
+	float BlendKernelNeutral( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult );
+	float BlendKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult );
+
+	float _refractionDistance;	///< Defines a distance between the two surfaces.
+public:
+	CmdBlendRefract(float refractionDistance) :
+		Command(CommandType::REFRACT),
+		_refractionDistance(refractionDistance)
+	{}
+
+	/// Distort previous result with the current one.
 	/// \details If `prevResult` is not defined the result is copied from
 	///		currentResult.
 	virtual void Execute( const MapBufferInfo& bufferInfo,
