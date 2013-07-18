@@ -11,7 +11,7 @@
 typedef OrE::ADT::Mesh::PosNode PNode;
 
 // Create the minimal spanning tree of a set of points.
-OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints )
+OrE::ADT::Mesh* ComputeMST( const Vec3* pointList, int numPoints )
 {
 	assert( numPoints > 0 );
 
@@ -50,8 +50,6 @@ struct BufferDescriptor {
 	int height;
 	float pixelSize;
 };
-
-inline float sqr( float _x )	{ return _x*_x; }
 
 
 // ************************************************************************* //

@@ -7,7 +7,7 @@
 ///		and the MST of the resulting graph is computed.
 /// \return The mst as graph with positions as nodes and the distance saved
 ///		in the edges. Must be deleted after use.
-OrE::ADT::Mesh* ComputeMST( Vec3* pointList, int numPoints );
+OrE::ADT::Mesh* ComputeMST( const Vec3* pointList, int numPoints );
 
 
 struct GenerationDescriptor {

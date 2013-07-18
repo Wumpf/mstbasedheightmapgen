@@ -116,5 +116,11 @@
     <ClCompile Include="json-parser\jsoncpp.cpp">
       <Filter>json parser</Filter>
     </ClCompile>
+    <ClCompile Include="CmdBlendRefract.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdInvMSTDistance.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

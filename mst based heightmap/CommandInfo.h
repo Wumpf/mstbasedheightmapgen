@@ -2,6 +2,14 @@
 
 #include <functional>
 
+// Predeclartations
+namespace OrE {
+	namespace ADT {
+		class Mesh;
+	};
+};
+struct Vec3;
+
 enum struct CommandType
 {
 	MST_DISTANCE = 0,
@@ -62,6 +70,8 @@ public:
 						  const float* prevResult,
 						  const float* currentResult,
 						  float* destination) = 0;
+
+	virtual ~Command() {}
 };
 
 
@@ -158,6 +168,30 @@ public:
 						  const float* prevResult,
 						  const float* currentResult,
 						  float* destination) override;
+};
+
+
+/// This commando creates the inverse distance field (max-d) of a minimal
+/// spanning tree.
+class CmdInvMSTDistance : public Command
+{
+	float GeneratorKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult );
+
+	OrE::ADT::Mesh* _mst;
+	float _height;					///< Maximum height/distance of the ridges and summits.
+	float _quadraticSplineHeight;	///< Below this height a spline is used to make fade more smooth
+public:
+	CmdInvMSTDistance(const Vec3* pointList, int numPoints, float height, float quadraticSplineHeight);
+
+	/// Add two prior results.
+	/// \details If `prevResult` is not defined the result is copied from
+	///		currentResult.
+	virtual void Execute( const MapBufferInfo& bufferInfo,
+						  const float* prevResult,
+						  const float* currentResult,
+						  float* destination) override;
+
+	virtual ~CmdInvMSTDistance();
 };
 
 
