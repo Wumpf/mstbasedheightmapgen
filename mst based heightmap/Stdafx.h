@@ -8,6 +8,8 @@
 #include <memory>
 #include <stdint.h>
 #include <assert.h>
+#include <string>
+#include <unordered_map>
 
 // Stuff copied from OrBaseLib
 #include "src-mst/OrADTObjects.h"

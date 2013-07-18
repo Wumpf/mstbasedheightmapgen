@@ -13,7 +13,9 @@ enum struct CommandType
 	REFRACT = 12,
 
 	SMOOTH = 100,
-	NORMALIZE = 101
+	NORMALIZE = 101,
+
+	NONE = 9999
 };
 
 /// \brief Description of the map object which is the target of all operations.
@@ -22,12 +24,8 @@ enum struct CommandType
 ///		resolution will not change the large scale appeareance (still the
 ///		same area shown).
 ///
-///		The pixels of the map are always squares. If worldSize.. times
-///		heightmapPixelPerWorldUnit is not an integral number this will be
-///		truncated.\n
-///		E.g.: let worldSizeX be 1.15 and heightmapPixelPerWorldUnit 10
-///		than the map would have 11.5 pixels width. This is truncated and
-///		GetWidth would return 11. So the real covered area is 1.1 instead.
+///		The pixel size can have an aspect != 1 and can be a floating point too.
+///		The meaningfulness of the sampling is up to the user.
 struct MapBufferInfo
 {
 	unsigned int ResolutionX;	///< Number of entries in the (rowvise) 2D-buffer in row direction.
@@ -36,7 +34,7 @@ struct MapBufferInfo
 	float WorldSizeX;	///< Size of the map section in X direction. This is not the resolution!
 	float WorldSizeY;	///< Size of the map section in Y direction. This is not the resolution!
 
-	unsigned int HeightmapPixelPerWorldUnit;	///< Determines the resolution / sampling rate of the map section.
+	float HeightmapPixelPerWorldUnit;	///< Determines the resolution / sampling rate of the map section.
 	float PixelSize;	///< WorldSize../HeightmapPixelPerWorldUnit
 };
 
@@ -82,7 +80,16 @@ class CmdValueNoise : public Command
 	// Precomputed values
 	int _maxOctave;
 public:
-	CmdValueNoise() : Command(CommandType::VALUE_NOISE) {}
+	CmdValueNoise( float heightScale,
+				   float gradientDependency,
+				   float heightDependency,
+				   float heightDependencyOffset ) :
+		Command(CommandType::VALUE_NOISE),
+		_heightScale(heightScale),
+		_gradientDependency(gradientDependency),
+		_heightDependency(heightDependency),
+		_heightDependencyOffset(heightDependencyOffset)
+	{}
 
 	/// Create some noise.
 	/// \details Uses `currentResult` if defined.

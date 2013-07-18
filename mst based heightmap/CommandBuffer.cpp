@@ -1,10 +1,10 @@
-#include <cassert>
+#include "stdafx.h"
 #include "CommandBuffer.hpp"
 #include "json-parser\json.h"
 
 using namespace std;
 
-void CommandBuffer::InitializeTypeMap()
+void GeneratorPipeline::InitializeTypeMap()
 {
 	_typeMap.insert(pair<string, CommandType>(string("MST Distance"), CommandType::MST_DISTANCE));
 	_typeMap.insert(pair<string, CommandType>(string("MST Inverse Distance"), CommandType::MST_INV_DISTANCE));
@@ -14,11 +14,38 @@ void CommandBuffer::InitializeTypeMap()
 	_typeMap.insert(pair<string, CommandType>(string("REFRACTIVE"), CommandType::REFRACT));
 	_typeMap.insert(pair<string, CommandType>(string("Smooth"), CommandType::SMOOTH));
 	_typeMap.insert(pair<string, CommandType>(string("Normalize"), CommandType::NORMALIZE));
+	_typeMap.insert(pair<string, CommandType>(string("NONE"), CommandType::NONE));
 }
 
 
 
-CommandBuffer::CommandBuffer(const std::string& jsonCode)
+Command* GeneratorPipeline::LoadValueNoiseCommand( const Json::Value& commandInfo )
+{
+	// Read four additional scalar values
+	float heightScale = commandInfo.get("Height", 1.0f).asFloat();
+	float gradientDependency = commandInfo.get("GradientDependency", 0.0f).asFloat();
+	float heightDependency = commandInfo.get("HeightDependency", 0.0f).asFloat();
+	float heightDependencyOffset = commandInfo.get("HeightDependencyOffset", 0.0f).asFloat();
+	return new CmdValueNoise(heightScale, gradientDependency, heightDependency, heightDependencyOffset);
+}
+
+Command* GeneratorPipeline::LoadBlendCommand( const Json::Value& commandInfo )
+{
+	// The blending is a subtype of some other types. It is valid if there is
+	// no blend operation. Then an overwrite is performed.
+	CommandType type = _typeMap[commandInfo.get("Blending", "NONE").asString()];
+	switch(type)
+	{
+		case CommandType::ADD:			return new CmdBlendAdd();
+		case CommandType::MULTIPLY:		return new CmdBlendMultiply();
+		case CommandType::REFRACT:
+			break;
+	}
+	return nullptr;
+}
+
+
+GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 {
 	InitializeTypeMap();
 
@@ -35,15 +62,37 @@ CommandBuffer::CommandBuffer(const std::string& jsonCode)
 	// Read command array
 	Json::Value layers = root["Layers"];
 	_numCommands = layers.size();
-	_commands = new Command*[_numCommands];
+	// Allocate enough, that each layer can have a blend command
+	_commands = new Command*[_numCommands*2];
 
 	for(int i=0; i<_numCommands; ++i)
 	{
 		CommandType type = _typeMap[layers[i].get("Type", "NONE").asString()];
+		switch(type)
+		{
+		case CommandType::MST_DISTANCE:
+			break;
+		case CommandType::MST_INV_DISTANCE:
+			break;
+		case CommandType::VALUE_NOISE:
+			_commands[i] = LoadValueNoiseCommand(layers[i]);
+			_commands[++i] = LoadBlendCommand(layers[i]);
+			++_numCommands;
+			break;
+		case CommandType::SMOOTH:
+			break;
+		case CommandType::NORMALIZE:
+			break;
+
+		default:
+			// Skip unknown layers
+			--i;
+			--_numCommands;
+		}
 	}
 }
 
-CommandBuffer::~CommandBuffer()
+GeneratorPipeline::~GeneratorPipeline()
 {
 	for(int i=0; i<_numCommands; ++i)
 		delete _commands[i];

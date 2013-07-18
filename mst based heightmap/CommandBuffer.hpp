@@ -1,10 +1,13 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
 #include "CommandInfo.h"
 
-class CommandBuffer
+// Predeclarations
+namespace Json {
+	class Value;
+};
+
+class GeneratorPipeline
 {
 private:
 	float _worldSizeX;
@@ -16,11 +19,27 @@ private:
 
 	std::unordered_map<std::string, CommandType> _typeMap;
 	void InitializeTypeMap();
+
+	Command* LoadBlendCommand( const Json::Value& commandInfo );
+	Command* LoadValueNoiseCommand( const Json::Value& commandInfo );
 public:
 	/// \brief Loads commands from a script.
 	/// \param [in] jsonCode An array of commands in form of a json file.
 	/// TODO: format description
-	CommandBuffer(const std::string& jsonCode);
+	CPP_DLL GeneratorPipeline(const std::string& jsonCode);
 
-	~CommandBuffer();
+	/// \brief After load the commands can be executed and the results are
+	///		written to the given buffer.
+	/// \param [in] resolutionX Target width of the generated map. The map
+	///		area is defined by the json input. So the shown section is always
+	///		the same. There are just more samples per world unit.
+	/// \param [in] resolutionY Target height of the generated map. The map
+	///		area is defined by the json input. So the shown section is always
+	///		the same. There are just more samples per world unit.
+	/// \param [out] finalDestination A buffer where the final result has to
+	///		be written into. The buffer must have a size of
+	///		resolutionX * resolutionY * sizeof(float)
+	CPP_DLL void Execute(int resolutionX, int resolutionY, float* finalDestination);
+
+	CPP_DLL ~GeneratorPipeline();
 };
