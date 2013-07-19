@@ -54,7 +54,7 @@ struct BufferDescriptor {
 
 // ************************************************************************* //
 // Use a global interpolation to generate a height for a certain point
-static float computeHeight(const OrE::ADT::Mesh* mst, float x, float y)
+float computeHeight(const OrE::ADT::Mesh* mst, float x, float y)
 {
 	// Calculate a weighted sum of all heights where the weight is the radial
 	// basis function.

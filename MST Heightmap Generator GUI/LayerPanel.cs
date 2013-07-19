@@ -22,6 +22,19 @@ namespace MST_Heightmap_Generator_GUI
             }
         }
 
+        private void InitLayerBlendingComobBox()
+        {
+            foreach (Layer.BlendOp type in Enum.GetValues(typeof(Layer.BlendOp)))
+            {
+                ComboBoxItem newItem = new ComboBoxItem();
+                string valueName = type.ToString().ToLower();
+                valueName = valueName.Replace('_', ' ');
+                newItem.Content = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(valueName);
+                
+                LayerBlending.Items.Add(newItem);
+            }
+        }
+
         private void Layers_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             LayerBlending.SelectedIndex = (int)((Layer)((TreeViewItem)e.NewValue).Tag).Blending;

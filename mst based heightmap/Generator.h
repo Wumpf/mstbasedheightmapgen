@@ -9,6 +9,9 @@
 ///		in the edges. Must be deleted after use.
 OrE::ADT::Mesh* ComputeMST( const Vec3* pointList, int numPoints );
 
+/// \brief Use a global interpolation to generate a height for a certain point.
+float computeHeight(const OrE::ADT::Mesh* mst, float x, float y);
+
 
 struct GenerationDescriptor {
 	bool _useInverseDistance;

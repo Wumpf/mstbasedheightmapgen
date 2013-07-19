@@ -10,9 +10,9 @@ namespace MST_Heightmap_Generator_GUI.Layers
     {
         public enum BlendOp
         {
-            ADDITIVE = 0,
-            MULTIPLICATIVE = 1,
-            REFRACTIVE = 2
+            OVERWRITE = 0,
+            ADDITIVE = 1,
+            MULTIPLICATIVE = 2,
         }
         public BlendOp Blending { get; set; }
 
@@ -21,7 +21,8 @@ namespace MST_Heightmap_Generator_GUI.Layers
         {
             { typeof(MSTDistance) , "MST Distance" },
             { typeof(MSTDistanceInverse) , "MST Inverse Distance" },
-            { typeof(ValueNoise) , "Value Noise" }
+            { typeof(ValueNoise) , "Value Noise" },
+            { typeof(Refraction) , "Refraction" }
         };
     }
 }
