@@ -77,7 +77,7 @@ struct AddNoiseParam {
 
 
 
-float calculateFrequenceAmplitude( const AddNoiseParam& bufferDesc, float _fCurrentHeight, float _fFrequence, float _fGradientX, float _fGradientY )
+static float calculateFrequenceAmplitude( const AddNoiseParam& bufferDesc, float _fCurrentHeight, float _fFrequence, float _fGradientX, float _fGradientY )
 {
 	float fHeightDependency = exp( (_fCurrentHeight-bufferDesc.frequenceDependencyOffset) * bufferDesc.frequenceHeightDependency);
 	float fGradientDependency = 1.0f + sqrt(_fGradientX*_fGradientX + _fGradientY*_fGradientY) * bufferDesc.frequenceGradientDependency;
