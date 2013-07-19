@@ -5,61 +5,57 @@ SamplerState LinearSampler;
 
 int2 TextureAreaMin;
 
-static const int2 AreaPerCall = int2(16,16);
+static const uint2 AreaPerCall = uint2(32,32);
+groupshared float heightValues[AreaPerCall.x][AreaPerCall.y];
 
-[numthreads(16, 16, 1)]
-void CSMain( uint3 threadID : SV_DispatchThreadID )
+[numthreads(AreaPerCall.x, AreaPerCall.y, 1)]
+void CSMain( uint3 dispatchThreadID : SV_DispatchThreadID,
+			 uint3 groupThreadID : SV_GroupThreadID)
 {
 	uint2 textureSize;
 	HeightInput.GetDimensions(textureSize.x, textureSize.y);
+	float2 pixelSize = float2(1.0f / (textureSize.x), 1.0f / (textureSize.y));
 
-	float2 pixelSize = float2(1.0f / textureSize.y, 1.0f / textureSize.y);
-	float2 srcTexcoord = pixelSize * threadID.xy;
+	// read height into shared mem
+	heightValues[groupThreadID.x][groupThreadID.y] = HeightInput[TextureAreaMin + groupThreadID.xy];
+	// sync
+	GroupMemoryBarrierWithGroupSync();
 
-	// pixel height
-	float srcHeight = HeightInput[threadID.xy];
+	// own pixel height
+	float srcHeight = HeightInput[dispatchThreadID.xy];
 	// load cone ratio
-	float coneRatio = ConesOutput[threadID.xy];
+	float coneRatio = ConesOutput[dispatchThreadID.xy];
 
-	const float MAXCHECK_STEP_LEN = 0.01f;
-	float maxcheckStepLen = length(pixelSize) * MAXCHECK_STEP_LEN;
-
-	// loop over pixels and compute rays to them
-	int2 dstTexPos;
-	int2 dstTexPosMax = TextureAreaMin + AreaPerCall;
-	for(dstTexPos.y = TextureAreaMin.y; dstTexPos.y < dstTexPosMax.y; ++dstTexPos.y)
+	// loop over pixels and compute cones
+	int2 curRelPix;
+	int2 srcOffset = TextureAreaMin - (int2)dispatchThreadID.xy;
+	for(curRelPix.x = 0; curRelPix.x < AreaPerCall.x; ++curRelPix.x)
 	{
-		for(dstTexPos.x = TextureAreaMin.x; dstTexPos.x < dstTexPosMax.x; ++dstTexPos.x)
+		float2 toDstTexcoord;
+		toDstTexcoord.x = (curRelPix.x + srcOffset.x) * pixelSize.x;	// precompute x component
+		
+		for(curRelPix.y = 0; curRelPix.y < AreaPerCall.y; ++curRelPix.y)
 		{
-			float dstHeight = HeightInput[dstTexPos];
+			float dstHeight = heightValues[curRelPix.x][curRelPix.y];	// read from shared mem
 			[flatten]if(srcHeight < dstHeight)
-			{
-				float2 dstTexcoord = pixelSize * (float2)dstTexPos;
-				float2 toDstTexcoord = dstTexcoord - srcTexcoord;
-
-				// is this pixel a max?
-				float2 step = normalize(toDstTexcoord) * maxcheckStepLen;
-				float forward = HeightInput.SampleLevel(LinearSampler, dstTexcoord + step, 0.0f);
-				float backward = HeightInput.SampleLevel(LinearSampler, dstTexcoord - step, 0.0f);
-				[flatten]if(forward < dstHeight && backward < dstHeight)	// this should be sufficient for relaxing
-				{
-					float deltaHeight = dstHeight - srcHeight;
-					coneRatio = min(dot(toDstTexcoord, toDstTexcoord) / (deltaHeight*deltaHeight), coneRatio);
-				}
+			{	
+				toDstTexcoord.y = (curRelPix.y + srcOffset.y) * pixelSize.y;	// missing y component
+				float deltaHeight = dstHeight - srcHeight;
+				float cone = dot(toDstTexcoord, toDstTexcoord) / (deltaHeight*deltaHeight);
+				coneRatio = min(cone, coneRatio);
 			}
 		}
 	}
-
 		
 	// output
 	//coneRatio = sqrt(coneRatio);
-	ConesOutput[threadID.xy] = coneRatio;
+	ConesOutput[dispatchThreadID.xy] = coneRatio;
 }  
 
-[numthreads(16, 16, 1)]
+[numthreads(32, 32, 1)]
 void CombineTextures( uint3 threadID : SV_DispatchThreadID )
 {
-	const float CONE_BIAS = 0.02f;
+	const float CONE_BIAS = 0.0f;//0.02f;
 	CombinedOutput[threadID.xy] = float2(HeightInput[threadID.xy], sqrt(ConesOutput[threadID.xy]) - CONE_BIAS);
 }
 

@@ -83,8 +83,10 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 
 	// cone stepping
 	shadowTerm = 1.0f;
-	const int MaxNumConeSteps = 100;
-	float minDistOffset = HeightmapSizeInv.x / dirXZlen * 0.01;
+	float lastShadowTerm = 1.0f;
+
+	const int MaxNumConeSteps = 150;
+	float minDistOffset = HeightmapSizeInv.x / dirXZlen * 0.05;
 	float distOffset;
 	float deltaHeight;
 	float travelled = 0.0;
@@ -103,34 +105,25 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 		if(any(intersectionPoint.xz != saturate(intersectionPoint.xz)) || (intersectionPoint.y > 1))
 			return false;
 
-		travelled += distOffset;
-		shadowTerm = min(shadowTerm, deltaHeight*SoftShadowFactor / travelled);
-
 		// below terrain? done.
 		if(deltaHeight < 0.0)
 		{
-			// binary steps
-			// dist update missing
-			const int NumBinarySteps = 4;
-			distOffset *= 0.5f;
-			intersectionPoint -= rayDirection_TextureSpace * distOffset;
-			[unroll] for(int i = 0; i < NumBinarySteps; ++i)
-			{  
-				float height = Heightmap.SampleLevel(LinearSampler, intersectionPoint.xz, 0).x; 
-				distOffset *= 0.5;  
-				[flatten] if (intersectionPoint.y > height)  // If outside  
-					intersectionPoint += rayDirection_TextureSpace * distOffset;  // Move forward
-				else  
-					intersectionPoint -= rayDirection_TextureSpace * distOffset;  // Move backward  
-			}
-			
+			// rough estimate last point above
+			intersectionPoint -= rayDirection_TextureSpace * (distOffset * 0.5f);
+
 			// bring intersection point to world and output
 			intersectionPoint.xz -= 0.5f;
 			intersectionPoint.xz /= WorldUnitToHeightmapTexcoord;
 			intersectionPoint.y = height_cone.x * TerrainScale + MinTerrainHeight;
 
+			shadowTerm = 0.0f;
+
 			return true;
 		}
+
+		travelled += distOffset;
+		lastShadowTerm = shadowTerm;
+		shadowTerm = lerp(min(shadowTerm, deltaHeight*SoftShadowFactor / travelled), lastShadowTerm, 0.8f);
 	}
 
 	// Left loop without terrain hit
@@ -187,10 +180,8 @@ float4 PS(PS_INPUT input) : SV_Target
 		float3 shadowCastPos;
 		rayCast(terrainPosition, LightDirection, shadowCastPos, shadowTerm);
 		lighting *= saturate(shadowTerm);
-		
+
 		outColor = float3(1,1,1) * lighting + computeSkyColor(normal, false)*0.4;
-		//outColor = Heightmap.SampleLevel(LinearSampler, terrainPosition.xz*WorldUnitToHeightmapTexcoord + 0.5, 0).y;
-		//outColor += terrainPosition;
 
 		// FOGGING
 		// clever fog http://www.iquilezles.org/www/articles/fog/fog.htm
