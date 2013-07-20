@@ -75,11 +75,15 @@ namespace MST_Heightmap_Generator_GUI
         {
             this.terrainScale = terrainScale;
 
-            var heightmapConstantBuffer = terrainShader.Effect.ConstantBuffers["HeightmapInfo"];
-            heightmapConstantBuffer.Parameters["TerrainScale"].SetValue(terrainScale);
-            heightmapConstantBuffer.IsDirty = true;
+            if (terrainShader != null)
+            {
+                var heightmapConstantBuffer = terrainShader.Effect.ConstantBuffers["HeightmapInfo"];
+                heightmapConstantBuffer.Parameters["TerrainScale"].SetValue(terrainScale);
+                heightmapConstantBuffer.IsDirty = true;
+            }
 
-            sphereBillboardShader.Effect.Parameters["HeightScale"].SetValue(terrainScale);
+            if(sphereBillboardShader != null)
+                sphereBillboardShader.Effect.Parameters["HeightScale"].SetValue(terrainScale);
         }
 
         public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit)
@@ -185,6 +189,9 @@ namespace MST_Heightmap_Generator_GUI
 
             // vertex input layout
             sphereVertexInputLayout = VertexInputLayout.New(VertexBufferLayout.New(0, VertexElement.Position(SharpDX.DXGI.Format.R32G32B32_Float)));
+
+            // basic height settings (default..)
+            SetupHeightmapConstants();
         }
 
         void WPFHost.IScene.Detach()

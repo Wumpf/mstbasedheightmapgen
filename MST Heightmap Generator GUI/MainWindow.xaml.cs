@@ -49,6 +49,7 @@ namespace MST_Heightmap_Generator_GUI
             InitLayerBlendingComobBox();
 
             terrainRenderingPreview = new TerrainRenderingPreview();
+            terrainRenderingPreview.SetScaleFactor((float)VisualScaleSlider.Value);
             DX11Display.Scene = terrainRenderingPreview;
          
             int width = (int)_heightmapFactory.GetWidth();
@@ -60,6 +61,8 @@ namespace MST_Heightmap_Generator_GUI
             GenerateRandomSummits(20);
         }
 
+
+        
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
         //    renderWindow.Closing = true;
