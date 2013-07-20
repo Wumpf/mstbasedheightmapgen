@@ -15,16 +15,11 @@ cbuffer HeightmapInfo : register(b2)
 	float2 WorldUnitToHeightmapTexcoord;
 	float2 HeightmapPixelSizeInWorld;
 	float TerrainScale;
-	float MinTerrainHeight;
-	float MaxTerrainHeight;
 }
 
 // ------------------------------------------------
 // TERRAIN
 // ------------------------------------------------
-//static const float maxTerrainHeight = TerrainScale;
-//static const float minTerrainHeight = -10;
-
 SamplerState LinearSampler;  
 Texture2D Heightmap;  
 
@@ -57,8 +52,8 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 //	if(abs(rayDirection.y) < 0.000001)
 //		return false;
 
-	float upperBound = (MaxTerrainHeight - rayOrigin.y) / rayDirection.y;
-	float lowerBound = (MinTerrainHeight - rayOrigin.y) / rayDirection.y;
+	float upperBound = (TerrainScale	 - rayOrigin.y) / rayDirection.y;
+	float lowerBound = (0			     - rayOrigin.y) / rayDirection.y;
 	// Clip if ray upward from above or downward from below
 	if(lowerBound < 0.0 && upperBound < 0.0)
 		return false;
@@ -78,7 +73,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	intersectionPoint.xz = intersectionPoint.xz * WorldUnitToHeightmapTexcoord + 0.5f;
 	float2 startOffset = (saturate(intersectionPoint.xz)-intersectionPoint.xz)/rayDirection_TextureSpace.xz;
 	float startOffsetMax = max(startOffset.x, startOffset.y);
-	intersectionPoint.y = (intersectionPoint.y - MinTerrainHeight) / TerrainScale;
+	intersectionPoint.y = intersectionPoint.y / TerrainScale;
 	intersectionPoint += startOffsetMax* rayDirection_TextureSpace;
 
 	// cone stepping
@@ -114,7 +109,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 			// bring intersection point to world and output
 			intersectionPoint.xz -= 0.5f;
 			intersectionPoint.xz /= WorldUnitToHeightmapTexcoord;
-			intersectionPoint.y = height_cone.x * TerrainScale + MinTerrainHeight;
+			intersectionPoint.y = height_cone.x * TerrainScale;
 
 			shadowTerm = 0.0f;
 

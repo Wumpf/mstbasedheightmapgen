@@ -1,7 +1,8 @@
 #include "Stdafx.h"
 #include "CommandBuffer.hpp"
+#include "Filter.h"
 
-void GeneratorPipeline::Execute(int resolutionX, int resolutionY, float* finalDestination)
+void GeneratorPipeline::Execute(int resolutionX, int resolutionY, float* finalDestination, bool normalizeData)
 //void ExecuteCommands(Command** commands, int numCommands, const MapBufferInfo& bufferInfo, float* finalDestination)
 {
 	// Acquire a triple buffer
@@ -34,4 +35,18 @@ void GeneratorPipeline::Execute(int resolutionX, int resolutionY, float* finalDe
 	free(buffer[0]);
 	free(buffer[1]);
 	free(buffer[2]);
+
+
+	// normalize data
+	if(normalizeData)
+	{
+		float minHeight = std::numeric_limits<float>::max();
+		float maxHeight = std::numeric_limits<float>::min();
+		for(int i=0; i< resolutionX*resolutionY; ++i)
+		{
+			minHeight = std::min(finalDestination[i], minHeight);
+			maxHeight = std::min(finalDestination[i], maxHeight);
+		}
+		Normalize(finalDestination, resolutionX, resolutionY, minHeight, maxHeight);
+	}
 }

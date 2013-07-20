@@ -30,8 +30,6 @@ namespace MST_Heightmap_Generator_GUI
         private Texture heightmapTexture;
 
         private float heightmapPixelPerWorldUnit;
-        private float minHeight;
-        private float maxHeight;
 
         private float terrainScale;
 
@@ -71,21 +69,14 @@ namespace MST_Heightmap_Generator_GUI
 
         /// <summary>
         /// The visual output can be rescaled without regeneration of the map.
-        /// 
-        /// This method should always be called together with LoadNewHeightMap.
         /// </summary>
-        /// <param name="minHeight">Measured minimum terrain height times a scaling factor</param>
-        /// <param name="maxHeight">Measured maximum terrain height times a scaling factor</param>
-        public void RescaleHeight(float minHeight, float maxHeight)
+        /// <param name="terrainScale">Scale factor</param>
+        public void SetScaleFactor(float terrainScale)
         {
-            this.maxHeight = maxHeight;
-            this.minHeight = minHeight;
+            this.terrainScale = terrainScale;
 
             var heightmapConstantBuffer = terrainShader.Effect.ConstantBuffers["HeightmapInfo"];
-            terrainScale = maxHeight - minHeight;
             heightmapConstantBuffer.Parameters["TerrainScale"].SetValue(terrainScale);
-            heightmapConstantBuffer.Parameters["MaxTerrainHeight"].SetValue(maxHeight);
-            heightmapConstantBuffer.Parameters["MinTerrainHeight"].SetValue(minHeight);
             heightmapConstantBuffer.IsDirty = true;
 
             sphereBillboardShader.Effect.Parameters["HeightScale"].SetValue(terrainScale);
@@ -154,6 +145,8 @@ namespace MST_Heightmap_Generator_GUI
 
             terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
             terrainShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
+
+            SetScaleFactor(terrainScale);
         }
 
         void WPFHost.IScene.Attach(WPFHost.ISceneHost host)
@@ -176,7 +169,7 @@ namespace MST_Heightmap_Generator_GUI
             terrainShader = new ShaderAutoReload("terrain.fx", GraphicsDevice);
             sphereBillboardShader = new ShaderAutoReload("spherebillboards.fx", GraphicsDevice);
             terrainShader.OnReload += SetupHeightmapConstants;
-            terrainShader.OnReload += () => RescaleHeight(minHeight, maxHeight);
+            terrainShader.OnReload += () => SetScaleFactor(terrainScale);
 
             // linear sampler
             var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();

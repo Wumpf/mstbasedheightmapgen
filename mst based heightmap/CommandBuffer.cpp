@@ -12,6 +12,7 @@ void GeneratorPipeline::InitializeTypeMap()
 	_typeMap.insert(pair<string, CommandType>(string("ADDITIVE"), CommandType::ADD));
 	_typeMap.insert(pair<string, CommandType>(string("MULTIPLICATIVE"), CommandType::MULTIPLY));
 	_typeMap.insert(pair<string, CommandType>(string("REFRACTIVE"), CommandType::REFRACT));
+	_typeMap.insert(pair<string, CommandType>(string("OVERWRITE"), CommandType::OVERWRITE));
 	_typeMap.insert(pair<string, CommandType>(string("Smooth"), CommandType::SMOOTH));
 	_typeMap.insert(pair<string, CommandType>(string("Normalize"), CommandType::NORMALIZE));
 	_typeMap.insert(pair<string, CommandType>(string("NONE"), CommandType::NONE));
@@ -38,6 +39,7 @@ Command* GeneratorPipeline::LoadBlendCommand( const Json::Value& commandInfo )
 	{
 		case CommandType::ADD:			return new CmdBlendAdd();
 		case CommandType::MULTIPLY:		return new CmdBlendMultiply();
+		case CommandType::OVERWRITE :	return new CmdBlendOverwrite();
 		case CommandType::REFRACT:
 			break;
 	}
@@ -65,9 +67,10 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 	// Allocate enough, that each layer can have a blend command
 	_commands = new Command*[_numCommands*2];
 
-	for(int i=0; i<_numCommands; ++i)
+	for(int commandIndex=0, jsonLayerIndex=0; commandIndex<_numCommands; ++commandIndex, ++jsonLayerIndex)
 	{
-		CommandType type = _typeMap[layers[i].get("Type", "NONE").asString()];
+		CommandType type = _typeMap[layers[jsonLayerIndex].get("Type", "NONE").asString()];
+		Json::Value& currentLayer = layers[jsonLayerIndex];
 		switch(type)
 		{
 		case CommandType::MST_DISTANCE:
@@ -75,8 +78,8 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 		case CommandType::MST_INV_DISTANCE:
 			break;
 		case CommandType::VALUE_NOISE:
-			_commands[i] = LoadValueNoiseCommand(layers[i]);
-			_commands[++i] = LoadBlendCommand(layers[i]);
+			_commands[commandIndex] = LoadValueNoiseCommand(currentLayer);
+			_commands[++commandIndex] = LoadBlendCommand(currentLayer);
 			++_numCommands;
 			break;
 		case CommandType::SMOOTH:
@@ -86,7 +89,7 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 
 		default:
 			// Skip unknown layers
-			--i;
+			--commandIndex;
 			--_numCommands;
 		}
 	}

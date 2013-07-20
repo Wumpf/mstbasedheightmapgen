@@ -39,7 +39,10 @@ public:
 	/// \param [out] finalDestination A buffer where the final result has to
 	///		be written into. The buffer must have a size of
 	///		resolutionX * resolutionY * sizeof(float)
-	CPP_DLL void Execute(int resolutionX, int resolutionY, float* finalDestination);
+	/// \param [in] normalizeData true means that all values in
+	///		finalDestination will be scaled and offseted to a range from [0,1].
+	///		Otherwise the values of finalDestination are in an arbitrary range.
+	CPP_DLL void Execute(int resolutionX, int resolutionY, float* finalDestination, bool normalizeData = true);
 
 	CPP_DLL ~GeneratorPipeline();
 };

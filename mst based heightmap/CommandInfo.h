@@ -19,6 +19,7 @@ enum struct CommandType
 	ADD = 10,
 	MULTIPLY = 11,
 	REFRACT = 12,
+	OVERWRITE = 13,
 
 	SMOOTH = 100,
 	NORMALIZE = 101,
@@ -141,6 +142,21 @@ public:
 	/// Multiply two prior results.
 	/// \details If `prevResult` is not defined the result is copied from
 	///		currentResult.
+	virtual void Execute( const MapBufferInfo& bufferInfo,
+						  const float* prevResult,
+						  const float* currentResult,
+						  float* destination) override;
+};
+
+/// This commando multiplies overwrites the old result, rendering all previous results useless
+///
+class CmdBlendOverwrite : public Command
+{
+public:
+	CmdBlendOverwrite() : Command(CommandType::OVERWRITE) {}
+
+	/// Overwrites old result.
+	/// \details `prevResult` will be ignored
 	virtual void Execute( const MapBufferInfo& bufferInfo,
 						  const float* prevResult,
 						  const float* currentResult,

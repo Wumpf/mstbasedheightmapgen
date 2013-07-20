@@ -47,7 +47,7 @@
         <Label Grid.Row="0" Grid.Column="0" Content="Refraction Noise" Margin="-1,86,11,0" VerticalAlignment="Top" Height="26"/>
 
         <Label Grid.Row="0" Grid.Column="0" Content="Visual Height Scale" Margin="-1,246,11,0" VerticalAlignment="Top" Height="26"/>
-        <Slider Name="VisualScaleSlider" Grid.Row="0" Grid.Column="1" Margin="9,246,11,0" VerticalAlignment="Top" Height="26" Maximum="1.5" LargeChange="0.15" SmallChange="0.025" Value="0.5" ValueChanged="Sl_VisualScaleSlider_Changed" AutoToolTipPlacement="TopLeft"/>
+        <Slider Name="VisualScaleSlider" Grid.Row="0" Grid.Column="1" Margin="9,246,11,0" VerticalAlignment="Top" Height="26" Minimum="5" Maximum="500" LargeChange="0.15" SmallChange="0.025" Value="50" ValueChanged="Sl_VisualScaleSlider_Changed" AutoToolTipPlacement="TopLeft"/>
 
         <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="2" Stretch="Fill" MouseLeftButtonDown="CanvasMouseLeftButtonDown"
                            MouseLeftButtonUp="CanvasMouseLeftButtonUp" MouseMove="CanvasMouseMove" MouseLeave="CanvasMouseLeave" MouseWheel="CanvasMouseWheel"/>

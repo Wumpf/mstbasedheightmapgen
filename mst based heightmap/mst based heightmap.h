@@ -51,6 +51,7 @@ namespace MstBasedHeightmap {
 		/// \param [out] outData The array which is filled with the results.
 		///		The size defines the sampling of the map.
 		void Execute(array<float, 2>^ outData);
+
 	private:
 		::GeneratorPipeline* _nativeGenerator;
 	};

@@ -28,8 +28,13 @@ namespace MST_Heightmap_Generator_GUI
     {
         const int MAP_SIZE = 256;
         const float heightmapPixelPerWorldUnit = 2.0f;
-        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(MAP_SIZE, MAP_SIZE, heightmapPixelPerWorldUnit);
+
         float[,] _heightmapData;
+        
+        
+        // deprecated!
+        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(MAP_SIZE, MAP_SIZE, heightmapPixelPerWorldUnit);
+        
 
         // Second dimension is always 3
         float[,] _summitList;
@@ -62,6 +67,8 @@ namespace MST_Heightmap_Generator_GUI
             base.OnClosing(e);
         }
 
+        #region deprecated ui
+
         private void GenerateHeightmap(object sender, RoutedEventArgs e)
         {
             // Send points only on generated (they are modified interactive)
@@ -78,8 +85,6 @@ namespace MST_Heightmap_Generator_GUI
             terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0]);
             terrainRenderingPreview.ClearPointSet();
             terrainRenderingPreview.AddPointSet(new PointSet(_summitList, heightmapPixelsPerWorld[0, 0], _heightmapData.GetLength(0), _heightmapData.GetLength(1), terrainRenderingPreview.GraphicsDevice));
-
-            Sl_VisualScaleSlider_Changed(null, null);
         }
 
         private void GenerateRandomSummits(int num)
@@ -149,23 +154,22 @@ namespace MST_Heightmap_Generator_GUI
             _heightmapFactory.SetParameter(10, value);
         }
 
-        private void Sl_VisualScaleSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (terrainRenderingPreview != null)
-            {
-                // Query the terrain size and update shader constants
-                float[,] minmaxHeights = new float[2, 1];
-                uint width, height;
-                _heightmapFactory.GetParameter(11, minmaxHeights, out width, out height);
-                terrainRenderingPreview.RescaleHeight(minmaxHeights[0, 0] * (float)VisualScaleSlider.Value, minmaxHeights[1, 0] * (float)VisualScaleSlider.Value);
-            }
-        }
-
         private void Sl_HeightDependencyOffset_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             float[,] value = { { (float)e.NewValue } };
             _heightmapFactory.SetParameter(12, value);
         }
+
+        #endregion
+
+        private void Sl_VisualScaleSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (terrainRenderingPreview != null)
+            {
+                terrainRenderingPreview.SetScaleFactor((float)VisualScaleSlider.Value);
+            }
+        }
+
         private void CanvasMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             terrainRenderingPreview.OnLeftMouseDown();
@@ -213,6 +217,12 @@ namespace MST_Heightmap_Generator_GUI
         private void RegenerateHeightmap(object sender, RoutedEventArgs e)
         {
             string json = SerializeSettingsToJSON();
+            new MstBasedHeightmap.GeneratorPipeline(json).Execute(_heightmapData);
+
+            // update view
+            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelPerWorldUnit);
+            terrainRenderingPreview.ClearPointSet();
+            //terrainRenderingPreview.AddPointSet(new PointSet(_summitList, heightmapPixelsPerWorld[0, 0], _heightmapData.GetLength(0), _heightmapData.GetLength(1), terrainRenderingPreview.GraphicsDevice));
         }
     }
 }

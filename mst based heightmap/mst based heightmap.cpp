@@ -76,7 +76,7 @@ namespace MstBasedHeightmap
 	GeneratorPipeline::GeneratorPipeline(String^ jsonCode)
 	{
 		std::string stdString = msclr::interop::marshal_as<std::string>(jsonCode);
-		_nativeGenerator = new ::GeneratorPipeline("erg");
+		_nativeGenerator = new ::GeneratorPipeline(stdString);
 	}
 
 	GeneratorPipeline::~GeneratorPipeline()
