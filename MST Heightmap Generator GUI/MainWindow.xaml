@@ -58,11 +58,7 @@
         <Button Content="↑" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="40,673,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerUp"  RenderTransformOrigin="1.833,0.542"/>
         <Button Content="↓" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="69,673,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerDown" RenderTransformOrigin="1.833,0.542"/>
         <Button Content="X" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="98,673,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="DeleteLayer" RenderTransformOrigin="1.833,0.542"/>
-        <ComboBox x:Name="LayerBlending" HorizontalAlignment="Left" Height="24" Margin="9,398,0,0" VerticalAlignment="Top" Width="142" SelectedIndex="0" Grid.Column="1" SelectionChanged="LayerBlending_Selected">
-            <ComboBoxItem Content="Additive"/>
-            <ComboBoxItem Content="Multiplicative"/>
-            <ComboBoxItem Content="Refractive"/>
-        </ComboBox>
+        <ComboBox x:Name="LayerBlending" HorizontalAlignment="Left" Height="24" Margin="9,398,0,0" VerticalAlignment="Top" Width="142" SelectedIndex="0" Grid.Column="1" SelectionChanged="LayerBlending_Selected"/>
         <Label Content="Blending" HorizontalAlignment="Left" Height="26" Margin="13,396,0,0" VerticalAlignment="Top" Width="99"/>
         <Button Content="Generate!" VerticalAlignment="Top" Height="23" Click="RegenerateHeightmap" Margin="12,723,148,0" Focusable="False" Grid.ColumnSpan="2"/>
     </Grid>

@@ -183,15 +183,36 @@ class CmdInvMSTDistance : public Command
 public:
 	CmdInvMSTDistance(const Vec3* pointList, int numPoints, float height, float quadraticSplineHeight);
 
-	/// Add two prior results.
-	/// \details If `prevResult` is not defined the result is copied from
-	///		currentResult.
+	/// Compute a distance map as new layer.
+	/// \details The former results are ignored.
 	virtual void Execute( const MapBufferInfo& bufferInfo,
 						  const float* prevResult,
 						  const float* currentResult,
 						  float* destination) override;
 
 	virtual ~CmdInvMSTDistance();
+};
+
+/// This commando creates the distance field of a minimal spanning tree.
+///
+class CmdMSTDistance : public Command
+{
+	float GeneratorKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult );
+
+	OrE::ADT::Mesh* _mst;
+	float _height;					///< Maximum height/distance of the ridges and summits.
+	float _quadraticSplineHeight;	///< Below this height a spline is used to make fade more smooth
+public:
+	CmdMSTDistance(const Vec3* pointList, int numPoints, float height, float quadraticSplineHeight);
+
+	/// Compute a distance map as new layer.
+	/// \details The former results are ignored.
+	virtual void Execute( const MapBufferInfo& bufferInfo,
+						  const float* prevResult,
+						  const float* currentResult,
+						  float* destination) override;
+
+	virtual ~CmdMSTDistance();
 };
 
 

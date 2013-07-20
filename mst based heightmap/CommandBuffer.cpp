@@ -18,7 +18,7 @@ void GeneratorPipeline::InitializeTypeMap()
 }
 
 
-
+// ************************************************************************* //
 Command* GeneratorPipeline::LoadValueNoiseCommand( const Json::Value& commandInfo )
 {
 	// Read four additional scalar values

@@ -122,5 +122,8 @@
     <ClCompile Include="CmdInvMSTDistance.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="CmdMSTDistance.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
