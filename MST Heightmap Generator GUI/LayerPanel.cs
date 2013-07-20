@@ -62,7 +62,7 @@ namespace MST_Heightmap_Generator_GUI
                 if(layerAttributeList.Length > 0)
                 {
                     Type floattype = typeof(float);
-                    layerAttributeList[0].CreateTreeViewSubElement(newItem, (int)Layers.Width,
+                    layerAttributeList[0].CreateTreeViewSubElement(newItem, (int)Layers.ActualWidth,
                                 () => { return property.GetMethod.Invoke(newLayerClass, new object[0]); },
                                 (value) => { property.SetMethod.Invoke(newLayerClass, new object[] { value }); });
                 }
