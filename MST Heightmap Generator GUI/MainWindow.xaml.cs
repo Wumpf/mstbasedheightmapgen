@@ -26,8 +26,10 @@ namespace MST_Heightmap_Generator_GUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        const int MAP_SIZE = 256;
+        // TODO: temporary solution - check dependencies when refactoring
+        public const int MAP_SIZE = 256;
         const float heightmapPixelPerWorldUnit = 2.0f;
+        // ----
 
         float[,] _heightmapData;
         
@@ -224,7 +226,6 @@ namespace MST_Heightmap_Generator_GUI
 
             // update view
             terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelPerWorldUnit);
-            terrainRenderingPreview.ClearPointSet();
             //terrainRenderingPreview.AddPointSet(new PointSet(_summitList, heightmapPixelsPerWorld[0, 0], _heightmapData.GetLength(0), _heightmapData.GetLength(1), terrainRenderingPreview.GraphicsDevice));
         }
     }

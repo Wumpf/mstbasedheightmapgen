@@ -61,10 +61,14 @@ namespace MST_Heightmap_Generator_GUI
                                         property.GetCustomAttributes(typeof(LayerAttributes.LayerAttribute), false);
                 if(layerAttributeList.Length > 0)
                 {
-                    Type floattype = typeof(float);
+                    // create ui for this element
                     layerAttributeList[0].CreateTreeViewSubElement(newItem, (int)Layers.ActualWidth,
                                 () => { return property.GetMethod.Invoke(newLayerClass, new object[0]); },
                                 (value) => { property.SetMethod.Invoke(newLayerClass, new object[] { value }); });
+
+                    // pointset layer must be registred
+                    if (layerAttributeList[0] is LayerAttributes.LayerAttributePointSet)
+                        terrainRenderingPreview.AddPointSet((PointSet)property.GetMethod.Invoke(newLayerClass, new object[0]));
                 }
             }
             if (Layers.Items.IsEmpty || (Layers.SelectedItem == null))
@@ -105,6 +109,7 @@ namespace MST_Heightmap_Generator_GUI
         private void DeleteLayer(object sender, RoutedEventArgs e)
         {
             // TODO: Delete Layer
+            // remove pointset if necessary
         }
     }
 }

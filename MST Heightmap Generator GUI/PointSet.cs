@@ -31,10 +31,18 @@ namespace MST_Heightmap_Generator_GUI
         private static readonly Vector3 POS_MAX = new Vector3(2048, 1, 2048);
         private static readonly Vector3 POS_MIN = new Vector3(-2048, 0, -2048);
 
-        public PointSet(int randomSeed, int numPoints, float worldWidth, float worldHeight)
+        public PointSet()
         {
-            // TODO
-           // spherePositionArray = new Vector3[points.GetLength(0)];
+        }
+
+        public void CreateRandomPoints(int randomSeed, uint numPoints, float worldWidth, float worldHeight)
+        {
+            Random random = new Random(randomSeed);
+            spherePositionArray = new Vector3[numPoints];
+            for (int i = 0; i < numPoints; ++i)
+                spherePositionArray[i] = random.NextVector3(Vector3.Zero, new Vector3(worldWidth, 1.0f, worldHeight));
+
+            UpdateSpherePositionsBuffer();
         }
 
         public PointSet(float[,] spherePositionArray)
@@ -133,17 +141,20 @@ namespace MST_Heightmap_Generator_GUI
 
         private void UpdateSpherePositionsBuffer()
         {
-            unsafe
+            if (vertexBuffer != null)
             {
-                fixed (Vector3* pArray = spherePositionArray)
+                unsafe
                 {
-                    IntPtr intPtr = new IntPtr((void*)pArray);
-                    vertexBuffer.SetDynamicData(vertexBuffer.GraphicsDevice, (x) =>
+                    fixed (Vector3* pArray = spherePositionArray)
                     {
-                        Vector3* vecArray = (Vector3*)x;
-                        for (int i = 0; i < spherePositionArray.Length; ++i)
-                            vecArray[i] = spherePositionArray[i];
-                    });
+                        IntPtr intPtr = new IntPtr((void*)pArray);
+                        vertexBuffer.SetDynamicData(vertexBuffer.GraphicsDevice, (x) =>
+                        {
+                            Vector3* vecArray = (Vector3*)x;
+                            for (int i = 0; i < spherePositionArray.Length; ++i)
+                                vecArray[i] = spherePositionArray[i];
+                        });
+                    }
                 }
             }
         }

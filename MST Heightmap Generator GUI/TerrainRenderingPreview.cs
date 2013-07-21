@@ -28,9 +28,9 @@ namespace MST_Heightmap_Generator_GUI
         #region heightmap properties
 
         private Texture heightmapTexture;
-        private float heightmapPixelPerWorldUnit;
-        private float terrainScale;
-        private Vector3 terrainTranslation;
+        private float heightmapPixelPerWorldUnit = 1; // some default values for convinience
+        private float terrainScale = 20;
+        private Vector3 terrainTranslation = new Vector3(-128,0,-128);
 
         #endregion
 
@@ -204,7 +204,7 @@ namespace MST_Heightmap_Generator_GUI
             // vertex input layout
             sphereVertexInputLayout = VertexInputLayout.New(VertexBufferLayout.New(0, VertexElement.Position(SharpDX.DXGI.Format.R32G32B32_Float)));
 
-            // basic height settings (default..)
+            // constant buffer to defaults
             SetupHeightmapConstants();
         }
 
