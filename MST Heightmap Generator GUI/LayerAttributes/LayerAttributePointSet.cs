@@ -25,6 +25,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             visible.Content = "Point Set";
             visible.Margin = new Thickness(0, 2, 6, 0);
             visible.ToolTip = "Visible in preview rendering";
+            visible.Click += (sender, e) => { pointSet.Visible = visible.IsChecked.Value; };
             panel.Children.Add(visible);
             
             TextBox num = new TextBox();
@@ -39,6 +40,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             panel.Children.Add(rand);
 
             TextBox seed = new TextBox();
+            seed.PreviewTextInput += (sender, e) => { e.Handled = !(e.Text.All(char.IsNumber) && seed.Text.Length < 3); };
             seed.Text = new Random(DateTime.UtcNow.Millisecond).Next(1000).ToString();
             seed.Width = 40;
             seed.ToolTip = "Initial value for randomize (number)";

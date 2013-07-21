@@ -192,6 +192,11 @@ namespace MST_Heightmap_Generator_GUI
         {
             if (vertexBuffer != null)
             {
+                if (vertexBuffer.ElementCount < spherePositionArray.Length)
+                {
+                    vertexBuffer.Dispose();
+                    vertexBuffer = Buffer.Vertex.New<Vector3>(vertexBuffer.GraphicsDevice, spherePositionArray, SharpDX.Direct3D11.ResourceUsage.Dynamic);
+                }
                 unsafe
                 {
                     fixed (Vector3* pArray = spherePositionArray)
