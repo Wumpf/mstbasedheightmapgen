@@ -2,6 +2,7 @@
 //float3 CameraRight;
 float3 CameraPosition;
 float HeightScale;
+float3 Translation;
 matrix WorldViewProjection;
 
 struct ParticleVertex
@@ -29,7 +30,7 @@ void GS_Render(point ParticleVertex inputArray[1], inout TriangleStream<Particle
 
 	const float SIZE = 2.0f;
 
-	float3 position = input.Position;
+	float3 position = input.Position + Translation;
 	position.y *= HeightScale;
 
 	float3 toCamera = position-CameraPosition;

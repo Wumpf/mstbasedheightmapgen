@@ -21,23 +21,20 @@ namespace MST_Heightmap_Generator_GUI
         private ShaderAutoReload sphereBillboardShader;
 
         private List<PointSet> pointSets = new List<PointSet>();
-        PointSet containingSelectedSphere = null;
+        private PointSet pointSetWithSelection = null;
 
         private Camera camera;
         
         #region heightmap properties
 
         private Texture heightmapTexture;
-
         private float heightmapPixelPerWorldUnit;
-
         private float terrainScale;
+        private Vector3 terrainTranslation;
 
         #endregion
 
         private SamplerState linearSamplerState;
-
-        
 
 
         public bool Closing { get; set; }
@@ -52,18 +49,32 @@ namespace MST_Heightmap_Generator_GUI
         }
 
         #region PointSet Functions
+
+        /// <summary>
+        /// Removes all PointSet.
+        /// </summary>
         public void ClearPointSet()
         {
             pointSets.Clear();
         }
+        /// <summary>
+        /// Adds a PointSet.
+        /// </summary>
+        /// <param name="newPointSet">New point set</param>
         public void AddPointSet(PointSet newPointSet)
         {
+            newPointSet.InitGraphicsRessource(GraphicsDevice);
             pointSets.Add(newPointSet);
         }
+        /// <summary>
+        /// Removes a PointSet.
+        /// </summary>
+        /// <param name="pointSet">PointSet to remove</param>
         public void RemovePointSet(PointSet pointSet)
         {
             pointSets.Remove(pointSet);
         }
+
         #endregion
 
 
@@ -149,6 +160,9 @@ namespace MST_Heightmap_Generator_GUI
 
             terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
             terrainShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
+
+            terrainTranslation = new Vector3(-heightmapTexture.Width * 0.5f / heightmapPixelPerWorldUnit, 0, -heightmapTexture.Height * 0.5f / heightmapPixelPerWorldUnit);
+            sphereBillboardShader.Effect.Parameters["Translation"].SetValue(terrainTranslation);
 
             SetScaleFactor(terrainScale);
         }
@@ -268,30 +282,30 @@ namespace MST_Heightmap_Generator_GUI
         public void OnLeftMouseDown()
         {
             Ray ray = camera.GetPickingRay(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, host.WindowsInputElement);
-            containingSelectedSphere = null;
+            pointSetWithSelection = null;
             foreach (PointSet pointSet in pointSets)
             {
-                if(pointSet.SelectSphere(ray, terrainScale))
-                    containingSelectedSphere = pointSet;
+                if (pointSet.SelectSphere(ray, terrainScale, terrainTranslation))
+                    pointSetWithSelection = pointSet;
             }
         }
 
         public void OnLeftMouseUp()
         {
-            containingSelectedSphere = null;
+            pointSetWithSelection = null;
         }
 
         public void OnMouseMove()
         {
             Ray ray = camera.GetPickingRay(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height, host.WindowsInputElement);
-            if (containingSelectedSphere != null)
-                containingSelectedSphere.MoveSelectedSphere(ref ray, terrainScale);
+            if (pointSetWithSelection != null)
+                pointSetWithSelection.MoveSelectedSphere(ref ray, terrainScale, terrainTranslation);
         }
 
         internal void OnMouseWheel(int delta)
         {
-            if (containingSelectedSphere != null)
-                containingSelectedSphere.MoveSelectedSphere(delta);
+            if (pointSetWithSelection != null)
+                pointSetWithSelection.MoveSelectedSphere(delta);
         }
     }
 }

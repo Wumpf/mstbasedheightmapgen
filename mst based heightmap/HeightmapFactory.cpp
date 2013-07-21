@@ -183,7 +183,7 @@ void HeightmapFactory::GetParameter(unsigned int type, float* outData, unsigned 
 		{
 			outData[i*3] = _summitList[i].x;
 			outData[i*3+1] = _summitList[i].y;
-			outData[i*3+2] = _summitList[i].z * HEIGHT_CODE_FACTOR;
+			outData[i*3+2] = (_summitList[i].z * HEIGHT_CODE_FACTOR - _minHeight) / (_maxHeight-_minHeight);	// normalize
 		}
 		break;
 

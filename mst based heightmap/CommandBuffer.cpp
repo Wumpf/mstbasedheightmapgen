@@ -11,7 +11,7 @@ void GeneratorPipeline::InitializeTypeMap()
 	_typeMap.insert(pair<string, CommandType>(string("Value Noise"), CommandType::VALUE_NOISE));
 	_typeMap.insert(pair<string, CommandType>(string("ADDITIVE"), CommandType::ADD));
 	_typeMap.insert(pair<string, CommandType>(string("MULTIPLICATIVE"), CommandType::MULTIPLY));
-	_typeMap.insert(pair<string, CommandType>(string("REFRACTIVE"), CommandType::REFRACT));
+	_typeMap.insert(pair<string, CommandType>(string("REFRACTIVE"), CommandType::REFRACT));	// TODO: Is this really a blending mode?
 	_typeMap.insert(pair<string, CommandType>(string("OVERWRITE"), CommandType::OVERWRITE));
 	_typeMap.insert(pair<string, CommandType>(string("Smooth"), CommandType::SMOOTH));
 	_typeMap.insert(pair<string, CommandType>(string("Normalize"), CommandType::NORMALIZE));
@@ -66,6 +66,7 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 	_numCommands = layers.size();
 	// Allocate enough, that each layer can have a blend command
 	_commands = new Command*[_numCommands*2];
+	memset(_commands, 0, sizeof(Command*) * _numCommands*2);
 
 	for(int commandIndex=0, jsonLayerIndex=0; commandIndex<_numCommands; ++commandIndex, ++jsonLayerIndex)
 	{
@@ -73,20 +74,20 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 		Json::Value& currentLayer = layers[jsonLayerIndex];
 		switch(type)
 		{
-		case CommandType::MST_DISTANCE:
+	/*	case CommandType::MST_DISTANCE:
 			break;
 		case CommandType::MST_INV_DISTANCE:
-			break;
+			break; */
 		case CommandType::VALUE_NOISE:
 			_commands[commandIndex] = LoadValueNoiseCommand(currentLayer);
 			_commands[++commandIndex] = LoadBlendCommand(currentLayer);
 			++_numCommands;
 			break;
-		case CommandType::SMOOTH:
+	/*	case CommandType::SMOOTH:
 			break;
 		case CommandType::NORMALIZE:
 			break;
-
+			*/
 		default:
 			// Skip unknown layers
 			--commandIndex;
