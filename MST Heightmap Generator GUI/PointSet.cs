@@ -12,7 +12,7 @@ namespace MST_Heightmap_Generator_GUI
     /// <summary>
     /// representing a renderable and editable set of points on the terrain
     /// </summary>
-    public class PointSet
+    public class PointSet : IDisposable
     {
         public bool Visible { get; set; }
 
@@ -31,8 +31,34 @@ namespace MST_Heightmap_Generator_GUI
         private static readonly Vector3 POS_MAX = new Vector3(2048, 1, 2048);
         private static readonly Vector3 POS_MIN = new Vector3(-2048, 0, -2048);
 
+        #region Color Management
+
+        public static readonly Color[] colors = { Color.Green, Color.Blue, Color.Red, Color.Black, Color.Pink, Color.Orange, Color.Chocolate, Color.Indigo };
+        public Color Color { get { return colors[colorIndex % colors.Length]; } }
+        private static int numActivePointSets = 0;
+        private int colorIndex = numActivePointSets;
+
+        #endregion
+
         public PointSet()
         {
+            ++numActivePointSets;
+        }
+
+
+        public PointSet(float[,] spherePositionArray)
+        {
+            this.spherePositionArray = new Vector3[spherePositionArray.GetLength(0)];
+            for (int i = 0; i < spherePositionArray.GetLength(0); ++i)
+                this.spherePositionArray[i] = new Vector3(spherePositionArray[i, 0], spherePositionArray[i, 2], spherePositionArray[i, 1]);
+
+            ++numActivePointSets;
+        }
+
+        public PointSet(Vector3[] spherePositionArray)
+        {
+            this.spherePositionArray = spherePositionArray;
+            ++numActivePointSets;
         }
 
         public void CreateRandomPoints(int randomSeed, uint numPoints, float worldWidth, float worldHeight)
@@ -45,17 +71,6 @@ namespace MST_Heightmap_Generator_GUI
             UpdateSpherePositionsBuffer();
         }
 
-        public PointSet(float[,] spherePositionArray)
-        {
-            this.spherePositionArray = new Vector3[spherePositionArray.GetLength(0)];
-            for (int i = 0; i < spherePositionArray.GetLength(0); ++i)
-                this.spherePositionArray[i] = new Vector3(spherePositionArray[i, 0], spherePositionArray[i, 2], spherePositionArray[i, 1]);
-        }
-
-        public PointSet(Vector3[] spherePositionArray)
-        {
-            this.spherePositionArray = spherePositionArray;
-        }
 
         public void InitGraphicsRessource(GraphicsDevice graphicsDevice)
         {
@@ -157,6 +172,22 @@ namespace MST_Heightmap_Generator_GUI
                     }
                 }
             }
+        }
+
+
+
+        private bool disposed = false;
+        ~PointSet()
+        {
+            if (!disposed)
+                Dispose();
+        }
+        public void Dispose()
+        {
+            vertexBuffer.Dispose();
+            vertexBuffer = null;
+            --numActivePointSets;
+            disposed = true;
         }
     }
 }

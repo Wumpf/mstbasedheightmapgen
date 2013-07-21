@@ -4,6 +4,7 @@ float3 CameraPosition;
 float HeightScale;
 float3 Translation;
 matrix WorldViewProjection;
+float3 Color;
 
 struct ParticleVertex
 {
@@ -67,7 +68,7 @@ float4 PS_Render(ParticleVertexGsOut input) : SV_Target
 	float2 vecToMid = float2(1.0f, 1.0f) - input.Texcoord*2;
 	float intens = dot(vecToMid,vecToMid);
 	clip(1.0f-intens);
-	return float4(intens*0.5f, intens, intens*0.5f, intens);
+	return float4(Color, intens);
 }
 
 technique RenderTeq

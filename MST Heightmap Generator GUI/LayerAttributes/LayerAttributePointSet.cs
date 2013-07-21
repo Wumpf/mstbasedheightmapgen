@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace MST_Heightmap_Generator_GUI.LayerAttributes
 {
@@ -11,21 +13,22 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
         public void CreateTreeViewSubElement(System.Windows.Controls.TreeViewItem parent, int width, Func<object> valueGetFunc, Action<object> valueSetFunc)
         {
             // set a new empty pointset
-            valueSetFunc(new PointSet());
+            PointSet pointSet = new PointSet();
+            valueSetFunc(pointSet);
 
             StackPanel panel = new StackPanel();
             panel.Orientation = Orientation.Horizontal;
             int index = parent.Items.Add(panel);
-
+            
             CheckBox visible = new CheckBox();
             visible.IsChecked = true;
             visible.Content = "Point Set";
             visible.Margin = new Thickness(0, 2, 6, 0);
             visible.ToolTip = "Visible in preview rendering";
             panel.Children.Add(visible);
-
+            
             TextBox num = new TextBox();
-            num.Width = 38;
+            num.Width = 40;
             num.PreviewTextInput += (sender, e) => { e.Handled = !(e.Text.All(char.IsNumber) && num.Text.Length < 3); };
             num.ToolTip = "Number of points to be generated";
             num.Text = "15";
@@ -37,7 +40,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
 
             TextBox seed = new TextBox();
             seed.Text = new Random(DateTime.UtcNow.Millisecond).Next(1000).ToString();
-            seed.Width = 57;
+            seed.Width = 40;
             seed.ToolTip = "Initial value for randomize (number)";
             panel.Children.Add(seed);
 
@@ -54,6 +57,14 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
                     ((PointSet)valueGetFunc()).CreateRandomPoints(seedValue, numPoints, MainWindow.MAP_SIZE, MainWindow.MAP_SIZE);
                 };
             rand.Click += (a, b) => randomizePositions();
+
+
+            Rectangle rect = new Rectangle();
+            rect.Fill = new SolidColorBrush(new Color() { R = pointSet.Color.R, G = pointSet.Color.G, B = pointSet.Color.B, A = 255 });
+            rect.StrokeThickness = 0;
+            rect.Width = 20;
+            rect.Height = 20;
+            panel.Children.Add(rect);
 
             // create random points
             randomizePositions();

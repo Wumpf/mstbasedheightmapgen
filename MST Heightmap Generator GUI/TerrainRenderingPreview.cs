@@ -262,9 +262,12 @@ namespace MST_Heightmap_Generator_GUI
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.NonPremultiplied);
             sphereBillboardShader.Effect.Parameters["CameraPosition"].SetValue(camera.Position);
             sphereBillboardShader.Effect.Parameters["WorldViewProjection"].SetValue(viewProjection);
-            sphereBillboardShader.Effect.CurrentTechnique.Passes[0].Apply();
             foreach (PointSet pointSet in pointSets)
+            {
+                sphereBillboardShader.Effect.Parameters["Color"].SetValue(pointSet.Color.ToVector3());
+                sphereBillboardShader.Effect.CurrentTechnique.Passes[0].Apply();
                 pointSet.Draw(GraphicsDevice);
+            }
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Opaque);
         }
 

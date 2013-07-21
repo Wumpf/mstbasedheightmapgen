@@ -24,7 +24,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             text.BorderThickness = new System.Windows.Thickness(1.0);
             text.BorderBrush = System.Windows.Media.Brushes.Gray;
             text.MouseEnter += (s, b) => { parent.Items[index] = slider; };
-            text.Width = width - 48;    // TODO: does this work without width? some auto alignment stuff would be nice
+            text.Width = width - 58;    // TODO: does this work without width? some auto alignment stuff would be nice
             text.Height = 22;
             text.Padding = new System.Windows.Thickness(1.0);
 
@@ -36,7 +36,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             tip.Padding = text.Padding;
 
             slider.ValueChanged += (s, value) => valueSetFunc((float)value.NewValue);
-            slider.Width = width - 48;  // TODO: does this work without width? some auto alignment stuff would be nice
+            slider.Width = width - 58;  // TODO: does this work without width? some auto alignment stuff would be nice
             slider.Height = 22;
             slider.Minimum = MinValue;
             slider.Maximum = MaxValue;

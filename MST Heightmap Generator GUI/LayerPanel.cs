@@ -37,7 +37,9 @@ namespace MST_Heightmap_Generator_GUI
 
         private void Layers_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            LayerBlending.SelectedIndex = (int)((Layer)((TreeViewItem)e.NewValue).Tag).Blending;
+            TreeViewItem item = e.NewValue as TreeViewItem;
+            if(item != null)
+                LayerBlending.SelectedIndex = (int)((Layer)item.Tag).Blending;
         }
 
         private void LayerBlending_Selected(object sender, RoutedEventArgs e)
