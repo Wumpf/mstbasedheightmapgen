@@ -10,11 +10,45 @@ namespace MST_Heightmap_Generator_GUI
     using SharpDX.Toolkit.Graphics;
 
     /// <summary>
+    /// Json Converter for PointSets
+    /// </summary>
+    public class PointSetJSonConvert : Newtonsoft.Json.JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(PointSet);
+        }
+
+        public override object ReadJson(Newtonsoft.Json.JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
+        {
+            PointSet pointSet = (PointSet)value;
+
+            writer.WriteStartArray();
+            for (int i = 0; i < pointSet.Points.Length; ++i)
+            {
+                writer.WriteStartArray();
+                writer.WriteValue(pointSet.Points[i].X);
+                writer.WriteValue(pointSet.Points[i].Z);
+                writer.WriteValue(pointSet.Points[i].Y);
+                writer.WriteEndArray();
+            }
+            writer.WriteEndArray();
+        }
+    }
+
+    /// <summary>
     /// representing a renderable and editable set of points on the terrain
     /// </summary>
+    [Newtonsoft.Json.JsonConverter(typeof(PointSetJSonConvert))]
     public class PointSet : IDisposable
     {
         public bool Visible { get; set; }
+        public Vector3[] Points { get { return spherePositionArray; } }
 
         private Buffer<Vector3> vertexBuffer;
 
