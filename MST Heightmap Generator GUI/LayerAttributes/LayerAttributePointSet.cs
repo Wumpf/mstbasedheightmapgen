@@ -10,10 +10,13 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
     [System.AttributeUsage(System.AttributeTargets.Property)]
     class LayerAttributePointSet : System.Attribute, LayerAttribute
     {
+        public bool InvertedPointSetRendering = false;
+
         public void CreateTreeViewSubElement(System.Windows.Controls.TreeViewItem parent, int width, Func<object> valueGetFunc, Action<object> valueSetFunc)
         {
             // set a new empty pointset
             PointSet pointSet = new PointSet();
+            pointSet.InvertedRendering = InvertedPointSetRendering;
             valueSetFunc(pointSet);
 
             StackPanel panel = new StackPanel();

@@ -49,6 +49,7 @@ namespace MST_Heightmap_Generator_GUI
     {
         public bool Visible { get; set; }
         public Vector3[] Points { get { return spherePositionArray; } }
+        public bool InvertedRendering { get; set; }
 
         private Buffer<Vector3> vertexBuffer;
 

@@ -265,6 +265,7 @@ namespace MST_Heightmap_Generator_GUI
             foreach (PointSet pointSet in pointSets)
             {
                 sphereBillboardShader.Effect.Parameters["Color"].SetValue(pointSet.Color.ToVector3());
+                sphereBillboardShader.Effect.Parameters["InvertedRendering"].SetValue(pointSet.InvertedRendering);
                 sphereBillboardShader.Effect.CurrentTechnique.Passes[0].Apply();
                 pointSet.Draw(GraphicsDevice);
             }

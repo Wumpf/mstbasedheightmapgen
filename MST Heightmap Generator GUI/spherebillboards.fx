@@ -5,6 +5,7 @@ float HeightScale;
 float3 Translation;
 matrix WorldViewProjection;
 float3 Color;
+bool InvertedRendering;
 
 struct ParticleVertex
 {
@@ -67,8 +68,17 @@ float4 PS_Render(ParticleVertexGsOut input) : SV_Target
 {
 	float2 vecToMid = float2(1.0f, 1.0f) - input.Texcoord*2;
 	float intens = dot(vecToMid,vecToMid);
-	clip(1.0f-intens);
-	return float4(Color, intens);
+	
+	if(!InvertedRendering)
+	{
+		clip(1.0f-intens);
+		return float4(Color, intens);
+	}
+	else
+	{
+		clip(intens);
+		return float4(Color, 1.0f-intens);
+	}
 }
 
 technique RenderTeq
