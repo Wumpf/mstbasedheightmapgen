@@ -69,7 +69,7 @@ float4 PS_Render(ParticleVertexGsOut input) : SV_Target
 	float2 vecToMid = float2(1.0f, 1.0f) - input.Texcoord*2;
 	float intens = dot(vecToMid,vecToMid);
 	
-	if(!InvertedRendering)
+	if(InvertedRendering)
 	{
 		clip(1.0f-intens);
 		return float4(Color, intens);

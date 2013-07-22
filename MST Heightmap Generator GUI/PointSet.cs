@@ -98,6 +98,8 @@ namespace MST_Heightmap_Generator_GUI
 
         public void CreateRandomPoints(int randomSeed, uint numPoints, float worldWidth, float worldHeight)
         {
+            selectedSphere = -1;
+
             Random random = new Random(randomSeed);
             spherePositionArray = new Vector3[numPoints];
             for (int i = 0; i < numPoints; ++i)
@@ -193,7 +195,7 @@ namespace MST_Heightmap_Generator_GUI
         {
             if (vertexBuffer != null)
             {
-                if (vertexBuffer.ElementCount < spherePositionArray.Length)
+                if (vertexBuffer.ElementCount != spherePositionArray.Length)
                 {
                     vertexBuffer.Dispose();
                     vertexBuffer = Buffer.Vertex.New<Vector3>(vertexBuffer.GraphicsDevice, spherePositionArray, SharpDX.Direct3D11.ResourceUsage.Dynamic);

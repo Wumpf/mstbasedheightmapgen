@@ -30,6 +30,36 @@ Command* GeneratorPipeline::LoadValueNoiseCommand( const Json::Value& commandInf
 	return new CmdValueNoise(heightScale, gradientDependency, heightDependency, heightDependencyOffset);
 }
 
+Command* GeneratorPipeline::LoadMSTDistanceCommand( const Json::Value& commandInfo, bool inverted )
+{
+	float height = commandInfo.get("Height", 1.0f).asFloat();
+	float quadraticSplineHeight = commandInfo.get("QuadraticSpline", 1.0f).asFloat();
+
+	// read point array
+	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));
+	int numPoints = pointSetArray.size();
+	std::unique_ptr<Vec3[]> points(new Vec3[numPoints]);
+//	float maxHeight = 0.0f;
+	for(int i=0; i<numPoints; ++i)
+	{
+		if(pointSetArray[i].size() != 3)
+			points[i] = Vec3(0,0,0);
+		else
+			points[i] = Vec3(pointSetArray[i][0].asFloat(),pointSetArray[i][1].asFloat(),pointSetArray[i][2].asFloat());
+//		maxHeight = std::max(maxHeight, points[i].z);
+	}
+
+	// scale points to height!
+	float scale = height; // height / maxHeight; 
+	for(int i=0; i<numPoints; ++i)
+		points[i].z *= scale;
+
+	if(inverted)
+		return new CmdInvMSTDistance(points.get(), numPoints, height, quadraticSplineHeight);
+	else
+		return new CmdMSTDistance(points.get(), numPoints, height, quadraticSplineHeight);
+}
+
 Command* GeneratorPipeline::LoadBlendCommand( const Json::Value& commandInfo )
 {
 	// The blending is a subtype of some other types. It is valid if there is
@@ -74,10 +104,12 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 		Json::Value& currentLayer = layers[jsonLayerIndex];
 		switch(type)
 		{
-	/*	case CommandType::MST_DISTANCE:
+		case CommandType::MST_DISTANCE:
+			_commands[commandIndex] = LoadMSTDistanceCommand(currentLayer, false);
 			break;
 		case CommandType::MST_INV_DISTANCE:
-			break; */
+			_commands[commandIndex] = LoadMSTDistanceCommand(currentLayer, true);
+			break;
 		case CommandType::VALUE_NOISE:
 			_commands[commandIndex] = LoadValueNoiseCommand(currentLayer);
 			_commands[++commandIndex] = LoadBlendCommand(currentLayer);
