@@ -1,7 +1,7 @@
 Texture2D<float> HeightInput;
 RWTexture2D<float> ConesOutput;
 RWTexture2D<float2> CombinedOutput;
-SamplerState LinearSampler;
+SamplerState TerrainHeightmapSampler;
 
 int2 TextureAreaMin;
 

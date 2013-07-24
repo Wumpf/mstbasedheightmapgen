@@ -73,6 +73,8 @@
                 </Grid.ColumnDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="Visual Height Scale" VerticalAlignment="Top" Height="26"/>
                 <Slider x:Name="VisualScaleSlider" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="5" Maximum="500" LargeChange="0.15" SmallChange="0.025" Value="50" ValueChanged="Sl_VisualScaleSlider_Changed" AutoToolTipPlacement="TopLeft" Grid.Column="1"/>
+                <Label Grid.Row="0" Grid.Column="0" Content="Time of Day" VerticalAlignment="Top" Height="26" Margin="0,23,0,0"/>
+                <Slider x:Name="TimeOfDaySlider" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="0" Maximum="1" LargeChange="0.15" SmallChange="0.025" Value="50" ValueChanged="TimeOfDaySlider_Changed" AutoToolTipPlacement="TopLeft" Grid.Column="1" Margin="0,23,0,0"/>
             </Grid>
         </GroupBox>
         <Separator HorizontalAlignment="Left" Height="13" Margin="0,429,0,0" VerticalAlignment="Top" Width="294"/>

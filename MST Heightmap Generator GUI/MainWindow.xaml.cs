@@ -42,7 +42,7 @@ namespace MST_Heightmap_Generator_GUI
         float[,] _summitList;
 
       //  private WriteableBitmap imageContent;
-        private TerrainRenderingPreview terrainRenderingPreview;
+        private TerrainRenderingPreview terrainRenderingPreview = new TerrainRenderingPreview();
 
         public MainWindow()
         {
@@ -50,8 +50,8 @@ namespace MST_Heightmap_Generator_GUI
             InitLayerChooseComobBox();
             InitLayerBlendingComobBox();
 
-            terrainRenderingPreview = new TerrainRenderingPreview();
             terrainRenderingPreview.SetScaleFactor((float)VisualScaleSlider.Value);
+            terrainRenderingPreview.TimeOfDay = (float)TimeOfDaySlider.Value;
             DX11Display.Scene = terrainRenderingPreview;
          
             int width = (int)_heightmapFactory.GetWidth();
@@ -227,6 +227,11 @@ namespace MST_Heightmap_Generator_GUI
             // update view
             terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelPerWorldUnit);
             //terrainRenderingPreview.AddPointSet(new PointSet(_summitList, heightmapPixelsPerWorld[0, 0], _heightmapData.GetLength(0), _heightmapData.GetLength(1), terrainRenderingPreview.GraphicsDevice));
+        }
+
+        private void TimeOfDaySlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            terrainRenderingPreview.TimeOfDay = (float)e.NewValue;
         }
     }
 }

@@ -1,5 +1,4 @@
 #include "vertexprocessing.fx"
-#include "sky.fx"
 
 cbuffer Camera : register(b0)
 {
@@ -17,15 +16,19 @@ cbuffer HeightmapInfo : register(b2)
 	float TerrainScale;
 }
 
+float3 LightDirection;
+SamplerState CubemapSampler;
+TextureCube SkyCubemap;
+
 // ------------------------------------------------
 // TERRAIN
 // ------------------------------------------------
-SamplerState LinearSampler;  
+SamplerState TerrainHeightmapSampler;
 Texture2D Heightmap;  
 
 float getTerrainHeight(in float2 worldPos)
 {
-	return Heightmap.SampleLevel(LinearSampler, worldPos*WorldUnitToHeightmapTexcoord + 0.5, 0).x * TerrainScale;
+	return Heightmap.SampleLevel(TerrainHeightmapSampler, worldPos*WorldUnitToHeightmapTexcoord + 0.5, 0).x * TerrainScale;
 }
 
 float3 getTerrainNormal(in float3 pos)
@@ -46,7 +49,7 @@ float3 getTerrainNormal(in float3 pos)
 static const float FarPlane = 1000;
 static const float NearPlane = 3;
 static const float RayStepToHeightmapLod = 0.01f;
-static const float SoftShadowFactor = 300.0f;	// lower means softer
+static const float SoftShadowFactor = 200.0f;	// lower means softer
 bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectionPoint, out float shadowTerm)
 {
 //	if(abs(rayDirection.y) < 0.000001)
@@ -88,7 +91,7 @@ bool rayCast(in float3 rayOrigin, in float3 rayDirection, out float3 intersectio
 	float softShadowingTravelFactor = SoftShadowFactor / dirXZlen;
 	for(int i = 0; i < MaxNumConeSteps; ++i)
 	{
-		float2 height_cone = Heightmap.SampleLevel(LinearSampler, intersectionPoint.xz, 0).xy;
+		float2 height_cone = Heightmap.SampleLevel(TerrainHeightmapSampler, intersectionPoint.xz, 0).xy;
 		deltaHeight = intersectionPoint.y - height_cone.x;
 
 		// step cone
@@ -134,7 +137,7 @@ bool RenderHeightmapInCorner(float2 deviceCor, out float4 color)
 	float2 heightmapCor = (float2(deviceCor.x, -deviceCor.y) - onScreenHeightmapZero) / heightmapArea;
 	if(heightmapCor.x > 0 && heightmapCor.x < 1 && heightmapCor.y > 0 && heightmapCor.y < 1)
 	{
-		color = float4(Heightmap.SampleLevel(LinearSampler, heightmapCor, 0).rg, 0, 1);
+		color = float4(Heightmap.SampleLevel(TerrainHeightmapSampler, heightmapCor, 0).rg, 0, 1);
 		return true;
 	}
 	else
@@ -142,6 +145,11 @@ bool RenderHeightmapInCorner(float2 deviceCor, out float4 color)
 		color = float4(1,0,1,1);
 		return false;
 	}
+}
+
+float3 SampleSky(float3 direction)
+{
+	return SkyCubemap.SampleLevel(CubemapSampler, direction, 0).rgb;
 }
 
 static const float Ambient = 0.3f;
@@ -171,22 +179,28 @@ float4 PS(PS_INPUT input) : SV_Target
 		// LIGHTING
 		float3 normal = getTerrainNormal(terrainPosition);
 		float NDotL = dot(normal, LightDirection);
-		float lighting = max(0, NDotL);
+		float lighting = saturate(NDotL);
+		float3 backLightDir = LightDirection;
+		backLightDir.xz = -backLightDir.xz;
+		lighting += saturate(dot(normal, backLightDir))*0.4f;
+
+
 		float3 shadowCastPos;
 		rayCast(terrainPosition, LightDirection, shadowCastPos, shadowTerm);
-		lighting *= saturate(shadowTerm);
+		//lighting *= saturate(shadowTerm);
 
-		outColor = float3(1,1,1) * lighting + computeSkyColor(normal, false)*0.4;
+		outColor = float3(0.9,0.9,0.88) * lighting;//SampleSky(normal)*0.4;
 
 		// FOGGING
 		// clever fog http://www.iquilezles.org/www/articles/fog/fog.htm
 		float dist = length(terrainPosition - rayOrigin);
-		float fogAmount = min(1, 0.5 * exp(-CameraPosition.y  * 0.01) * (1.0 - exp( -dist*rayDirection.y* 0.01)) / rayDirection.y);
-		outColor = lerp(outColor, computeSkyColor(rayDirection, false), fogAmount);
+		float fogAmount = min(1, 0.5 * exp(-CameraPosition.y  * 0.01) * (1.0 - exp( -dist*rayDirection.y* 0.011)) / rayDirection.y);
+		float3 fogColor = float3(0.18867780436772762, 0.4978442963618773, 0.6616065586417131)*0.9; // air color
+		outColor = lerp(outColor, fogColor, fogAmount);
 	}
 	else
 	{
-		outColor = computeSkyColor(rayDirection, true);
+		outColor = SampleSky(rayDirection);
 	}
 
 	return float4(outColor, 1.0f);

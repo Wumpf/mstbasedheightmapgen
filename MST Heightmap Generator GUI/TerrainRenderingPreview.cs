@@ -15,6 +15,7 @@ namespace MST_Heightmap_Generator_GUI
         public GraphicsDevice GraphicsDevice { get; private set; }
 
         private ShaderAutoReload terrainShader;
+        private ShaderAutoReload skyShader;
         private ShaderAutoReload computeRelaxedConeShader;
 
         private VertexInputLayout sphereVertexInputLayout;
@@ -34,7 +35,35 @@ namespace MST_Heightmap_Generator_GUI
 
         #endregion
 
-        private SamplerState linearSamplerState;
+
+        #region Sky
+
+        public float TimeOfDay
+        {
+            get
+            {
+                return timeOfDay;
+            }
+            set
+            {
+                timeOfDay = value;
+                if (terrainShader != null)
+                {
+                    lightDirection = new Vector3((float)Math.Cos(Math.PI * timeOfDay), (float)Math.Sin(Math.PI * timeOfDay), 0);
+                    terrainShader.Effect.Parameters["LightDirection"].SetValue(lightDirection);
+                    ReGenerateSkyCubeMap();
+                }
+            }
+        }
+        private float timeOfDay = 0.3f;
+        private Vector3 lightDirection;
+
+        const int CUBEMAP_RES = 512;
+        private RenderTargetCube skyCubemap;
+
+        #endregion
+
+        private SamplerState linearBorderSamplerState;
 
 
         public bool Closing { get; set; }
@@ -113,7 +142,7 @@ namespace MST_Heightmap_Generator_GUI
             computeRelaxedConeShader.Effect.CurrentTechnique = computeRelaxedConeShader.Effect.Techniques["Compute"];
             computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource(tempHeights);
             computeRelaxedConeShader.Effect.Parameters["ConesOutput"].SetResource(tempCones);
-            //computeRelaxedConeShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
+            //computeRelaxedConeShader.Effect.Parameters["TerrainHeightmapSampler"].SetResource(linearBorderSamplerState);
 
             computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
             const int TILE_SIZE = 32;   // if you change this value, you also have to change " AreaPerCall in computerelaxedconemap.fx
@@ -146,10 +175,23 @@ namespace MST_Heightmap_Generator_GUI
            // camera.Position = new Vector3(heightmapTexture.Width/2, 100.0f, heightmapTexture.Height / 2);
 
             // setup heightmap cbuffer
-            SetupHeightmapConstants();
+            SetupTerrainConstants();
         }
 
-        private void SetupHeightmapConstants()
+        private void ReGenerateSkyCubeMap()
+        {
+            SharpDX.Direct3D11.DepthStencilView depthStencilBefore;
+            var renderTargetsBefore = GraphicsDevice.GetRenderTargets(out depthStencilBefore);
+
+            skyShader.Effect.Parameters["LightDirection"].SetValue(lightDirection);
+            GraphicsDevice.SetRenderTargets(skyCubemap.RenderTargetView[ViewType.Full, 0, 0]);
+            skyShader.Effect.CurrentTechnique.Passes[0].Apply();
+            GraphicsDevice.Draw(PrimitiveType.PointList, 1);
+
+            GraphicsDevice.SetRenderTargets(depthStencilBefore, renderTargetsBefore);
+        }
+
+        private void SetupTerrainConstants()
         {
             var heightmapConstantBuffer = terrainShader.Effect.ConstantBuffers["HeightmapInfo"];
             heightmapConstantBuffer.Parameters["HeightmapSize"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
@@ -159,7 +201,9 @@ namespace MST_Heightmap_Generator_GUI
             heightmapConstantBuffer.IsDirty = true;
 
             terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
-            terrainShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
+            terrainShader.Effect.Parameters["TerrainHeightmapSampler"].SetResource(linearBorderSamplerState);
+            terrainShader.Effect.Parameters["SkyCubemap"].SetResource(skyCubemap);
+            terrainShader.Effect.Parameters["CubemapSampler"].SetResource(GraphicsDevice.SamplerStates.LinearWrap);  
 
             terrainTranslation = new Vector3(-heightmapTexture.Width * 0.5f / heightmapPixelPerWorldUnit, 0, -heightmapTexture.Height * 0.5f / heightmapPixelPerWorldUnit);
             sphereBillboardShader.Effect.Parameters["Translation"].SetValue(terrainTranslation);
@@ -180,13 +224,12 @@ namespace MST_Heightmap_Generator_GUI
             GraphicsDevice.Presenter = new RenderTargetGraphicsPresenter(GraphicsDevice, backbufferRenderTarget);
             GraphicsDevice.SetRenderTargets(backbufferRenderTarget);
             
-  
-
+ 
             // load shader
             computeRelaxedConeShader = new ShaderAutoReload("computerelaxedconemap.fx", GraphicsDevice);
             terrainShader = new ShaderAutoReload("terrain.fx", GraphicsDevice);
             sphereBillboardShader = new ShaderAutoReload("spherebillboards.fx", GraphicsDevice);
-            terrainShader.OnReload += SetupHeightmapConstants;
+            terrainShader.OnReload += SetupTerrainConstants;
             terrainShader.OnReload += () => SetScaleFactor(terrainScale);
 
             // linear sampler
@@ -195,7 +238,7 @@ namespace MST_Heightmap_Generator_GUI
             samplerStateDesc.AddressU = SharpDX.Direct3D11.TextureAddressMode.Border;
             samplerStateDesc.Filter = SharpDX.Direct3D11.Filter.MinMagMipLinear;
             samplerStateDesc.BorderColor = Color4.Black;
-            linearSamplerState = SamplerState.New(GraphicsDevice, "LinearSampler", samplerStateDesc);
+            linearBorderSamplerState = SamplerState.New(GraphicsDevice, "TerrainHeightmapSampler", samplerStateDesc);
 
             // dummy heightmap
             heightmapTexture = Texture2D.New(GraphicsDevice, 1, 1, MipMapCount.Auto, PixelFormat.R32.Float);
@@ -204,8 +247,14 @@ namespace MST_Heightmap_Generator_GUI
             // vertex input layout
             sphereVertexInputLayout = VertexInputLayout.New(VertexBufferLayout.New(0, VertexElement.Position(SharpDX.DXGI.Format.R32G32B32_Float)));
 
+            // generate sky
+            skyShader = new ShaderAutoReload("sky.fx", GraphicsDevice);
+            skyShader.OnReload += ReGenerateSkyCubeMap;
+            skyCubemap = RenderTargetCube.New(GraphicsDevice, CUBEMAP_RES, 0, PixelFormat.R8G8B8A8.SNorm);
+            TimeOfDay = timeOfDay;
+
             // constant buffer to defaults
-            SetupHeightmapConstants();
+            SetupTerrainConstants();
         }
 
         void WPFHost.IScene.Detach()
@@ -248,7 +297,7 @@ namespace MST_Heightmap_Generator_GUI
             cameraConstantBuffer.IsDirty = true;
 
             terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
-            terrainShader.Effect.Parameters["LinearSampler"].SetResource(linearSamplerState);
+            terrainShader.Effect.Parameters["TerrainHeightmapSampler"].SetResource(linearBorderSamplerState);
 
             GraphicsDevice.SetVertexInputLayout(null);
             GraphicsDevice.SetVertexBuffer(0, (Buffer<Vector3>)null);
