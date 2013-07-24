@@ -38,14 +38,23 @@ namespace MST_Heightmap_Generator_GUI
         private void Layers_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             TreeViewItem item = e.NewValue as TreeViewItem;
-            if(item != null)
+            if (item != null)
+            {
                 LayerBlending.SelectedIndex = (int)((Layer)item.Tag).Blending;
+                BlendFactor.Value = ((Layer)item.Tag).BlendFactor;
+            }
         }
 
         private void LayerBlending_Selected(object sender, RoutedEventArgs e)
         {
             if (Layers.SelectedItem != null)
                 ((Layer)((TreeViewItem)Layers.SelectedItem).Tag).Blending = (Layer.BlendOp)LayerBlending.SelectedIndex;
+        }
+
+        private void Sl_BlendFactor_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (Layers.SelectedItem != null)
+                ((Layer)((TreeViewItem)Layers.SelectedItem).Tag).BlendFactor = (float)BlendFactor.Value;
         }
 
         private void AddLayer(object sender, RoutedEventArgs e)
@@ -74,9 +83,9 @@ namespace MST_Heightmap_Generator_GUI
                 }
             }
             if (Layers.Items.IsEmpty || (Layers.SelectedItem == null))
-                Layers.Items.Add(newItem);
+                Layers.Items.Insert(0, newItem);
             else
-                Layers.Items.Insert(Layers.Items.IndexOf(Layers.SelectedItem) + 1, newItem);
+                Layers.Items.Insert(Layers.Items.IndexOf(Layers.SelectedItem), newItem);
             newItem.ExpandSubtree();
         }
 

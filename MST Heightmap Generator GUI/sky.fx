@@ -81,16 +81,16 @@ float3 LightDirection;
 
 static const float3 Kr = float3(0.18867780436772762, 0.4978442963618773, 0.6616065586417131); // air color
 static const float rayleigh_brightness = 5;//3.3f;
-static const float mie_brightness = 0.25f; // 0.20
-static const float spot_brightness = 500;   // 1000
+static const float mie_brightness = 0.15f; // 0.20
+static const float spot_brightness = 200;   // 1000
 static const float scatter_strength = 28.0f/1000;
 static const float rayleigh_strength = 0.139f;
 static const float mie_strength = 0.0264f;
-static const float rayleigh_collection_power = 0.81f;
+static const float rayleigh_collection_power = 0.51f;
 static const float mie_collection_power = 0.39f;
 static const float mie_distribution = 0.63f;
     
-static const float surface_height = 0.99;
+static const float surface_height = 0.993;
 static const float range = 0.01;
 static const float intensity = 1.8;
 static const int step_count = 16;

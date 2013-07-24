@@ -16,18 +16,18 @@
         </Grid.ColumnDefinitions>
 
         <WPFHost:DPFCanvas x:Name="DX11Display" Grid.Column="1" Stretch="Fill" MouseLeftButtonDown="CanvasMouseLeftButtonDown"
-                           MouseLeftButtonUp="CanvasMouseLeftButtonUp" MouseMove="CanvasMouseMove" MouseLeave="CanvasMouseLeave" MouseWheel="CanvasMouseWheel"/>
+                           MouseLeftButtonUp="CanvasMouseLeftButtonUp" MouseMove="CanvasMouseMove" MouseLeave="CanvasMouseLeave" MouseWheel="CanvasMouseWheel" Margin="0,31,0,-31"/>
 
-        <TreeView Name="Layers" Height="246" Margin="0,26,5,0" VerticalAlignment="Top" SelectedItemChanged="Layers_SelectedItemChanged"/>
-        <ComboBox Name="LayerChoose" HorizontalAlignment="Left" Height="24" Margin="1,277,0,0" VerticalAlignment="Top" Width="132" SelectedIndex="0"/>
-        <Button Content="+" HorizontalAlignment="Left" Height="24" Margin="137,277,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Arial Black" Click="AddLayer"/>
-        <Button Content="↑" HorizontalAlignment="Left" Height="24" Margin="195,277,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerUp"  RenderTransformOrigin="1.833,0.542"/>
-        <Button Content="↓" HorizontalAlignment="Left" Height="24" Margin="224,277,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerDown" RenderTransformOrigin="1.833,0.542"/>
-        <Button Content="X" HorizontalAlignment="Left" Height="24" Margin="166,277,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="DeleteLayer" RenderTransformOrigin="1.833,0.542"/>
-        <ComboBox x:Name="LayerBlending" Height="24" Margin="65,0,5,0" VerticalAlignment="Top" SelectedIndex="0" SelectionChanged="LayerBlending_Selected"/>
+        <TreeView Name="Layers" Height="246" Margin="0,57,5,0" VerticalAlignment="Top" SelectedItemChanged="Layers_SelectedItemChanged"/>
+        <ComboBox Name="LayerChoose" HorizontalAlignment="Left" Height="24" Margin="1,308,0,0" VerticalAlignment="Top" Width="132" SelectedIndex="0"/>
+        <Button Content="Add" HorizontalAlignment="Left" Height="24" Margin="137,308,0,0" VerticalAlignment="Top" Width="71" FontSize="16" Click="AddLayer"/>
+        <Button Content="↑" HorizontalAlignment="Left" Height="24" Margin="213,308,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerUp"  RenderTransformOrigin="1.833,0.542"/>
+        <Button Content="↓" HorizontalAlignment="Left" Height="24" Margin="242,308,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="MoveLayerDown" RenderTransformOrigin="1.833,0.542"/>
+        <Button Content="X" HorizontalAlignment="Left" Height="24" Margin="271,308,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="DeleteLayer" RenderTransformOrigin="1.833,0.542"/>
+        <ComboBox x:Name="LayerBlending" Height="24" Margin="98,0,5,0" VerticalAlignment="Top" SelectedIndex="0" SelectionChanged="LayerBlending_Selected"/>
         <Label Content="Blending" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="98"/>
-        <Button Content="Generate!" VerticalAlignment="Top" Height="22" Click="RegenerateHeightmap" Margin="38,310,42,0" Focusable="False"/>
-        <GroupBox Header="Deprecated UI" VerticalAlignment="Top" Height="272" Margin="0,447,5,0">
+        <Button Content="Generate!" VerticalAlignment="Top" Height="22" Click="RegenerateHeightmap" Margin="40,351,40,0" Focusable="False"/>
+        <GroupBox Header="Deprecated UI" VerticalAlignment="Top" Height="272" Margin="1,484,4,0">
             <Grid Margin="0,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="66*"/>
@@ -65,7 +65,7 @@
                 <Label Grid.Row="0" Grid.Column="0" Content="Refraction Noise" Margin="-1,86,1,0" VerticalAlignment="Top" Height="26"/>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Rendering" Margin="0,343,6,0" VerticalAlignment="Top" Height="81">
+        <GroupBox Header="Rendering" Margin="0,374,6,0" VerticalAlignment="Top" Height="81">
             <Grid Margin="0,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="65*"/>
@@ -74,9 +74,11 @@
                 <Label Grid.Row="0" Grid.Column="0" Content="Visual Height Scale" VerticalAlignment="Top" Height="26"/>
                 <Slider x:Name="VisualScaleSlider" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="5" Maximum="500" LargeChange="0.15" SmallChange="0.025" Value="50" ValueChanged="Sl_VisualScaleSlider_Changed" AutoToolTipPlacement="TopLeft" Grid.Column="1"/>
                 <Label Grid.Row="0" Grid.Column="0" Content="Time of Day" VerticalAlignment="Top" Height="26" Margin="0,23,0,0"/>
-                <Slider x:Name="TimeOfDaySlider" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="0" Maximum="1" LargeChange="0.15" SmallChange="0.025" Value="50" ValueChanged="TimeOfDaySlider_Changed" AutoToolTipPlacement="TopLeft" Grid.Column="1" Margin="0,23,0,0"/>
+                <Slider x:Name="TimeOfDaySlider" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="0" Maximum="1" LargeChange="0.15" SmallChange="0.025" Value="0.5" ValueChanged="TimeOfDaySlider_Changed" Grid.Column="1" Margin="0,23,0,0"/>
             </Grid>
         </GroupBox>
-        <Separator HorizontalAlignment="Left" Height="13" Margin="0,429,0,0" VerticalAlignment="Top" Width="294"/>
+        <Separator HorizontalAlignment="Left" Height="13" Margin="-4,471,0,0" VerticalAlignment="Top" Width="294"/>
+        <Slider x:Name="BlendFactor" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="0" Maximum="1" LargeChange="0.15" SmallChange="0.025" Value="1" ValueChanged="Sl_BlendFactor_Changed" AutoToolTipPlacement="TopLeft" Margin="98,29,6,0"/>
+        <Label Content="Blend Factor" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="98" Margin="0,27,0,0"/>
     </Grid>
 </Window>

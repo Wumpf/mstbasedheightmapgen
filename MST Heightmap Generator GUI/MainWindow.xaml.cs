@@ -233,5 +233,6 @@ namespace MST_Heightmap_Generator_GUI
         {
             terrainRenderingPreview.TimeOfDay = (float)e.NewValue;
         }
+
     }
 }

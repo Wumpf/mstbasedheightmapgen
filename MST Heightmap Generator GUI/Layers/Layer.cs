@@ -10,11 +10,13 @@ namespace MST_Heightmap_Generator_GUI.Layers
     {
         public enum BlendOp
         {
-            OVERWRITE = 0,
+            INTERPOLATE = 0,
             ADDITIVE = 1,
             MULTIPLICATIVE = 2,
+            REFACTIVE = 3,
         }
         public BlendOp Blending { get; set; }
+        public float BlendFactor { get; set; }
 
 
         public static readonly Dictionary<Type, string> LayerTypes = new Dictionary<Type, string>()
