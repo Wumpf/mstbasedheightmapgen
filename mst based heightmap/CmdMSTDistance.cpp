@@ -14,7 +14,7 @@ typedef OrE::ADT::Mesh::PosNode PNode;
 
 // ************************************************************************* //
 CmdMSTDistance::CmdMSTDistance(const Vec3* pointList, int numPoints, float height, float quadraticSplineHeight) :
-	Command(CommandType::MST_INV_DISTANCE),
+	Command(CommandType::MST_DISTANCE),
 	_height(height),
 	_quadraticSplineHeight(quadraticSplineHeight)
 {

@@ -156,7 +156,7 @@ namespace MST_Heightmap_Generator_GUI
                     computeRelaxedConeShader.Effect.Parameters["TextureAreaMin"].SetValue<int>(new int[]{x,y});
                     computeRelaxedConeShader.Effect.ConstantBuffers[0].Update();
                     GraphicsDevice.Dispatch(heightmap.GetLength(0) / 32, heightmap.GetLength(1) / 32, 1);
-                    //GraphicsDevice.Flush();
+                    GraphicsDevice.Flush();
                 }
             }
             computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(true);

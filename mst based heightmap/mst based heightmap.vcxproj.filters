@@ -125,7 +125,7 @@
     <ClCompile Include="CmdMSTDistance.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="CmdBlendOverwrite.cpp">
+    <ClCompile Include="CmdBlendInterpolate.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

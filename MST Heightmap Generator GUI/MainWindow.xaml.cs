@@ -48,8 +48,8 @@ namespace MST_Heightmap_Generator_GUI
         public MainWindow()
         {
             InitializeComponent();
-            InitLayerChooseComobBox();
-            InitLayerBlendingComobBox();
+            InitLayerChooseComboBox();
+            InitLayerBlendingComboBox();
 
             terrainRenderingPreview.SetScaleFactor((float)VisualScaleSlider.Value);
             terrainRenderingPreview.TimeOfDay = (float)TimeOfDaySlider.Value;
@@ -275,5 +275,6 @@ namespace MST_Heightmap_Generator_GUI
         {
             terrainRenderingPreview.TimeOfDay = (float)e.NewValue;
         }
+
     }
 }

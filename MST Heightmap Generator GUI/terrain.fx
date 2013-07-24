@@ -182,14 +182,15 @@ float4 PS(PS_INPUT input) : SV_Target
 		float lighting = saturate(NDotL);
 		float3 backLightDir = LightDirection;
 		backLightDir.xz = -backLightDir.xz;
-		lighting += saturate(dot(normal, backLightDir))*0.4f;
+		
 
 
 		float3 shadowCastPos;
 		rayCast(terrainPosition, LightDirection, shadowCastPos, shadowTerm);
-		//lighting *= saturate(shadowTerm);
+		lighting *= saturate(shadowTerm);
+		lighting += saturate(dot(normal, backLightDir))*0.4f;
 
-		outColor = float3(0.9,0.9,0.88) * lighting;//SampleSky(normal)*0.4;
+		outColor = 0.8*float3(0.9,0.9,0.88) * lighting;//SampleSky(normal)*0.4;
 
 		// FOGGING
 		// clever fog http://www.iquilezles.org/www/articles/fog/fog.htm
