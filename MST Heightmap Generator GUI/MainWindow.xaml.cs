@@ -18,6 +18,7 @@ using SharpDX;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using MST_Heightmap_Generator_GUI.Layers;
+using System.Diagnostics;
 
 namespace MST_Heightmap_Generator_GUI
 {
@@ -221,12 +222,53 @@ namespace MST_Heightmap_Generator_GUI
 
         private void RegenerateHeightmap(object sender, RoutedEventArgs e)
         {
-            string json = SerializeSettingsToJSON();
-            new MstBasedHeightmap.GeneratorPipeline(json).Execute(_heightmapData);
+            // stop rendering
+            terrainRenderingPreview.DeactivateRendering = true;
 
-            // update view
-            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelPerWorldUnit);
-            //terrainRenderingPreview.AddPointSet(new PointSet(_summitList, heightmapPixelsPerWorld[0, 0], _heightmapData.GetLength(0), _heightmapData.GetLength(1), terrainRenderingPreview.GraphicsDevice));
+            // predeclare progress bar
+            ProgressBar progressBar = null;
+            var mainWindowDispatcher = Dispatcher;
+
+            long heightmapGentimeMS = 0;
+            long previewGentimeMS = 0;
+            
+            string json = SerializeSettingsToJSON();    // access to stuff from this thread - not possible in Task
+            Task generateTask = new Task(() =>
+                {
+                    try
+                    {
+                        Stopwatch sw = new Stopwatch();
+                        sw.Start();
+                        new MstBasedHeightmap.GeneratorPipeline(json).Execute(_heightmapData);
+                        heightmapGentimeMS = sw.ElapsedMilliseconds;
+
+                        
+                        mainWindowDispatcher.Invoke(() =>
+                            {
+                                if (progressBar != null)
+                                    progressBar.TaskDescription.Content = "Rendering Preview processing ...";
+                            });
+
+                        sw.Restart();
+                        terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelPerWorldUnit);
+                        previewGentimeMS = sw.ElapsedMilliseconds;
+                    }
+                    catch
+                    {
+                        System.Diagnostics.Debugger.Break();
+                    }
+                });
+            generateTask.Start();
+
+            progressBar = new ProgressBar(() => generateTask.IsCompleted ||generateTask.IsCanceled || generateTask.IsFaulted);
+            progressBar.TaskDescription.Content = "Generating Heightmap ...";
+            progressBar.ShowDialog();
+        
+            // continue rendering
+            terrainRenderingPreview.DeactivateRendering = false;
+
+            // display timings
+            MessageBox.Show("Heightmap Computation Time:\t " + heightmapGentimeMS + "ms\nPreview Update Time:\t " + previewGentimeMS + "ms", "Done!"); 
         }
 
         private void TimeOfDaySlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

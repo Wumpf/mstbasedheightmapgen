@@ -1,0 +1,9 @@
+﻿<Window x:Class="MST_Heightmap_Generator_GUI.ProgressBar"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Work in Progress" Height="103.333" Width="289.333" ResizeMode="NoResize" Topmost="True" WindowStyle="ToolWindow">
+    <Grid>
+        <ProgressBar Margin="10,35,10,10" IsIndeterminate="True"/>
+        <Label Name ="TaskDescription" Content="TaskDescription" HorizontalAlignment="Left" Margin="10,9,0,0" VerticalAlignment="Top" Width="263"/>
+    </Grid>
+</Window>

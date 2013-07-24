@@ -11,6 +11,8 @@ namespace MST_Heightmap_Generator_GUI
 
     public class TerrainRenderingPreview : WPFHost.IScene
     {
+        public bool DeactivateRendering { get; set; }
+
         private WPFHost.ISceneHost host;
         public GraphicsDevice GraphicsDevice { get; private set; }
 
@@ -75,6 +77,7 @@ namespace MST_Heightmap_Generator_GUI
         /// </summary>
         public TerrainRenderingPreview()
         {
+            DeactivateRendering = false;
         }
 
         #region PointSet Functions
@@ -286,6 +289,12 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Render()
         {
+            lock (this)
+            {
+                if (DeactivateRendering)
+                    return;
+            }
+
             GraphicsDevice.Clear(ClearOptions.Target, Color.CornflowerBlue, 0, 0);
             
             // setup camera
