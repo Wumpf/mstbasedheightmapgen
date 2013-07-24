@@ -33,7 +33,7 @@ Command* GeneratorPipeline::LoadValueNoiseCommand( const Json::Value& commandInf
 Command* GeneratorPipeline::LoadMSTDistanceCommand( const Json::Value& commandInfo, bool inverted )
 {
 	float height = commandInfo.get("Height", 1.0f).asFloat();
-	float quadraticSplineHeight = commandInfo.get("QuadraticSpline", 1.0f).asFloat();
+	float quadraticSplineHeight = commandInfo.get("QuadraticSpline", 0.3f).asFloat();
 
 	// read point array
 	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));

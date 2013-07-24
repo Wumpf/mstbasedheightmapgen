@@ -209,8 +209,8 @@ namespace MST_Heightmap_Generator_GUI
             
             var jsonSerializer = JsonSerializer.CreateDefault();
             jsonSerializer.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());    // convert enums directly to string -> default would be int
-            json["Layers"] = new JArray(Layers.Items.OfType<TreeViewItem>().Select(treeViewItem => 
-                {
+            json["Layers"] = new JArray(Layers.Items.OfType<TreeViewItem>().Reverse().Select(treeViewItem => 
+                { 
                     JToken jlayer = JValue.FromObject(treeViewItem.Tag, jsonSerializer);
                     jlayer["Type"] = Layer.LayerTypes[treeViewItem.Tag.GetType()];
                     return jlayer;
