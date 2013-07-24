@@ -11,8 +11,8 @@ void GeneratorPipeline::InitializeTypeMap()
 	_typeMap.insert(pair<string, CommandType>(string("Value Noise"), CommandType::VALUE_NOISE));
 	_typeMap.insert(pair<string, CommandType>(string("ADDITIVE"), CommandType::ADD));
 	_typeMap.insert(pair<string, CommandType>(string("MULTIPLICATIVE"), CommandType::MULTIPLY));
-	_typeMap.insert(pair<string, CommandType>(string("REFRACTIVE"), CommandType::REFRACT));	// TODO: Is this really a blending mode?
-	_typeMap.insert(pair<string, CommandType>(string("OVERWRITE"), CommandType::OVERWRITE));
+	_typeMap.insert(pair<string, CommandType>(string("REFRACTIVE"), CommandType::REFRACT));
+	_typeMap.insert(pair<string, CommandType>(string("INTERPOLATE"), CommandType::INTERPOLATE));
 	_typeMap.insert(pair<string, CommandType>(string("Smooth"), CommandType::SMOOTH));
 	_typeMap.insert(pair<string, CommandType>(string("Normalize"), CommandType::NORMALIZE));
 	_typeMap.insert(pair<string, CommandType>(string("NONE"), CommandType::NONE));
@@ -65,13 +65,14 @@ Command* GeneratorPipeline::LoadBlendCommand( const Json::Value& commandInfo )
 	// The blending is a subtype of some other types. It is valid if there is
 	// no blend operation. Then an overwrite is performed.
 	CommandType type = _typeMap[commandInfo.get("Blending", "NONE").asString()];
+	float blendFactor = commandInfo.get("BlendFactor", 1.0f).asFloat();
 	switch(type)
 	{
 		case CommandType::ADD:			return new CmdBlendAdd();
 		case CommandType::MULTIPLY:		return new CmdBlendMultiply();
-		case CommandType::OVERWRITE :	return new CmdBlendOverwrite();
-		case CommandType::REFRACT:
-			break;
+		case CommandType::INTERPOLATE :	if(blendFactor != 1.0f) return new CmdBlendInterpolate(blendFactor);	// 1.0 would just copy the last result -> do nothing (overwrite effekt)
+										else return nullptr;
+		case CommandType::REFRACT:		return new CmdBlendRefract(blendFactor);
 	}
 	return nullptr;
 }
@@ -93,27 +94,26 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 
 	// Read command array
 	Json::Value layers = root["Layers"];
-	_numCommands = layers.size();
+	_numCommands = 0;
 	// Allocate enough, that each layer can have a blend command
-	_commands = new Command*[_numCommands*2];
-	memset(_commands, 0, sizeof(Command*) * _numCommands*2);
+	_commands = new Command*[layers.size()*2];
+	memset(_commands, 0, sizeof(Command*) * layers.size()*2);
 
-	for(int commandIndex=0, jsonLayerIndex=0; commandIndex<_numCommands; ++commandIndex, ++jsonLayerIndex)
+	for(unsigned int jsonLayerIndex=0; jsonLayerIndex<layers.size(); ++jsonLayerIndex)
 	{
 		CommandType type = _typeMap[layers[jsonLayerIndex].get("Type", "NONE").asString()];
 		Json::Value& currentLayer = layers[jsonLayerIndex];
+		bool bIsKnown = true;
 		switch(type)
 		{
 		case CommandType::MST_DISTANCE:
-			_commands[commandIndex] = LoadMSTDistanceCommand(currentLayer, false);
+			_commands[_numCommands] = LoadMSTDistanceCommand(currentLayer, false);
 			break;
 		case CommandType::MST_INV_DISTANCE:
-			_commands[commandIndex] = LoadMSTDistanceCommand(currentLayer, true);
+			_commands[_numCommands] = LoadMSTDistanceCommand(currentLayer, true);
 			break;
 		case CommandType::VALUE_NOISE:
-			_commands[commandIndex] = LoadValueNoiseCommand(currentLayer);
-			_commands[++commandIndex] = LoadBlendCommand(currentLayer);
-			++_numCommands;
+			_commands[_numCommands] = LoadValueNoiseCommand(currentLayer);
 			break;
 	/*	case CommandType::SMOOTH:
 			break;
@@ -121,9 +121,16 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 			break;
 			*/
 		default:
-			// Skip unknown layers
-			--commandIndex;
-			--_numCommands;
+			// Skip unknown layers - do not add a command
+			bIsKnown = false;
+		}
+
+		if( bIsKnown )
+		{
+			// Count the new commando and read its blending
+			++_numCommands;
+			_commands[_numCommands] = LoadBlendCommand(currentLayer);
+			if( _commands[_numCommands] ) _numCommands++;
 		}
 	}
 }

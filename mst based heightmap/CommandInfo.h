@@ -19,7 +19,7 @@ enum struct CommandType
 	ADD = 10,
 	MULTIPLY = 11,
 	REFRACT = 12,
-	OVERWRITE = 13,
+	INTERPOLATE = 13,
 
 	SMOOTH = 100,
 	NORMALIZE = 101,
@@ -150,12 +150,13 @@ public:
 
 /// This commando multiplies overwrites the old result, rendering all previous results useless
 ///
-class CmdBlendOverwrite : public Command
+class CmdBlendInterpolate : public Command
 {
+	float _blendFactor;
 public:
-	CmdBlendOverwrite() : Command(CommandType::OVERWRITE) {}
+	CmdBlendInterpolate(float blendFactor) : Command(CommandType::INTERPOLATE), _blendFactor(blendFactor) {}
 
-	/// Overwrites old result.
+	/// Interpolates linear between the old result.
 	/// \details `prevResult` will be ignored
 	virtual void Execute( const MapBufferInfo& bufferInfo,
 						  const float* prevResult,

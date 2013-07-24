@@ -11,7 +11,7 @@ namespace MST_Heightmap_Generator_GUI
 {
     public partial class MainWindow
     {
-        private void InitLayerChooseComobBox()
+        private void InitLayerChooseComboBox()
         {
             foreach (Type type in Layer.LayerTypes.Keys)
             {
@@ -22,7 +22,7 @@ namespace MST_Heightmap_Generator_GUI
             }
         }
 
-        private void InitLayerBlendingComobBox()
+        private void InitLayerBlendingComboBox()
         {
             foreach (Layer.BlendOp type in Enum.GetValues(typeof(Layer.BlendOp)))
             {
@@ -119,8 +119,22 @@ namespace MST_Heightmap_Generator_GUI
 
         private void DeleteLayer(object sender, RoutedEventArgs e)
         {
-            // TODO: Delete Layer
-            // remove pointset if necessary
+            if (Layers.SelectedItem != null)
+            {
+                PointSet set = null;
+
+                foreach (var p in ((TreeViewItem)Layers.SelectedItem).Tag.GetType().GetProperties())
+                {
+                    if (p.PropertyType == typeof(PointSet))
+                    {
+                        set = (PointSet)p.GetValue(((TreeViewItem)Layers.SelectedItem).Tag);
+                        break;
+                    }
+                }
+                // remove pointset if necessary
+                if(set != null) terrainRenderingPreview.RemovePointSet(set);
+                Layers.Items.Remove(Layers.SelectedItem);
+            }
         }
     }
 }

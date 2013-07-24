@@ -8,6 +8,11 @@ namespace MST_Heightmap_Generator_GUI.Layers
 {
     abstract class Layer
     {
+        public Layer()
+        {
+            BlendFactor = 1.0f;
+        }
+
         public enum BlendOp
         {
             INTERPOLATE = 0,
@@ -23,8 +28,7 @@ namespace MST_Heightmap_Generator_GUI.Layers
         {
             { typeof(MSTDistance) , "MST Distance" },
             { typeof(MSTDistanceInverse) , "MST Inverse Distance" },
-            { typeof(ValueNoise) , "Value Noise" },
-            { typeof(Refraction) , "Refraction" }
+            { typeof(ValueNoise) , "Value Noise" }
         };
     }
 }
