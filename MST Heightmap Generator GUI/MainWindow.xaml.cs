@@ -230,7 +230,6 @@ namespace MST_Heightmap_Generator_GUI
             var mainWindowDispatcher = Dispatcher;
 
             long heightmapGentimeMS = 0;
-            long previewGentimeMS = 0;
             
             string json = SerializeSettingsToJSON();    // access to stuff from this thread - not possible in Task
             Task generateTask = new Task(() =>
@@ -241,17 +240,6 @@ namespace MST_Heightmap_Generator_GUI
                         sw.Start();
                         new MstBasedHeightmap.GeneratorPipeline(json).Execute(_heightmapData);
                         heightmapGentimeMS = sw.ElapsedMilliseconds;
-
-                        
-                        mainWindowDispatcher.Invoke(() =>
-                            {
-                                if (progressBar != null)
-                                    progressBar.TaskDescription.Content = "Rendering Preview processing ...";
-                            });
-
-                        sw.Restart();
-                        terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelPerWorldUnit);
-                        previewGentimeMS = sw.ElapsedMilliseconds;
                     }
                     catch
                     {
@@ -263,12 +251,15 @@ namespace MST_Heightmap_Generator_GUI
             progressBar = new ProgressBar(() => generateTask.IsCompleted ||generateTask.IsCanceled || generateTask.IsFaulted);
             progressBar.TaskDescription.Content = "Generating Heightmap ...";
             progressBar.ShowDialog();
-        
+
+            // upload to graphics cards (needs to stay in mainthread!
+            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelPerWorldUnit);
+
             // continue rendering
             terrainRenderingPreview.DeactivateRendering = false;
 
             // display timings
-            MessageBox.Show("Heightmap Computation Time:\t " + heightmapGentimeMS + "ms\nPreview Update Time:\t " + previewGentimeMS + "ms", "Done!"); 
+            MessageBox.Show("Heightmap Computation Time:\t " + heightmapGentimeMS + "ms", "Done!");
         }
 
         private void TimeOfDaySlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)

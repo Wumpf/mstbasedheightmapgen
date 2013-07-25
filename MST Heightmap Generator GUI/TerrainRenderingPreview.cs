@@ -37,7 +37,6 @@ namespace MST_Heightmap_Generator_GUI
 
         #endregion
 
-
         #region Sky
 
         public float TimeOfDay
@@ -64,6 +63,14 @@ namespace MST_Heightmap_Generator_GUI
         private RenderTargetCube skyCubemap;
 
         #endregion
+
+        #region Conemap Processing
+
+        Texture2D tempSingleChannelHeightmap;
+        Texture2D tempSingleChannelCones;
+        Stack<Vector2> conemapProcessingWorkItems = new Stack<Vector2>();
+
+        #endregion 
 
         private SamplerState linearBorderSamplerState;
 
@@ -129,53 +136,91 @@ namespace MST_Heightmap_Generator_GUI
                 sphereBillboardShader.Effect.Parameters["HeightScale"].SetValue(terrainScale);
         }
 
+        private void DoConemapTask()
+        {
+            if (conemapProcessingWorkItems.Count > 0)
+            {
+                // compute another fragment
+                Vector2 textureAreaMin = conemapProcessingWorkItems.Pop();
+
+                computeRelaxedConeShader.Effect.CurrentTechnique = computeRelaxedConeShader.Effect.Techniques["Compute"];
+
+                computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource(tempSingleChannelHeightmap);
+                computeRelaxedConeShader.Effect.Parameters["ConesOutput"].SetResource(tempSingleChannelCones);
+
+                computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
+
+                computeRelaxedConeShader.Effect.Parameters["TextureAreaMin"].SetValue<int>(new int[] { (int)textureAreaMin.X, (int)textureAreaMin.Y });
+                computeRelaxedConeShader.Effect.ConstantBuffers[0].Update();
+                GraphicsDevice.Dispatch(tempSingleChannelHeightmap.Width / 32, tempSingleChannelHeightmap.Height / 32, 1);
+
+                // combine
+                computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(false);
+                CombineTempMapsToCombined();
+
+                // cleanup
+                if (conemapProcessingWorkItems.Count == 0)
+                {
+                    tempSingleChannelHeightmap.Dispose();
+                    tempSingleChannelCones.Dispose();
+                }
+            }
+        }
+
+        private void CombineTempMapsToCombined()
+        {
+            terrainShader.Effect.Parameters["Heightmap"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
+
+            computeRelaxedConeShader.Effect.CurrentTechnique = computeRelaxedConeShader.Effect.Techniques["Combine"];
+            computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource(tempSingleChannelHeightmap);
+            computeRelaxedConeShader.Effect.Parameters["ConesOutput"].SetResource(tempSingleChannelCones);
+            computeRelaxedConeShader.Effect.Parameters["CombinedOutput"].SetResource(heightmapTexture);
+
+            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
+            GraphicsDevice.Dispatch(tempSingleChannelHeightmap.Width / 32, tempSingleChannelHeightmap.Height / 32, 1);
+            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(true);
+
+            computeRelaxedConeShader.Effect.Parameters["CombinedOutput"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
+            terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
+        }
+
         public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit)
         {
             this.heightmapPixelPerWorldUnit = heightmapPixelPerWorldUnit;
 
+            // detach old textures
+            computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
+            computeRelaxedConeShader.Effect.Parameters["ConesOutput"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
+            computeRelaxedConeShader.Effect.Parameters["CombinedOutput"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
+            terrainShader.Effect.Parameters["Heightmap"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
+
+            // remove old textures
             if(heightmapTexture != null)
                 heightmapTexture.Dispose();
+            if (tempSingleChannelHeightmap != null)
+                tempSingleChannelHeightmap.Dispose();
+            if (tempSingleChannelCones != null)
+                tempSingleChannelCones.Dispose();
 
-            // compute
-            var tempHeights = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource);
-            tempHeights.SetData<float>(heightmap.Cast<float>().ToArray());
-            var tempCones = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
-            GraphicsDevice.Clear(tempCones, new Color4(2.0f));
-
-            computeRelaxedConeShader.Effect.CurrentTechnique = computeRelaxedConeShader.Effect.Techniques["Compute"];
-            computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource(tempHeights);
-            computeRelaxedConeShader.Effect.Parameters["ConesOutput"].SetResource(tempCones);
-            //computeRelaxedConeShader.Effect.Parameters["TerrainHeightmapSampler"].SetResource(linearBorderSamplerState);
-
-            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
+            // generate jobs
+            conemapProcessingWorkItems.Clear();
             const int TILE_SIZE = 32;   // if you change this value, you also have to change " AreaPerCall in computerelaxedconemap.fx
             for (int x = 0; x < heightmap.GetLength(0); x += TILE_SIZE)
             {
                 for (int y = 0; y < heightmap.GetLength(1); y += TILE_SIZE)
-                {
-                    computeRelaxedConeShader.Effect.Parameters["TextureAreaMin"].SetValue<int>(new int[]{x,y});
-                    computeRelaxedConeShader.Effect.ConstantBuffers[0].Update();
-                    GraphicsDevice.Dispatch(heightmap.GetLength(0) / 32, heightmap.GetLength(1) / 32, 1);
-                    GraphicsDevice.Flush();
-                }
+                    conemapProcessingWorkItems.Push(new Vector2(x, y));
             }
-            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(true);
+            
+
+            // create temp-textures
+            tempSingleChannelHeightmap = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource);
+            tempSingleChannelHeightmap.SetData<float>(heightmap.Cast<float>().ToArray());
+            tempSingleChannelCones = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
+            GraphicsDevice.Clear(tempSingleChannelCones, new Color4(2.0f));
             
             // compose to heightmap texture
             heightmapTexture = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R16G16.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
-            computeRelaxedConeShader.Effect.CurrentTechnique = computeRelaxedConeShader.Effect.Techniques["Combine"];
-            computeRelaxedConeShader.Effect.Parameters["CombinedOutput"].SetResource(heightmapTexture);
-            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
-
-            GraphicsDevice.Dispatch(heightmap.GetLength(0) / 32, heightmap.GetLength(1) / 32, 1);
-            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(true);
-
-            // clean
-            tempHeights.Dispose();
-            tempCones.Dispose();
-
-            // setup camera
-           // camera.Position = new Vector3(heightmapTexture.Width/2, 100.0f, heightmapTexture.Height / 2);
+            CombineTempMapsToCombined();
 
             // setup heightmap cbuffer
             SetupTerrainConstants();
@@ -274,7 +319,6 @@ namespace MST_Heightmap_Generator_GUI
             {
                 if (resizeNeeded)
                 {
-                    // todo: new camera sucks
                     camera.AspectRatio = (float)host.RenderTargetWidth / host.RenderTargetHeight;   
 
                     // set new backbuffer
@@ -328,6 +372,8 @@ namespace MST_Heightmap_Generator_GUI
                 pointSet.Draw(GraphicsDevice);
             }
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Opaque);
+
+            DoConemapTask();
         }
 
         void WPFHost.IScene.OnResize(WPFHost.ISceneHost host)
