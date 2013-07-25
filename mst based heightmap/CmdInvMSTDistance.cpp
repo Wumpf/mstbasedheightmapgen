@@ -11,7 +11,7 @@ using namespace std::placeholders;
 CmdInvMSTDistance::CmdInvMSTDistance(const Vec3* pointList, int numPoints, float height, float quadraticSplineHeight) :
 	Command(CommandType::MST_INV_DISTANCE),
 	_height(height),
-	_quadraticSplineHeight(quadraticSplineHeight)
+	_quadraticSplineHeight(quadraticSplineHeight * height)
 {
 	_mst = ComputeMST( pointList, numPoints );
 }

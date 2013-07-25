@@ -9,7 +9,7 @@ using namespace std::placeholders;
 CmdMSTDistance::CmdMSTDistance(const Vec3* pointList, int numPoints, float height, float quadraticSplineHeight) :
 	Command(CommandType::MST_DISTANCE),
 	_height(height),
-	_quadraticSplineHeight(quadraticSplineHeight)
+	_quadraticSplineHeight(quadraticSplineHeight * height)
 {
 	_mst = ComputeMST( pointList, numPoints );
 }
