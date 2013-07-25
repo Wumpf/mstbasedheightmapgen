@@ -12,7 +12,7 @@ namespace MST_Heightmap_Generator_GUI.Layers
         [LayerAttributes.LayerAttributeFloat(Default = 1.0, MinValue = 0.0, MaxValue = 1.0, Name = "Height Dependency Offset")]
         public float HeightDependencyOffset { get; set; }
 
-        [LayerAttributes.LayerAttributeFloat(Default = 0.005, MinValue = 0.0, MaxValue = 0.025, Name = "Gradient Dependency")]
+        [LayerAttributes.LayerAttributeFloat(Default = 0.05, MinValue = 0.0, MaxValue = 0.25, Name = "Gradient Dependency")]
         public float GradientDependency { get; set; }
     }
 }

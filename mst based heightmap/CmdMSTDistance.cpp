@@ -1,16 +1,9 @@
 #include <thread>
 #include "CommandInfo.h"
 #include "math.hpp"
-#include "Generator.h"
+#include "CmdDistance.hpp"
 
 using namespace std::placeholders;
-
-// Stuff copied from OrBaseLib
-#include "src-mst/OrADTObjects.h"
-#include "src-mst/OrHeap.h"
-#include "src-mst/OrHash.h"
-#include "src-mst/OrGraph.h"
-typedef OrE::ADT::Mesh::PosNode PNode;
 
 // ************************************************************************* //
 CmdMSTDistance::CmdMSTDistance(const Vec3* pointList, int numPoints, float height, float quadraticSplineHeight) :
@@ -18,7 +11,7 @@ CmdMSTDistance::CmdMSTDistance(const Vec3* pointList, int numPoints, float heigh
 	_height(height),
 	_quadraticSplineHeight(quadraticSplineHeight)
 {
-	_mst = ComputeMST( pointList, numPoints );
+	_mst = OrE::ADT::Mesh::ComputeMST( pointList, numPoints );
 }
 
 CmdMSTDistance::~CmdMSTDistance()

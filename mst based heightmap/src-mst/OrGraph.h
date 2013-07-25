@@ -437,6 +437,9 @@ namespace ADT {
 		// Runtime: O(e+n log n)	(Prim; uses fibonacci heap)
 		Mesh* BuildMST() const;
 
+		// Create the minimal spanning tree of a set of points.
+		static OrE::ADT::Mesh* ComputeMST( const Vec3* pointList, int numPoints );
+
 		// ******************************************************************************** //
 		// Iterators
 		// All iterators behave exactly the same way as the container OrE::ADT::Iterator,
