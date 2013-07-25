@@ -11,7 +11,7 @@ CmdMSTDistance::CmdMSTDistance(const Vec3* pointList, int numPoints, float heigh
 	_height(height),
 	_quadraticSplineHeight(quadraticSplineHeight)
 {
-	_mst = OrE::ADT::Mesh::ComputeMST( pointList, numPoints );
+	_mst = ComputeMST( pointList, numPoints );
 }
 
 CmdMSTDistance::~CmdMSTDistance()
@@ -51,7 +51,7 @@ float CmdMSTDistance::GeneratorKernel( const MapBufferInfo& bufferInfo, int x, i
 	// The points on the mst are 0 so multiplication is not possible.
 	// Therefore multiply the inverses.
 	result = _height - (_height - result)
-		* (1-computeHeight(_mst, fx, fy));	// TODO: The 1- has to be maxSummit-
+		* (1-computeHeight(_mst, fx, fy)/_height);
 
 	return result;
 }

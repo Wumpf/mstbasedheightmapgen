@@ -20,3 +20,8 @@ const float HEIGHT_CODE_FACTOR = 256.0f;
 /// \param [in] y World space y coordinate.
 /// \return An interpolated height froms the nodes in the graph.
 float computeHeight(const OrE::ADT::Mesh* graph, float x, float y);
+
+
+/// \brief Create the minimal spanning tree of a set of points.
+///
+OrE::ADT::Mesh* ComputeMST( const Vec3* pointList, int numPoints );

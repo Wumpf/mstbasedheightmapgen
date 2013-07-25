@@ -18,3 +18,43 @@ float computeHeight(const OrE::ADT::Mesh* graph, float x, float y)
 	}
 	return height * HEIGHT_CODE_FACTOR / weightSum;
 }
+
+
+
+// ******************************************************************************** //
+// A wrapper for the MST generation out of a point set
+typedef OrE::ADT::Mesh::PosNode PNode;
+
+// Create the minimal spanning tree of a set of points.
+OrE::ADT::Mesh* ComputeMST( const Vec3* pointList, int numPoints )
+{
+	assert( numPoints > 0 );
+
+	// Create a graph with all points fully connected.
+	OrE::ADT::Mesh* pGraph = new OrE::ADT::Mesh( numPoints, numPoints*10 );
+	
+	for( int i=0; i<numPoints; ++i )
+	{
+		auto node = pGraph->AddNode<PNode>();
+		node->SetPos( Vec3(pointList[i].x, pointList[i].y, pointList[i].z/HEIGHT_CODE_FACTOR) );
+		// Add edges from this too all other nodes
+		int iLastOfLayer = pGraph->GetNumNodes();
+		float minLen = 10000000000.0f;
+		for( int j=0; j<i; ++j )
+		{
+			float edgeLen = len( pointList[i] - pointList[j] );
+			if( edgeLen < minLen )
+			{
+				minLen = edgeLen;
+				pGraph->AddEdge<OrE::ADT::Mesh::WeightedEdge, PNode>(
+						(PNode*)(pGraph->GetNode(j)), node, false );
+			}
+		}
+			
+	}
+	
+	OrE::ADT::Mesh* pMST = pGraph->BuildMST();
+		
+	delete pGraph;
+	return pMST;
+}

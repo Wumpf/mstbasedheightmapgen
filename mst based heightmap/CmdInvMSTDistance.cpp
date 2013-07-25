@@ -13,7 +13,7 @@ CmdInvMSTDistance::CmdInvMSTDistance(const Vec3* pointList, int numPoints, float
 	_height(height),
 	_quadraticSplineHeight(quadraticSplineHeight)
 {
-	_mst = OrE::ADT::Mesh::ComputeMST( pointList, numPoints );
+	_mst = ComputeMST( pointList, numPoints );
 }
 
 CmdInvMSTDistance::~CmdInvMSTDistance()
@@ -50,7 +50,7 @@ float CmdInvMSTDistance::GeneratorKernel( const MapBufferInfo& bufferInfo, int x
 		height = max( unparametrizedHeight, height );
 	}
 
-	return height * computeHeight(_mst, x*bufferInfo.PixelSize, py);
+	return height * computeHeight(_mst, x*bufferInfo.PixelSize, py) / _height;
 }
 
 // ************************************************************************* //
