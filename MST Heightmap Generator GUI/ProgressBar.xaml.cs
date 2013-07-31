@@ -20,7 +20,8 @@ namespace MST_Heightmap_Generator_GUI
             {
                 if (closeFunc())
                     Close();
-                this.Dispatcher.BeginInvoke(onIdle, DispatcherPriority.ApplicationIdle);
+                else
+                    this.Dispatcher.BeginInvoke(onIdle, DispatcherPriority.ApplicationIdle);
             });
             this.Dispatcher.BeginInvoke(onIdle, DispatcherPriority.ApplicationIdle);
 
