@@ -141,7 +141,8 @@ namespace MST_Heightmap_Generator_GUI
             // compute side
             Right = Vector3.Cross(upVec, viewDirection);
 
-            if (Mouse.RightButton == MouseButtonState.Pressed)
+            
+        //    if (Mouse.RightButton == MouseButtonState.Pressed)
             {
                 float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
 

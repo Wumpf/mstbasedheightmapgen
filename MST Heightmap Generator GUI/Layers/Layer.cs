@@ -18,7 +18,7 @@ namespace MST_Heightmap_Generator_GUI.Layers
             INTERPOLATE = 0,
             ADDITIVE = 1,
             MULTIPLICATIVE = 2,
-            REFACTIVE = 3,
+            REFRACTIVE = 3,
         }
         public BlendOp Blending { get; set; }
         public float BlendFactor { get; set; }

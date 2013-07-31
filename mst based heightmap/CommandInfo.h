@@ -97,9 +97,9 @@ public:
 				   float heightDependencyOffset ) :
 		Command(CommandType::VALUE_NOISE),
 		_heightScale(heightScale),
-		_gradientDependency(gradientDependency),
-		_heightDependency(heightDependency),
-		_heightDependencyOffset(heightDependencyOffset)
+		_gradientDependency(gradientDependency/heightScale),
+		_heightDependency(heightDependency/heightScale),
+		_heightDependencyOffset(heightDependencyOffset*heightScale)
 	{}
 
 	/// Create some noise.

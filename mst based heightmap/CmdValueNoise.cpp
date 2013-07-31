@@ -8,7 +8,7 @@ using namespace std::placeholders;
 float CmdValueNoise::CalculateFrequenceAmplitude( const MapBufferInfo& bufferDesc, float _fCurrentHeight, float _fFrequence, float _fGradientX, float _fGradientY )
 {
 	float fHeightDependency = exp( (_fCurrentHeight-_heightDependencyOffset) * _heightDependency);
-	float fGradientDependency = 1.0f + sqrt(_fGradientX*_fGradientX + _fGradientY*_fGradientY) * _heightDependencyOffset;
+	float fGradientDependency = 1.0f + sqrt(_fGradientX*_fGradientX + _fGradientY*_fGradientY) * _gradientDependency;
 	return min( 6.0f, fHeightDependency*fGradientDependency ) / _fFrequence;
 }
 

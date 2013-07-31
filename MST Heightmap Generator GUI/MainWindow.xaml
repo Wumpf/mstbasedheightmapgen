@@ -26,58 +26,40 @@
         <Button Content="X" HorizontalAlignment="Left" Height="24" Margin="271,308,0,0" VerticalAlignment="Top" Width="24" FontSize="18" FontFamily="Consolas" Click="DeleteLayer" RenderTransformOrigin="1.833,0.542"/>
         <ComboBox x:Name="LayerBlending" Height="24" Margin="98,0,5,0" VerticalAlignment="Top" SelectedIndex="0" SelectionChanged="LayerBlending_Selected"/>
         <Label Content="Blending" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="98"/>
-        <Button Content="Generate!" VerticalAlignment="Top" Height="22" Click="RegenerateHeightmap" Margin="40,351,40,0" Focusable="False"/>
-        <GroupBox Header="Deprecated UI" VerticalAlignment="Top" Height="272" Margin="1,484,4,0">
+        <GroupBox Header="Generate" VerticalAlignment="Top" Height="80" Margin="0,337,5,0">
             <Grid Margin="0,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="66*"/>
                     <ColumnDefinition Width="79*"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" Content="Generator" Margin="-1,5,1,0" VerticalAlignment="Top" Height="26"/>
-                <ComboBox x:Name="GeneratorSelection" Height="26" Margin="10,5,15,0" VerticalAlignment="Top" SelectedIndex="1" SelectionChanged="Cb_Generator_Changed" Grid.Column="1">
-                    <ComboBoxItem Content="MST Distance"/>
-                    <ComboBoxItem Content="MST Inverse Distance"/>
+                <Label Grid.Row="0" Grid.Column="0" Content="Resolution" Margin="-1,1,1,0" VerticalAlignment="Top" Height="26"/>
+
+                <Button Content="Generate!" VerticalAlignment="Top" Height="22" Click="RegenerateHeightmap" Margin="36,30,36,0" Focusable="False" Grid.ColumnSpan="2"/>
+                <ComboBox Name="ResolutionDropDown" Grid.Column="1" HorizontalAlignment="Left" Margin="30,1,0,0" VerticalAlignment="Top" Width="124" Height="24" SelectedIndex="3">
+                    <ComboBoxItem Content="32x32"/>
+                    <ComboBoxItem Content="64x64"/>
+                    <ComboBoxItem Content="128x128"/>
+                    <ComboBoxItem Content="256x256"/>
+                    <ComboBoxItem Content="512x512"/>
+                    <ComboBoxItem Content="1024x1024"/>
+                    <ComboBoxItem Content="2048x2048"/>
+                    <ComboBoxItem Content="4096x4096"/>
+                    <ComboBoxItem Content="8192x8192"/>
                 </ComboBox>
-
-                <Slider Grid.Row="0" Margin="9,36,11,0" VerticalAlignment="Top" Height="26" Maximum="100" LargeChange="5" SmallChange="1" Minimum="1" ValueChanged="Sl_MaxHeight_Changed" Value="50" Grid.Column="1"/>
-                <Label Grid.Row="0" Grid.Column="0" Content="Maximum Height" Margin="-1,36,1,0" VerticalAlignment="Top" Height="26"/>
-
-                <Slider Grid.Row="0" Margin="9,62,11,0" VerticalAlignment="Top" Height="26" Maximum="1" LargeChange="0.2" SmallChange="0.05" ValueChanged="Sl_QuadraticSpline_Changed" Value="0.3" Grid.Column="1"/>
-                <Label Grid.Row="0" Grid.Column="0" Content="Quadratic Spline" Margin="-1,60,1,0" VerticalAlignment="Top" Height="26"/>
-
-                <Slider Grid.Row="0" Margin="10,114,11,0" VerticalAlignment="Top" Height="26" Maximum="0.8" LargeChange="0.15" SmallChange="0.05" ValueChanged="Sl_NoiseIntensity_Changed" Value="0.5" Grid.Column="1"/>
-                <Label Grid.Row="0" Grid.Column="0" Content="Noise Intensity" Margin="-1,112,1,0" VerticalAlignment="Top" Height="26"/>
-
-                <Label Grid.Row="0" Grid.Column="0" Content="Height Dependency" Margin="0,140,0,0" VerticalAlignment="Top" Height="26"/>
-                <Slider Grid.Row="0" Margin="10,140,10,0" VerticalAlignment="Top" Height="26" Maximum="2.5" LargeChange="0.25" SmallChange="0.05" ValueChanged="Sl_NoiseHeightDependency_Changed" Value="0.5" Grid.Column="1"/>
-
-                <Label Grid.Row="0" Grid.Column="0" Content="Gradient Dependency" Margin="0,192,0,0" VerticalAlignment="Top" Height="26"/>
-                <Slider Grid.Row="0" Margin="10,192,10,0" VerticalAlignment="Top" Height="26" Maximum="0.025" LargeChange="0.005" SmallChange="0.001" ValueChanged="Sl_GradientDependency_Changed" Value="0.005" Grid.Column="1"/>
-
-                <Label Grid.Row="0" Grid.Column="0" Content="Height Offset" Margin="-1,166,1,0" VerticalAlignment="Top" Height="26" ToolTip="Relative height where the height dependency beginns to influence the frequency."/>
-                <Slider Grid.Row="0" Margin="9,166,15,0" VerticalAlignment="Top" Height="26" Maximum="1.0" LargeChange="0.1" SmallChange="0.025" ValueChanged="Sl_HeightDependencyOffset_Changed"  Value="1.0" Grid.Column="1"/>
-
-                <TextBox x:Name="SeedEdit" Margin="13,218,0,0" TextWrapping="Wrap" Text="Seed" TextChanged="TB_Seed_Changed" Height="23" VerticalAlignment="Top" RenderTransformOrigin="0.817,0.478" HorizontalAlignment="Left" Width="114"/>
-
-                <Button Content="Generate Heightmap" VerticalAlignment="Top" Height="23" Click="GenerateHeightmap" Margin="10,218,15,0" Focusable="False" Grid.Column="1"/>
-
-                <Slider Grid.Row="0" Margin="10,88,11,0" VerticalAlignment="Top" Height="26" Maximum="10" LargeChange="0.5" SmallChange="0.1" ValueChanged="Sl_RefractionNoise_Changed" Value="3.0" Grid.Column="1"/>
-                <Label Grid.Row="0" Grid.Column="0" Content="Refraction Noise" Margin="-1,86,1,0" VerticalAlignment="Top" Height="26"/>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Rendering" Margin="0,374,6,0" VerticalAlignment="Top" Height="81">
+        <GroupBox Header="Rendering" Margin="1,422,5,0" VerticalAlignment="Top" Height="81">
             <Grid Margin="0,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="65*"/>
                     <ColumnDefinition Width="76*"/>
                 </Grid.ColumnDefinitions>
                 <Label Grid.Row="0" Grid.Column="0" Content="Visual Height Scale" VerticalAlignment="Top" Height="26"/>
-                <Slider x:Name="VisualScaleSlider" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="5" Maximum="500" LargeChange="0.15" SmallChange="0.025" Value="50" ValueChanged="Sl_VisualScaleSlider_Changed" AutoToolTipPlacement="TopLeft" Grid.Column="1"/>
+                <Slider x:Name="VisualScaleSlider" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="5" Maximum="200" LargeChange="25" SmallChange="5" Value="50" ValueChanged="Sl_VisualScaleSlider_Changed" AutoToolTipPlacement="TopLeft" Grid.Column="1"/>
                 <Label Grid.Row="0" Grid.Column="0" Content="Time of Day" VerticalAlignment="Top" Height="26" Margin="0,23,0,0"/>
                 <Slider x:Name="TimeOfDaySlider" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="0" Maximum="1" LargeChange="0.15" SmallChange="0.025" Value="0.5" ValueChanged="TimeOfDaySlider_Changed" Grid.Column="1" Margin="0,23,0,0"/>
             </Grid>
         </GroupBox>
-        <Separator HorizontalAlignment="Left" Height="13" Margin="-4,471,0,0" VerticalAlignment="Top" Width="294"/>
         <Slider x:Name="BlendFactor" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="0" Maximum="1" LargeChange="0.15" SmallChange="0.025" Value="1" ValueChanged="Sl_BlendFactor_Changed" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="2" Margin="98,29,6,0"/>
         <Label Content="Blend Factor" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="98" Margin="0,27,0,0"/>
     </Grid>

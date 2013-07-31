@@ -87,6 +87,7 @@ namespace MST_Heightmap_Generator_GUI
             else
                 Layers.Items.Insert(Layers.Items.IndexOf(Layers.SelectedItem), newItem);
             newItem.ExpandSubtree();
+            newItem.IsSelected = true;
         }
 
         private void MoveLayerUp(object sender, RoutedEventArgs e)

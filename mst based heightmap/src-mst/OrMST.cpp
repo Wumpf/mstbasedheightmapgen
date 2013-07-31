@@ -19,6 +19,7 @@
 #include "Stdafx.h"
 #include <limits.h>
 #include <math.h>
+#include <stdint.h>
 
 #include "OrADTObjects.h"
 #include "OrHash.h"
@@ -130,5 +131,6 @@ OrE::ADT::Mesh* OrE::ADT::Mesh::BuildMST() const
 	delete[] aInfos;
 	return M;
 }
+
 
 // ******************************************************************************** //

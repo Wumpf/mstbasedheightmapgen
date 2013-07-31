@@ -29,21 +29,14 @@ namespace MST_Heightmap_Generator_GUI
     {
         // TODO: temporary solution - check dependencies when refactoring
         public const int MAP_SIZE = 256;
-        const float heightmapPixelPerWorldUnit = 2.0f;
-        // ----
-
-        float[,] _heightmapData;
-        
-        
-        // deprecated!
-        MstBasedHeightmap.HeightmapFactory _heightmapFactory = new MstBasedHeightmap.HeightmapFactory(MAP_SIZE, MAP_SIZE, heightmapPixelPerWorldUnit);
-        
-
-        // Second dimension is always 3
-        float[,] _summitList;
 
       //  private WriteableBitmap imageContent;
         private TerrainRenderingPreview terrainRenderingPreview = new TerrainRenderingPreview();
+
+        /// <summary>
+        /// Last generated raw Heightmap data
+        /// </summary>
+        float[,] heightmapData;
 
         public MainWindow()
         {
@@ -54,17 +47,7 @@ namespace MST_Heightmap_Generator_GUI
             terrainRenderingPreview.SetScaleFactor((float)VisualScaleSlider.Value);
             terrainRenderingPreview.TimeOfDay = (float)TimeOfDaySlider.Value;
             DX11Display.Scene = terrainRenderingPreview;
-         
-            int width = (int)_heightmapFactory.GetWidth();
-            int height = (int)_heightmapFactory.GetHeight();
-            _heightmapData = new float[_heightmapFactory.GetWidth(), _heightmapFactory.GetHeight()];
-        //    imageContent = new WriteableBitmap(width, height, -1.0f, -1.0f, PixelFormats.Gray32Float, null);
-         //   heightmapView.Source = imageContent;
-
-            GenerateRandomSummits(20);
         }
-
-
         
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
@@ -73,100 +56,10 @@ namespace MST_Heightmap_Generator_GUI
             base.OnClosing(e);
         }
 
-        #region deprecated ui
-
-        private void GenerateHeightmap(object sender, RoutedEventArgs e)
-        {
-            // Send points only on generated (they are modified interactive)
-            _heightmapFactory.SetParameter(9, _summitList);
-
-            _heightmapFactory.Generate(_heightmapData);
-        /*    imageContent.WritePixels(new Int32Rect(0, 0, (int)_heightmapFactory.GetWidth(), (int)_heightmapFactory.GetHeight()), 
-                                            (Array)_heightmapData, (int)(sizeof(float) * _heightmapFactory.GetWidth()), 0);
-
-            */   
-            float[,] heightmapPixelsPerWorld = new float[1, 1];
-            uint width, height;
-            _heightmapFactory.GetParameter(2, heightmapPixelsPerWorld, out width, out height);
-            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelsPerWorld[0, 0]);
-            terrainRenderingPreview.ClearPointSet();
-            terrainRenderingPreview.AddPointSet(new PointSet(_summitList));
-        }
-
-        private void GenerateRandomSummits(int num)
-        {
-            _summitList = new float[num,3];
-            Random rnd = new Random(SeedEdit.Text.GetHashCode());
-            for (int i = 0; i < num; ++i)
-            {
-                _summitList[i, 0] = rnd.Next(10000) / 10000.0f * MAP_SIZE;
-                _summitList[i, 1] = rnd.Next(10000) / 10000.0f * MAP_SIZE;
-                _summitList[i, 2] = rnd.Next(10000) / 10000.0f;
-            }
-        }
-
-        private void Sl_MaxHeight_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            float[,] value = {{(float)e.NewValue}};
-            _heightmapFactory.SetParameter(3, value);
-        }
-
-        private void Sl_QuadraticSpline_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            float[,] value = { { (float)e.NewValue } };
-            _heightmapFactory.SetParameter(4, value);
-        }
-
-        private void TB_Seed_Changed(object sender, TextChangedEventArgs e)
-        {
-            // Convert a string to an integer seed - by hashing
-            int currentHash = ((System.Windows.Controls.TextBox)(e.Source)).Text.GetHashCode();
-            float[,] value = { { (float)currentHash } };
-            _heightmapFactory.SetParameter(5, value);
-        }
-
         private void Window_Closed(object sender, EventArgs e)
         {
             App.Current.Shutdown();
         }
-
-        private void Sl_NoiseIntensity_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            float[,] value = { { (float)e.NewValue } };
-            _heightmapFactory.SetParameter(6, value);
-        }
-
-        private void Sl_NoiseHeightDependency_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            float[,] value = { { (float)e.NewValue } };
-            _heightmapFactory.SetParameter(7, value);
-        }
-
-        private void Sl_GradientDependency_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            float[,] value = { { (float)e.NewValue } };
-            _heightmapFactory.SetParameter(8, value);
-        }
-
-        private void Cb_Generator_Changed(object sender, SelectionChangedEventArgs e)
-        {
-            float[,] value = { { (float)GeneratorSelection.SelectedIndex } };
-            _heightmapFactory.SetParameter(0, value);
-        }
-
-        private void Sl_RefractionNoise_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            float[,] value = { { (float)e.NewValue } };
-            _heightmapFactory.SetParameter(10, value);
-        }
-
-        private void Sl_HeightDependencyOffset_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            float[,] value = { { (float)e.NewValue } };
-            _heightmapFactory.SetParameter(12, value);
-        }
-
-        #endregion
 
         private void Sl_VisualScaleSlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -206,7 +99,7 @@ namespace MST_Heightmap_Generator_GUI
             JObject json = new JObject();
             json["HeightmapWidth"] = MAP_SIZE;
             json["HeightmapHeight"] = MAP_SIZE;
-            json["HeightmapPixelPerWorldUnit"] = heightmapPixelPerWorldUnit;
+            json["HeightmapPixelPerWorldUnit"] = (float)GetResolution() / MAP_SIZE;
             
             var jsonSerializer = JsonSerializer.CreateDefault();
             jsonSerializer.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());    // convert enums directly to string -> default would be int
@@ -220,10 +113,20 @@ namespace MST_Heightmap_Generator_GUI
             return json.ToString();
         }
 
+        private int GetResolution()
+        {
+            string resolutionString = (string)((ComboBoxItem)ResolutionDropDown.SelectedItem).Content;
+            return int.Parse(resolutionString.Split('x')[0]);
+         //   int resolutionY = int.Parse(resolutionString.Split('x')[1]);
+        }
+
         private void RegenerateHeightmap(object sender, RoutedEventArgs e)
         {
             // stop rendering
             terrainRenderingPreview.DeactivateRendering = true;
+
+            int resolution = GetResolution();
+            heightmapData = new float[resolution, resolution];
 
             // predeclare progress bar
             ProgressBar progressBar = null;
@@ -238,7 +141,7 @@ namespace MST_Heightmap_Generator_GUI
                     {
                         Stopwatch sw = new Stopwatch();
                         sw.Start();
-                        new MstBasedHeightmap.GeneratorPipeline(json).Execute(_heightmapData);
+                        new MstBasedHeightmap.GeneratorPipeline(json).Execute(heightmapData);
                         heightmapGentimeMS = sw.ElapsedMilliseconds;
                     }
                     catch
@@ -253,7 +156,7 @@ namespace MST_Heightmap_Generator_GUI
             progressBar.ShowDialog();
 
             // upload to graphics cards (needs to stay in mainthread!
-            terrainRenderingPreview.LoadNewHeightMap(_heightmapData, heightmapPixelPerWorldUnit);
+            terrainRenderingPreview.LoadNewHeightMap(heightmapData, resolution / (float)MAP_SIZE);
 
             // continue rendering
             terrainRenderingPreview.DeactivateRendering = false;

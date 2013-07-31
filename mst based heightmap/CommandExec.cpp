@@ -45,8 +45,17 @@ void GeneratorPipeline::Execute(int resolutionX, int resolutionY, float* finalDe
 		for(int i=0; i< resolutionX*resolutionY; ++i)
 		{
 			minHeight = std::min(finalDestination[i], minHeight);
-			maxHeight = std::min(finalDestination[i], maxHeight);
+			maxHeight = std::max(finalDestination[i], maxHeight);
 		}
-		Normalize(finalDestination, resolutionX, resolutionY, minHeight, maxHeight);
+
+		minHeight -= 0.001f;
+		maxHeight += 0.001f;
+		float rangeInv = 1.0f / (maxHeight-minHeight);
+
+		GenerateLayer(CommandDesc(bufferInfo, nullptr, finalDestination,
+			[=](const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult){
+				return (currentResult[x+y*bufferInfo.ResolutionX] - minHeight)*rangeInv;},
+			finalDestination));
+		//Normalize(finalDestination, resolutionX, resolutionY, minHeight, maxHeight);
 	}
 }

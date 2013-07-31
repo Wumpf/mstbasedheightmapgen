@@ -1,22 +1,15 @@
 #include <thread>
 #include "CommandInfo.h"
 #include "math.hpp"
-#include "Generator.h"
+#include "CmdDistance.hpp"
 
 using namespace std::placeholders;
-
-// Stuff copied from OrBaseLib
-#include "src-mst/OrADTObjects.h"
-#include "src-mst/OrHeap.h"
-#include "src-mst/OrHash.h"
-#include "src-mst/OrGraph.h"
-typedef OrE::ADT::Mesh::PosNode PNode;
 
 // ************************************************************************* //
 CmdMSTDistance::CmdMSTDistance(const Vec3* pointList, int numPoints, float height, float quadraticSplineHeight) :
 	Command(CommandType::MST_DISTANCE),
 	_height(height),
-	_quadraticSplineHeight(quadraticSplineHeight)
+	_quadraticSplineHeight(quadraticSplineHeight * height)
 {
 	_mst = ComputeMST( pointList, numPoints );
 }
@@ -58,7 +51,7 @@ float CmdMSTDistance::GeneratorKernel( const MapBufferInfo& bufferInfo, int x, i
 	// The points on the mst are 0 so multiplication is not possible.
 	// Therefore multiply the inverses.
 	result = _height - (_height - result)
-		* (1-computeHeight(_mst, fx, fy));	// TODO: The 1- has to be maxSummit-
+		* (1-computeHeight(_mst, fx, fy)/_height);
 
 	return result;
 }
