@@ -9,6 +9,8 @@ void GeneratorPipeline::InitializeTypeMap()
 	_typeMap.insert(pair<string, CommandType>(string("MST Distance"), CommandType::MST_DISTANCE));
 	_typeMap.insert(pair<string, CommandType>(string("MST Inverse Distance"), CommandType::MST_INV_DISTANCE));
 	_typeMap.insert(pair<string, CommandType>(string("Value Noise"), CommandType::VALUE_NOISE));
+	_typeMap.insert(pair<string, CommandType>(string("Voronoi"), CommandType::VORONOI));
+	_typeMap.insert(pair<string, CommandType>(string("Worley Noise"), CommandType::WORLEY_NOISE));
 	_typeMap.insert(pair<string, CommandType>(string("ADDITIVE"), CommandType::ADD));
 	_typeMap.insert(pair<string, CommandType>(string("MULTIPLICATIVE"), CommandType::MULTIPLY));
 	_typeMap.insert(pair<string, CommandType>(string("REFRACTIVE"), CommandType::REFRACT));
@@ -59,6 +61,49 @@ Command* GeneratorPipeline::LoadMSTDistanceCommand( const Json::Value& commandIn
 	else
 		return new CmdMSTDistance(points.get(), numPoints, height, quadraticSplineHeight);
 }
+
+
+Command* GeneratorPipeline::LoadVoronoiCommand( const Json::Value& commandInfo )
+{
+	// Read height scale
+	float heightScale = commandInfo.get("Height", 1.0f).asFloat();
+
+	// Read point array
+	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));
+	int numPoints = pointSetArray.size();
+	std::unique_ptr<Vec3[]> points(new Vec3[numPoints]);
+	for(int i=0; i<numPoints; ++i)
+	{
+		if(pointSetArray[i].size() != 3)
+			points[i] = Vec3(0,0,0);
+		else
+			points[i] = Vec3(pointSetArray[i][0].asFloat(),pointSetArray[i][1].asFloat(),pointSetArray[i][2].asFloat()*heightScale);
+	}
+	return new CmdVoronoi(points.get(), numPoints, heightScale);
+}
+
+
+Command* GeneratorPipeline::LoadWorleyNoiseCommand( const Json::Value& commandInfo )
+{
+	// Read height scale and other scalars
+	float heightScale = commandInfo.get("Height", 1.0f).asFloat();
+	int nthNeighbor = int(commandInfo.get("NthNeighbor", 0.0f).asFloat()+0.5f);
+
+	// Read point array
+	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));
+	int numPoints = pointSetArray.size();
+	std::unique_ptr<Vec3[]> points(new Vec3[numPoints]);
+	for(int i=0; i<numPoints; ++i)
+	{
+		if(pointSetArray[i].size() != 3)
+			points[i] = Vec3(0,0,0);
+		else
+			points[i] = Vec3(pointSetArray[i][0].asFloat(),pointSetArray[i][1].asFloat(),pointSetArray[i][2].asFloat()*heightScale);
+	}
+	return new CmdWorly(points.get(), numPoints, nthNeighbor, heightScale);
+}
+
+
 
 Command* GeneratorPipeline::LoadBlendCommand( const Json::Value& commandInfo )
 {
@@ -114,6 +159,12 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 			break;
 		case CommandType::VALUE_NOISE:
 			_commands[_numCommands] = LoadValueNoiseCommand(currentLayer);
+			break;
+		case CommandType::VORONOI:
+			_commands[_numCommands] = LoadVoronoiCommand(currentLayer);
+			break;
+		case CommandType::WORLEY_NOISE:
+			_commands[_numCommands] = LoadWorleyNoiseCommand(currentLayer);
 			break;
 	/*	case CommandType::SMOOTH:
 			break;

@@ -23,6 +23,8 @@ private:
 	Command* LoadBlendCommand( const Json::Value& commandInfo );
 	Command* LoadValueNoiseCommand( const Json::Value& commandInfo );
 	Command* LoadMSTDistanceCommand( const Json::Value& commandInfo, bool inverted );
+	Command* LoadVoronoiCommand( const Json::Value& commandInfo );
+	Command* LoadWorleyNoiseCommand( const Json::Value& commandInfo );
 public:
 	/// \brief Loads commands from a script.
 	/// \param [in] jsonCode An array of commands in form of a json file.

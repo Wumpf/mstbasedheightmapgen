@@ -15,6 +15,8 @@ enum struct CommandType
 	MST_DISTANCE = 0,
     MST_INV_DISTANCE = 1,
     VALUE_NOISE = 2,
+	VORONOI = 3,
+	WORLEY_NOISE = 4,
 
 	ADD = 10,
 	MULTIPLY = 11,
@@ -233,6 +235,53 @@ public:
 };
 
 
+/// The Worley Noise generator creates a cellular shaped noise.
+///
+class CmdWorly : public Command
+{
+	float GeneratorKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult );
+
+	Vec3* _points;			///< All points which show cells (copy). The height (z-coordinate) defines a distance offset.
+	float _height;			///< Maximum height/distance scaling factor.
+	int _numPoints;			///< Size of the given point set
+	int _nthNeighbor;		///< Only the distance to the nth-neighbor is used. The counting starts at 0 (closest point).
+public:
+	CmdWorly(const Vec3* pointList, int numPoints, int nthNeighbor, float height);
+
+	/// Compute a distance map as new layer.
+	/// \details The former results are ignored.
+	virtual void Execute( const MapBufferInfo& bufferInfo,
+						  const float* prevResult,
+						  const float* currentResult,
+						  float* destination) override;
+
+	virtual ~CmdWorly();
+};
+
+
+/// Creates a voronoi diagram with some offsetted points.
+///
+class CmdVoronoi : public Command
+{
+	float GeneratorKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult );
+
+	Vec3* _points;			///< All points which show cells (copy). The height (z-coordinate) defines a distance offset.
+	float _height;			///< Maximum height/distance scaling factor.
+	int _numPoints;			///< Size of the given point set
+public:
+	CmdVoronoi(const Vec3* pointList, int numPoints, float height);
+
+	/// Compute a distance map as new layer.
+	/// \details The former results are ignored.
+	virtual void Execute( const MapBufferInfo& bufferInfo,
+						  const float* prevResult,
+						  const float* currentResult,
+						  float* destination) override;
+
+	virtual ~CmdVoronoi();
+};
+
+
 typedef std::function<float(const MapBufferInfo&,int,int,const float*,const float*)> Kernel_t;
 
 /// \brief The "closure" for the parallel executation.
@@ -260,6 +309,10 @@ struct CommandDesc
 /// \details This method creates as many hardware threads as possible and
 ///		calculates the new height per pixel.
 void GenerateLayer(const CommandDesc& commandInfo);
+
+/// \brief Seqential computation of one layer for testing purposes.
+/// \details This method calculates the new height per pixel.
+void GenerateLayerSeq(const CommandDesc& commandInfo);
 
 /// \brief Apply a list of loaded commandos to a map.
 /// \param [in] commands An array of different command objects

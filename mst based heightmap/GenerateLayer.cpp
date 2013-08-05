@@ -35,3 +35,9 @@ void GenerateLayer(const CommandDesc& commandInfo)
 		delete threads[t];
 	}
 }
+
+// Seqential computation of one layer for testing purposes.
+void GenerateLayerSeq(const CommandDesc& commandInfo)
+{
+	Line_Kernel( commandInfo, 0, commandInfo.BufferInfo.ResolutionY );
+}

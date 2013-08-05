@@ -116,5 +116,11 @@
     <ClCompile Include="CmdDistance.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="CmdWorley.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdVoronoi.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

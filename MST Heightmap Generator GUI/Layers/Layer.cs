@@ -28,7 +28,9 @@ namespace MST_Heightmap_Generator_GUI.Layers
         {
             { typeof(MSTDistance) , "MST Distance" },
             { typeof(MSTDistanceInverse) , "MST Inverse Distance" },
-            { typeof(ValueNoise) , "Value Noise" }
+            { typeof(ValueNoise) , "Value Noise" },
+            { typeof(Voronoi), "Voronoi" },
+            { typeof(WorleyNoise), "Worley Noise" }
         };
     }
 }
