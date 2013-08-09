@@ -120,6 +120,11 @@ namespace MST_Heightmap_Generator_GUI
          //   int resolutionY = int.Parse(resolutionString.Split('x')[1]);
         }
 
+        private void SetResolution(int res)
+        {
+            ResolutionDropDown.SelectedIndex = (int)Math.Log(res, 2)-5;
+        }
+
         private void RegenerateHeightmap(object sender, RoutedEventArgs e)
         {
             // stop rendering
@@ -168,6 +173,43 @@ namespace MST_Heightmap_Generator_GUI
         private void TimeOfDaySlider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             terrainRenderingPreview.TimeOfDay = (float)e.NewValue;
+        }
+
+        private void SaveBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // Ask for a type and a destination
+            System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            saveFileDialog.Filter = "Map Parametrization|*.json|Raw Heightmap|*.raw";
+            saveFileDialog.Title = "Save or Export Map";
+            saveFileDialog.ShowDialog();
+
+            // Something chosen?
+            if (saveFileDialog.FileName != "")
+            {
+                // Save different things depending on the format
+                switch (saveFileDialog.FilterIndex)
+                {
+                    case 1: SaveMapAsJson(saveFileDialog.FileName);
+                        break;
+                    case 2: // raw heightmap
+                        break;
+                }
+            }
+        }
+
+        private void LoadBtn_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            openFileDialog.Filter = "Map Parametrization|*.json";
+            openFileDialog.Title = "Load Map Parameters";
+            openFileDialog.ShowDialog();
+
+            // Something with correct format?
+            if (openFileDialog.FileName != "")
+            {
+                LoadFromJson(openFileDialog.FileName);
+                RegenerateHeightmap(null, null);
+            }
         }
 
     }

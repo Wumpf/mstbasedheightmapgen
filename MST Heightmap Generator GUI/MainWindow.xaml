@@ -62,5 +62,11 @@
         </GroupBox>
         <Slider x:Name="BlendFactor" Grid.Row="0" VerticalAlignment="Top" Height="26" Minimum="0" Maximum="1" LargeChange="0.15" SmallChange="0.025" Value="1" ValueChanged="Sl_BlendFactor_Changed" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="2" Margin="98,29,6,0"/>
         <Label Content="Blend Factor" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="98" Margin="0,27,0,0"/>
+        <GroupBox Header="Data" HorizontalAlignment="Left" Height="62" Margin="1,510,0,0" VerticalAlignment="Top" Width="293">
+            <Grid Margin="0,0,0,0">
+                <Button Content="Load..." HorizontalAlignment="Left" Height="22" Margin="10,10,0,0" VerticalAlignment="Top" Width="122" Click="LoadBtn_Click"/>
+                <Button Content="Save..." HorizontalAlignment="Left" Height="22" Margin="149,10,0,0" VerticalAlignment="Top" Width="122" Click="SaveBtn_Click"/>
+            </Grid>
+        </GroupBox>
     </Grid>
 </Window>

@@ -112,6 +112,7 @@
     <Compile Include="Layers\MSTDistance.cs" />
     <Compile Include="Layers\Voronoi.cs" />
     <Compile Include="Layers\WorleyNoise.cs" />
+    <Compile Include="MapIO.cs" />
     <Compile Include="PointSet.cs" />
     <Compile Include="ProgressBar.xaml.cs">
       <DependentUpon>ProgressBar.xaml</DependentUpon>

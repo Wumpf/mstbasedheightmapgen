@@ -14,13 +14,15 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
 
         public void CreateTreeViewSubElement(System.Windows.Controls.TreeViewItem parent, int width, Func<object> valueGetFunc, Action<object> valueSetFunc)
         {
-            System.Diagnostics.Debug.Assert(MinValue <= MaxValue && Default >= MinValue && Default <= MaxValue, "invalid slider ranges/default value");
+            double defValue = (float)valueGetFunc();
+            if (defValue == 0.0f) defValue = Default;
+            System.Diagnostics.Debug.Assert(MinValue <= MaxValue && defValue >= MinValue && defValue <= MaxValue, "invalid slider ranges/default value");
 
             Label text = new Label();
             Slider slider = new Slider();
             int index = parent.Items.Add(text);
 
-            text.Content = Name + ": " + Default;
+            text.Content = Name + ": " + defValue;
             text.BorderThickness = new System.Windows.Thickness(1.0);
             text.BorderBrush = System.Windows.Media.Brushes.Gray;
             text.MouseEnter += (s, b) => { parent.Items[index] = slider; };
@@ -40,7 +42,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             slider.Height = 22;
             slider.Minimum = MinValue;
             slider.Maximum = MaxValue;
-            slider.Value = Default;
+            slider.Value = defValue;
             slider.BorderThickness = new System.Windows.Thickness(1.0);
             slider.BorderBrush = System.Windows.Media.Brushes.Gray;
             slider.AutoToolTipPlacement = System.Windows.Controls.Primitives.AutoToolTipPlacement.TopLeft;

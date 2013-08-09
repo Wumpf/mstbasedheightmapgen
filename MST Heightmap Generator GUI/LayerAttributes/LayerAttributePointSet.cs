@@ -14,8 +14,12 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
 
         public void CreateTreeViewSubElement(System.Windows.Controls.TreeViewItem parent, int width, Func<object> valueGetFunc, Action<object> valueSetFunc)
         {
+            PointSet pointSet = (PointSet)valueGetFunc();
             // set a new empty pointset
-            PointSet pointSet = new PointSet();
+            if (pointSet == null)
+            {
+                pointSet = new PointSet();
+            }
             pointSet.InvertedRendering = InvertedPointSetRendering;
             valueSetFunc(pointSet);
 
@@ -35,7 +39,9 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             num.Width = 40;
             num.PreviewTextInput += (sender, e) => { e.Handled = !(e.Text.All(char.IsNumber) && num.Text.Length < 3); };
             num.ToolTip = "Number of points to be generated";
-            num.Text = "15";
+            if (pointSet.Points == null)
+                num.Text = "15";
+            else num.Text = pointSet.Points.Length.ToString();
             panel.Children.Add(num);
 
             Button rand = new Button();

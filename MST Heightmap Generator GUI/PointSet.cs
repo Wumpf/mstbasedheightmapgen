@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SharpDX;
+using Newtonsoft.Json;
 
 namespace MST_Heightmap_Generator_GUI
 {
@@ -12,16 +13,27 @@ namespace MST_Heightmap_Generator_GUI
     /// <summary>
     /// Json Converter for PointSets
     /// </summary>
-    public class PointSetJSonConvert : Newtonsoft.Json.JsonConverter
+    public class PointSetJSonConvert : JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {
             return objectType == typeof(PointSet);
         }
 
-        public override object ReadJson(Newtonsoft.Json.JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            List<Vector3> points = new List<Vector3>();
+            reader.Read();
+            while (reader.TokenType != JsonToken.EndArray)
+            {
+                float x = (float)reader.ReadAsDecimal();
+                float y = (float)reader.ReadAsDecimal();
+                float z = (float)reader.ReadAsDecimal();
+                points.Add(new Vector3(x, y, z));
+                reader.Read();
+                reader.Read();
+            }
+            return new PointSet(points.ToArray());
         }
 
         public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
@@ -95,6 +107,13 @@ namespace MST_Heightmap_Generator_GUI
             this.spherePositionArray = spherePositionArray;
             ++numActivePointSets;
         }
+
+   /*     public void Insert(Vector3 position, bool doNotUpdate = false)
+        {
+            Vector3[] newArray = new Vector3[spherePositionArray.Length+1];
+            for(int i=0; i<spherePositionArray.Length; ++i)
+                newArray
+        }*/
 
         public void CreateRandomPoints(int randomSeed, uint numPoints, float worldWidth, float worldHeight)
         {
@@ -226,7 +245,8 @@ namespace MST_Heightmap_Generator_GUI
         }
         public void Dispose()
         {
-            vertexBuffer.Dispose();
+            if(vertexBuffer != null)
+                vertexBuffer.Dispose();
             vertexBuffer = null;
             --numActivePointSets;
             disposed = true;

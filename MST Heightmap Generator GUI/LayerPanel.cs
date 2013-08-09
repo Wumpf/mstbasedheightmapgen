@@ -57,20 +57,17 @@ namespace MST_Heightmap_Generator_GUI
                 ((Layer)((TreeViewItem)Layers.SelectedItem).Tag).BlendFactor = (float)BlendFactor.Value;
         }
 
-        private void AddLayer(object sender, RoutedEventArgs e)
+        private void CreateLayer(Type layerClassType, Layer newLayerClass)
         {
-            Type layerClassType = (Type)((ComboBoxItem)LayerChoose.SelectedItem).Tag;
-            Layer newLayerClass = (Layer)layerClassType.GetConstructor(new Type[0]).Invoke(new object[0]);
-
             TreeViewItem newItem = new TreeViewItem();
-            newItem.Header = ((ComboBoxItem)LayerChoose.SelectedItem).Content;
+            newItem.Header = Layer.LayerTypes[layerClassType];// ((ComboBoxItem)LayerChoose.SelectedItem).Content;
             newItem.Tag = newLayerClass;
-            foreach(var p in layerClassType.GetProperties())
+            foreach (var p in layerClassType.GetProperties())
             {
                 var property = p;   // we want to closure this value in lambdas - therefore there must be an additional variable - do not use the foreach variable p!
                 LayerAttributes.LayerAttribute[] layerAttributeList = (LayerAttributes.LayerAttribute[])
                                         property.GetCustomAttributes(typeof(LayerAttributes.LayerAttribute), false);
-                if(layerAttributeList.Length > 0)
+                if (layerAttributeList.Length > 0)
                 {
                     // create ui for this element
                     layerAttributeList[0].CreateTreeViewSubElement(newItem, (int)Layers.ActualWidth,
@@ -88,6 +85,14 @@ namespace MST_Heightmap_Generator_GUI
                 Layers.Items.Insert(Layers.Items.IndexOf(Layers.SelectedItem), newItem);
             newItem.ExpandSubtree();
             newItem.IsSelected = true;
+        }
+
+        private void AddLayer(object sender, RoutedEventArgs e)
+        {
+            Type layerClassType = (Type)((ComboBoxItem)LayerChoose.SelectedItem).Tag;
+            Layer newLayerClass = (Layer)layerClassType.GetConstructor(new Type[0]).Invoke(new object[0]);
+
+            CreateLayer(layerClassType, newLayerClass);
         }
 
         private void MoveLayerUp(object sender, RoutedEventArgs e)
