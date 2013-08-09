@@ -11,11 +11,13 @@ float CmdBlendRefract::BlendKernelNeutral( const MapBufferInfo& bufferInfo, int 
 
 float CmdBlendRefract::BlendKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult )
 {
+	float fCurrentHeight = max(1.0f,abs(currentResult[y*bufferInfo.ResolutionX+x]));
+
 	// Compute gradient with finite difference on currentResult.
 	Vec3 vGradient = nrm(Vec3(
-		currentResult[y*bufferInfo.ResolutionX + min(bufferInfo.ResolutionX-1,x+1)] - currentResult[y*bufferInfo.ResolutionX + max(0,x-1)],
+		currentResult[y*bufferInfo.ResolutionX + min(bufferInfo.ResolutionX-1,int(x+fCurrentHeight))] - currentResult[y*bufferInfo.ResolutionX + max(0,int(x-fCurrentHeight))],
 		2.0f,
-		currentResult[min(bufferInfo.ResolutionY-1,y+1)*bufferInfo.ResolutionX + x] - currentResult[max(0,y-1)*bufferInfo.ResolutionX + x]
+		currentResult[min(bufferInfo.ResolutionY-1,int(y+fCurrentHeight))*bufferInfo.ResolutionX + x] - currentResult[max(0,int(y-fCurrentHeight))*bufferInfo.ResolutionX + x]
 		));
 
 	// Compute destortion source position
@@ -28,8 +30,6 @@ float CmdBlendRefract::BlendKernel( const MapBufferInfo& bufferInfo, int x, int 
 	// Sample prevResult linear at the destorted position
 	return lrp(lrp(prevResult[dy * bufferInfo.ResolutionX + dx], prevResult[dy * bufferInfo.ResolutionX + dx + 1], x_refrac),
 			   lrp(prevResult[(dy+1) * bufferInfo.ResolutionX + dx], prevResult[(dy+1) * bufferInfo.ResolutionX + dx + 1], x_refrac), y_refrac);
-
-	return currentResult[y*bufferInfo.ResolutionX+x] + prevResult[y*bufferInfo.ResolutionX+x];
 }
 
 // ************************************************************************* //
