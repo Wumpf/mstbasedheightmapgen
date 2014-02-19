@@ -34,6 +34,8 @@ void GenerateLayer(const CommandDesc& commandInfo)
 		threads[t]->join();
 		delete threads[t];
 	}
+	
+	delete[] threads;
 }
 
 // Seqential computation of one layer for testing purposes.
