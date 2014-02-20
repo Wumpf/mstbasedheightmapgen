@@ -18,8 +18,12 @@ namespace MST_Heightmap_Generator_GUI
 
         private ShaderAutoReload terrainShader;
         private ShaderAutoReload skyShader;
+#if CONEMAPPING_RAYMARCH
         private ShaderAutoReload computeRelaxedConeShader;
-
+#else
+        private ShaderAutoReload maxmapGenShader;
+#endif
+        
         private VertexInputLayout sphereVertexInputLayout;
         private ShaderAutoReload sphereBillboardShader;
 
@@ -31,9 +35,10 @@ namespace MST_Heightmap_Generator_GUI
         #region heightmap properties
 
         private Texture heightmapTexture;
-        private float heightmapPixelPerWorldUnit = 1; // some default values for convinience
+        private float heightmapPixelPerWorldUnit = 1; // some default values for convenience
         private float terrainScale = 20;
         private Vector3 terrainTranslation = new Vector3(-128,0,-128);
+        private int numHeightmapMipLevels = 0;
 
         #endregion
 
@@ -51,6 +56,7 @@ namespace MST_Heightmap_Generator_GUI
                 if (terrainShader != null)
                 {
                     lightDirection = new Vector3((float)Math.Cos(Math.PI * timeOfDay), (float)Math.Sin(Math.PI * timeOfDay), 0);
+                    System.Diagnostics.Debug.Assert(terrainShader.Effect.Parameters["LightDirection"] != null, "Terrain Shader does not contain the constant \"LightDirection\"");
                     terrainShader.Effect.Parameters["LightDirection"].SetValue(lightDirection);
                     ReGenerateSkyCubeMap();
                 }
@@ -64,6 +70,7 @@ namespace MST_Heightmap_Generator_GUI
 
         #endregion
 
+#if CONEMAPPING_RAYMARCH
         #region Conemap Processing
 
         Texture2D tempSingleChannelHeightmap;
@@ -71,6 +78,7 @@ namespace MST_Heightmap_Generator_GUI
         Stack<Vector2> conemapProcessingWorkItems = new Stack<Vector2>();
 
         #endregion 
+#endif
 
         private SamplerState linearBorderSamplerState;
 
@@ -136,6 +144,7 @@ namespace MST_Heightmap_Generator_GUI
                 sphereBillboardShader.Effect.Parameters["HeightScale"].SetValue(terrainScale);
         }
 
+#if CONEMAPPING_RAYMARCH
         private void DoConemapTask()
         {
             if (conemapProcessingWorkItems.Count > 0)
@@ -144,19 +153,19 @@ namespace MST_Heightmap_Generator_GUI
                 Vector2 textureAreaMin = conemapProcessingWorkItems.Pop();
 
                 computeRelaxedConeShader.Effect.CurrentTechnique = computeRelaxedConeShader.Effect.Techniques["Compute"];
-
+                
                 computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource(tempSingleChannelHeightmap);
                 computeRelaxedConeShader.Effect.Parameters["ConesOutput"].SetResource(tempSingleChannelCones);
-
-                computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
-
                 computeRelaxedConeShader.Effect.Parameters["TextureAreaMin"].SetValue<int>(new int[] { (int)textureAreaMin.X, (int)textureAreaMin.Y });
                 computeRelaxedConeShader.Effect.ConstantBuffers[0].Update();
+
+                computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
                 GraphicsDevice.Dispatch(tempSingleChannelHeightmap.Width / 32, tempSingleChannelHeightmap.Height / 32, 1);
+                computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(false);
 
                 // combine
-                computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(false);
                 CombineTempMapsToCombined();
+
 
                 // cleanup
                 if (conemapProcessingWorkItems.Count == 0)
@@ -166,6 +175,7 @@ namespace MST_Heightmap_Generator_GUI
                 }
             }
         }
+
 
         private void CombineTempMapsToCombined()
         {
@@ -178,25 +188,60 @@ namespace MST_Heightmap_Generator_GUI
 
             computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].Apply();
             GraphicsDevice.Dispatch(tempSingleChannelHeightmap.Width / 32, tempSingleChannelHeightmap.Height / 32, 1);
-            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(true);
-
-            computeRelaxedConeShader.Effect.Parameters["CombinedOutput"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
-            terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
+            computeRelaxedConeShader.Effect.CurrentTechnique.Passes[0].UnApply(false);
         }
+#else
+        private void GenerateMaxMap(RenderTarget2D texture)
+        {
+            // Save old render setup to restore later.
+            SharpDX.Direct3D11.DepthStencilView depthStencilBefore;
+            var renderTargetsBefore = GraphicsDevice.GetRenderTargets(out depthStencilBefore);
+            ViewportF oldViewport = GraphicsDevice.GetViewport(0);
+
+            numHeightmapMipLevels = 0;
+            var currentWidth = texture.Width / 2;
+            var currentHeight = texture.Height / 2;
+            for (var mipLevel = 1; currentWidth > 0 && currentHeight > 0; ++mipLevel, currentWidth /= 2, currentHeight /= 2)
+            {
+                // Generate sampler on-the-fly.
+                var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();
+                samplerStateDesc.AddressV = SharpDX.Direct3D11.TextureAddressMode.Clamp;
+                samplerStateDesc.AddressU = SharpDX.Direct3D11.TextureAddressMode.Clamp;
+                samplerStateDesc.Filter = SharpDX.Direct3D11.Filter.MinMagMipPoint;
+                samplerStateDesc.MinimumLod = mipLevel-1;
+                samplerStateDesc.MaximumLod = mipLevel-1;
+                samplerStateDesc.MipLodBias = mipLevel-1;
+                var mipLevelSamplerState = SamplerState.New(GraphicsDevice, "MipLevelSampler_" + mipLevel, samplerStateDesc);
+
+                // Draw.
+                maxmapGenShader.Effect.Parameters["NearestSampler"].SetResource(mipLevelSamplerState);
+                maxmapGenShader.Effect.Parameters["InputTexture"].SetResource(texture.ShaderResourceView[ViewType.Single, 0, mipLevel-1]);
+                GraphicsDevice.SetRenderTargets(texture.RenderTargetView[ViewType.Single, 0, mipLevel]);
+                GraphicsDevice.SetViewport(0, 0, currentWidth, currentHeight);
+                maxmapGenShader.Effect.CurrentTechnique.Passes[0].Apply();
+                GraphicsDevice.Draw(PrimitiveType.PointList, 1);
+                maxmapGenShader.Effect.CurrentTechnique.Passes[0].UnApply();
+
+                ++numHeightmapMipLevels;
+            }
+            GraphicsDevice.SetRenderTargets(depthStencilBefore, renderTargetsBefore);
+            GraphicsDevice.SetViewport(oldViewport);
+        }
+#endif
 
         public void LoadNewHeightMap(float[,] heightmap, float heightmapPixelPerWorldUnit)
         {
             this.heightmapPixelPerWorldUnit = heightmapPixelPerWorldUnit;
 
-            // detach old textures
+            // remove old textures
+            terrainShader.Effect.Parameters["Heightmap"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
+            if(heightmapTexture != null)
+                heightmapTexture.Dispose();
+#if CONEMAPPING_RAYMARCH
+
             computeRelaxedConeShader.Effect.Parameters["HeightInput"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
             computeRelaxedConeShader.Effect.Parameters["ConesOutput"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
             computeRelaxedConeShader.Effect.Parameters["CombinedOutput"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
-            terrainShader.Effect.Parameters["Heightmap"].SetResource<ShaderResourceViewSelector>((ShaderResourceViewSelector)null);
-
-            // remove old textures
-            if(heightmapTexture != null)
-                heightmapTexture.Dispose();
             if (tempSingleChannelHeightmap != null)
                 tempSingleChannelHeightmap.Dispose();
             if (tempSingleChannelCones != null)
@@ -217,10 +262,24 @@ namespace MST_Heightmap_Generator_GUI
             tempSingleChannelHeightmap.SetData<float>(heightmap.Cast<float>().ToArray());
             tempSingleChannelCones = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R32.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
             GraphicsDevice.Clear(tempSingleChannelCones, new Color4(2.0f));
-            
+  
             // compose to heightmap texture
             heightmapTexture = Texture2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), 0, PixelFormat.R16G16.Float, TextureFlags.ShaderResource | TextureFlags.UnorderedAccess);
             CombineTempMapsToCombined();
+#else
+            // Create new heightmap.
+            heightmapTexture = RenderTarget2D.New(GraphicsDevice, heightmap.GetLength(0), heightmap.GetLength(1), MipMapCount.Auto, PixelFormat.R32.Float,
+                                                                TextureFlags.RenderTarget | TextureFlags.ShaderResource);
+            unsafe
+            {
+                fixed(float* p = heightmap)
+                {
+                    heightmapTexture.SetData(new DataPointer(p, heightmap.GetLength(0) * heightmap.GetLength(1) * sizeof(float)), 0, 0);
+                }
+            }
+            
+            GenerateMaxMap((RenderTarget2D)heightmapTexture);
+#endif
 
             // setup heightmap cbuffer
             SetupTerrainConstants();
@@ -242,10 +301,12 @@ namespace MST_Heightmap_Generator_GUI
         private void SetupTerrainConstants()
         {
             var heightmapConstantBuffer = terrainShader.Effect.ConstantBuffers["HeightmapInfo"];
-            heightmapConstantBuffer.Parameters["HeightmapSize"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
-            heightmapConstantBuffer.Parameters["HeightmapSizeInv"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height));   // HeightmapSizeInv
+            heightmapConstantBuffer.Parameters["HeightmapResolution"].SetValue(new Vector2(heightmapTexture.Width, heightmapTexture.Height));
+            heightmapConstantBuffer.Parameters["HeightmapResolutionInv"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height));   // HeightmapResolutionInv
             heightmapConstantBuffer.Parameters["WorldUnitToHeightmapTexcoord"].SetValue(new Vector2(1.0f / heightmapTexture.Width, 1.0f / heightmapTexture.Height) * heightmapPixelPerWorldUnit);
             heightmapConstantBuffer.Parameters["HeightmapPixelSizeInWorld"].SetValue(new Vector2(1.0f / heightmapPixelPerWorldUnit));
+            heightmapConstantBuffer.Parameters["NumHeightmapMipLevels"].SetValue(numHeightmapMipLevels);
+
             heightmapConstantBuffer.IsDirty = true;
 
             terrainShader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
@@ -274,11 +335,24 @@ namespace MST_Heightmap_Generator_GUI
             
  
             // load shader
-            computeRelaxedConeShader = new ShaderAutoReload("computerelaxedconemap.fx", GraphicsDevice);
-            terrainShader = new ShaderAutoReload("terrain.fx", GraphicsDevice);
-            sphereBillboardShader = new ShaderAutoReload("spherebillboards.fx", GraphicsDevice);
+            var shaderMacros = new List<EffectData.ShaderMacro>();
+#if CONEMAPPING_RAYMARCH
+            computeRelaxedConeShader = new ShaderAutoReload("shader/computerelaxedconemap.fx", GraphicsDevice);
+            shaderMacros.Add(new EffectData.ShaderMacro("CONEMAPPING_RAYMARCH", "1"));
+#else
+            maxmapGenShader = new ShaderAutoReload("shader/maxmapgen.fx", GraphicsDevice);
+#endif
+            terrainShader = new ShaderAutoReload("shader/terrain.fx", GraphicsDevice, shaderMacros);
+            terrainShader.Effect.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
             terrainShader.OnReload += SetupTerrainConstants;
-            terrainShader.OnReload += () => SetScaleFactor(terrainScale);
+            terrainShader.OnReload += () =>
+            {
+              SetScaleFactor(terrainScale);
+              TimeOfDay = timeOfDay;
+              terrainShader.Effect.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
+            };
+
+            sphereBillboardShader = new ShaderAutoReload("shader/spherebillboards.fx", GraphicsDevice);
 
             // linear sampler
             var samplerStateDesc = SharpDX.Direct3D11.SamplerStateDescription.Default();
@@ -296,7 +370,7 @@ namespace MST_Heightmap_Generator_GUI
             sphereVertexInputLayout = VertexInputLayout.New(VertexBufferLayout.New(0, VertexElement.Position(SharpDX.DXGI.Format.R32G32B32_Float)));
 
             // generate sky
-            skyShader = new ShaderAutoReload("sky.fx", GraphicsDevice);
+            skyShader = new ShaderAutoReload("shader/sky.fx", GraphicsDevice);
             skyShader.OnReload += ReGenerateSkyCubeMap;
             skyCubemap = RenderTargetCube.New(GraphicsDevice, CUBEMAP_RES, 0, PixelFormat.R8G8B8A8.SNorm);
             TimeOfDay = timeOfDay;
@@ -313,22 +387,24 @@ namespace MST_Heightmap_Generator_GUI
 
         void WPFHost.IScene.Update(TimeSpan sceneTime)
         {
-            camera.Update((float)sceneTime.TotalSeconds);
+          camera.Update((float)sceneTime.TotalSeconds);
 
-            lock (this)
-            {
-                if (resizeNeeded)
-                {
-                    camera.AspectRatio = (float)host.RenderTargetWidth / host.RenderTargetHeight;   
+          lock (this)
+          {
+              if (resizeNeeded)
+              {
+                  camera.AspectRatio = (float)host.RenderTargetWidth / host.RenderTargetHeight;   
 
-                    // set new backbuffer
-                    RenderTarget2D backbufferRenderTarget = RenderTarget2D.New(GraphicsDevice, host.RenderTargetView, true);
-                    GraphicsDevice.Presenter = new RenderTargetGraphicsPresenter(GraphicsDevice, backbufferRenderTarget);
-                    GraphicsDevice.SetRenderTargets(backbufferRenderTarget);
+                  // set new backbuffer
+                  RenderTarget2D backbufferRenderTarget = RenderTarget2D.New(GraphicsDevice, host.RenderTargetView, true);
+                  GraphicsDevice.Presenter = new RenderTargetGraphicsPresenter(GraphicsDevice, backbufferRenderTarget);
+                  GraphicsDevice.SetRenderTargets(backbufferRenderTarget);
 
-                    terrainShader.Effect.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
-                }
-            }
+                  terrainShader.Effect.Parameters["ScreenAspectRatio"].SetValue((float)host.RenderTargetWidth / host.RenderTargetHeight);
+
+                  resizeNeeded = false;
+              }
+          }
         }
 
         void WPFHost.IScene.Render()
@@ -373,7 +449,9 @@ namespace MST_Heightmap_Generator_GUI
             }
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Opaque);
 
+#if CONEMAPPING_RAYMARCH
             DoConemapTask();
+#endif
         }
 
         void WPFHost.IScene.OnResize(WPFHost.ISceneHost host)

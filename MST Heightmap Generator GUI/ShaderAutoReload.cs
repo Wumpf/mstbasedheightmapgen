@@ -20,10 +20,13 @@ namespace MST_Heightmap_Generator_GUI
         private Timer checkReloadTimer;
         private System.Windows.Threading.Dispatcher dispatcher;
 
-        public ShaderAutoReload(String shaderFilename, GraphicsDevice graphicsDevice, double checkEvery_ms = 500.0)
+        private List<EffectData.ShaderMacro> shaderMacros;
+
+        public ShaderAutoReload(String shaderFilename, GraphicsDevice graphicsDevice, List<EffectData.ShaderMacro> shaderMacros = null, double checkEvery_ms = 500.0)
         {
             this.shaderFilename = shaderFilename;
             this.graphicsDevice = graphicsDevice;
+            this.shaderMacros = shaderMacros;
             ReloadShader();
 
             dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
@@ -53,7 +56,7 @@ namespace MST_Heightmap_Generator_GUI
             var shaderCompiler = new EffectCompiler();
 
             // relaxed cone mapping compute shader
-            var compileResult = shaderCompiler.CompileFromFile(shaderFilename, compilerFlags);
+            var compileResult = shaderCompiler.CompileFromFile(shaderFilename, compilerFlags, shaderMacros);
             if (compileResult.HasErrors)
             {
                 System.Console.WriteLine(compileResult.Logger.Messages);

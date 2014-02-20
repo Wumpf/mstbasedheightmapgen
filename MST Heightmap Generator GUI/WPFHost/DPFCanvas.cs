@@ -199,6 +199,7 @@ namespace WPFHost
             device.ImmediateContext.ClearRenderTargetView(this.RenderTargetView, this.ClearColor);
         //    device.ImmediateContext.ClearDepthStencilView(this.DepthStencilView, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1.0f, 0);
 
+
             if (this.Scene != null)
             {
                 if (!this.SceneAttached)

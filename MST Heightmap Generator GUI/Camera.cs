@@ -126,38 +126,39 @@ namespace MST_Heightmap_Generator_GUI
         /// </summary>
         public void Update(float passedTimeSinceLastFrame)
         {
-            // mouse movement
-            UpdateThetaPhiFromMouse(passedTimeSinceLastFrame);
+          // mouse movement
+          UpdateThetaPhiFromMouse(passedTimeSinceLastFrame);
 
-            // resulting view direction
-            viewDirection = new Vector3((float)(System.Math.Cos(phi) * System.Math.Sin(theta)),
-                                        (float)(System.Math.Cos(theta)),
-                                        (float)(System.Math.Sin(phi) * System.Math.Sin(theta)));
-            // up vector - by rotation 90°
-            float theta2 = (float)theta + (float)System.Math.PI / 2.0f;
-            Vector3 upVec = new Vector3((float)(System.Math.Cos(phi) * System.Math.Sin(theta2)),
-                                        (float)(System.Math.Cos(theta2)),
-                                        (float)(System.Math.Sin(phi) * System.Math.Sin(theta2)));
-            // compute side
-            Right = Vector3.Cross(upVec, viewDirection);
+          // resulting view direction
+          viewDirection = new Vector3((float)(System.Math.Cos(phi) * System.Math.Sin(theta)),
+                                      (float)(System.Math.Cos(theta)),
+                                      (float)(System.Math.Sin(phi) * System.Math.Sin(theta)));
+          // up vector - by rotation 90°
+          float theta2 = (float)theta + (float)System.Math.PI / 2.0f;
+          Vector3 upVec = new Vector3((float)(System.Math.Cos(phi) * System.Math.Sin(theta2)),
+                                      (float)(System.Math.Cos(theta2)),
+                                      (float)(System.Math.Sin(phi) * System.Math.Sin(theta2)));
+          // compute side
+          Right = Vector3.Cross(upVec, viewDirection);
 
             
-        //    if (Mouse.RightButton == MouseButtonState.Pressed)
-            {
-                float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
+      //    if (Mouse.RightButton == MouseButtonState.Pressed)
+          {
+              float speedUp = Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) ? speedUpFactor : 1.0f;
 
-                // forward movement
-                float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f);
-                Position += forward * forwardSpeed * viewDirection * speedUp;
+              // forward movement
+              float forward = (Keyboard.IsKeyDown(Key.W) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.S) ? 1.0f : 0.0f);
+              Position += forward * forwardSpeed * viewDirection * speedUp;
 
-                // side movement
-                float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f);
-                Position += side * sideSpeed * Right * speedUp;
+              // side movement
+              float side = (Keyboard.IsKeyDown(Key.D) ? 1.0f : 0.0f) - (Keyboard.IsKeyDown(Key.A) ? 1.0f : 0.0f);
+              Position += side * sideSpeed * Right * speedUp;
 
-                // upward movement
-                float up = Keyboard.IsKeyDown(Key.Space) ? 1.0f : 0.0f;
-                Position += up * upSpeed * upVec;
-            }
+              // upward movement
+              float up = Keyboard.IsKeyDown(Key.Space) ? 1.0f : 0.0f;
+              Position += up * upSpeed * upVec;
+          }
+
 
             // compute view matrix
             viewMatrix = Matrix.LookAtLH(Position, Position + viewDirection, upVec);
