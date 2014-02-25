@@ -22,8 +22,8 @@ float CmdBlendRefract::BlendKernel( const MapBufferInfo& bufferInfo, int x, int 
 
 	// Compute destortion source position
 	float fStep = _refractionDistance / vGradient.y;
-	float x_refrac = max(0.0f,min(float(bufferInfo.ResolutionX-1), x + vGradient.x * fStep));
-	float y_refrac = max(0.0f,min(float(bufferInfo.ResolutionY-1), y + vGradient.z * fStep));
+	float x_refrac = max(0.0f,min(float(bufferInfo.ResolutionX-2), x + vGradient.x * fStep));
+	float y_refrac = max(0.0f,min(float(bufferInfo.ResolutionY-2), y + vGradient.z * fStep));
 	int dx = Floor(x_refrac);	x_refrac -= dx;
 	int dy = Floor(y_refrac);	y_refrac -= dy;
 
