@@ -24,6 +24,10 @@ namespace MST_Heightmap_Generator_GUI
         {
             List<Vector3> points = new List<Vector3>();
             reader.Read();
+            int seed = (int)reader.ReadAsInt32();
+            reader.Read();
+            reader.Read();
+            reader.Read();
             while (reader.TokenType != JsonToken.EndArray)
             {
                 float x = (float)reader.ReadAsDecimal();
@@ -33,13 +37,19 @@ namespace MST_Heightmap_Generator_GUI
                 reader.Read();
                 reader.Read();
             }
-            return new PointSet(points.ToArray());
+            reader.Read();
+            return new PointSet(points.ToArray(), seed);
         }
 
         public override void WriteJson(Newtonsoft.Json.JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
             PointSet pointSet = (PointSet)value;
 
+            writer.WriteStartObject();
+            writer.WritePropertyName("Seed");
+            writer.WriteValue(pointSet.seed);
+
+            writer.WritePropertyName("Points");
             writer.WriteStartArray();
             for (int i = 0; i < pointSet.Points.Length; ++i)
             {
@@ -50,6 +60,7 @@ namespace MST_Heightmap_Generator_GUI
                 writer.WriteEndArray();
             }
             writer.WriteEndArray();
+            writer.WriteEndObject();
         }
     }
 
@@ -72,6 +83,8 @@ namespace MST_Heightmap_Generator_GUI
         private Vector3[] spherePositionArray;
 
         private int selectedSphere = -1;
+
+        public int seed;
 
         private const float SPHERE_RADIUS = 2.3f;
         private const float UPDOWN_MOVESPEED = 0.0001f;
@@ -102,8 +115,9 @@ namespace MST_Heightmap_Generator_GUI
             ++numActivePointSets;
         }
 
-        public PointSet(Vector3[] spherePositionArray)
+        public PointSet(Vector3[] spherePositionArray, int seed)
         {
+            this.seed = seed;
             this.spherePositionArray = spherePositionArray;
             ++numActivePointSets;
         }
@@ -118,6 +132,7 @@ namespace MST_Heightmap_Generator_GUI
         public void CreateRandomPoints(int randomSeed, uint numPoints, float worldWidth, float worldHeight)
         {
             selectedSphere = -1;
+            seed = randomSeed;
 
             Random random = new Random(randomSeed);
             spherePositionArray = new Vector3[numPoints];
@@ -210,7 +225,7 @@ namespace MST_Heightmap_Generator_GUI
             }
         }
 
-        private void UpdateSpherePositionsBuffer()
+        public void UpdateSpherePositionsBuffer()
         {
             if (vertexBuffer != null)
             {

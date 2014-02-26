@@ -77,7 +77,13 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             rect.Height = 20;
             panel.Children.Add(rect);
 
-            // create random points
+            if (pointSet.Points.Length > 0)
+            {
+                num.Text = pointSet.Points.Length.ToString();
+                seed.Text = pointSet.seed.ToString();
+            }
+
+            // create random points or recreate the ones from the file
             randomizePositions();
         }
     }

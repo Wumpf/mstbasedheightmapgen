@@ -38,7 +38,8 @@ Command* GeneratorPipeline::LoadMSTDistanceCommand( const Json::Value& commandIn
 	float quadraticSplineHeight = commandInfo.get("QuadraticSpline", 0.3f).asFloat();
 
 	// read point array
-	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));
+	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::objectValue)).get("Points", Json::Value(Json::ValueType::arrayValue));
+	//auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));
 	int numPoints = pointSetArray.size();
 	std::unique_ptr<Vec3[]> points(new Vec3[numPoints]);
 //	float maxHeight = 0.0f;
