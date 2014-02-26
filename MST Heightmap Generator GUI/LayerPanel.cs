@@ -57,11 +57,13 @@ namespace MST_Heightmap_Generator_GUI
                 ((Layer)((TreeViewItem)Layers.SelectedItem).Tag).BlendFactor = (float)BlendFactor.Value;
         }
 
-        private void CreateLayer(Type layerClassType, Layer newLayerClass)
+        private void AddLayer(Layer layer)
         {
+            Type layerClassType = layer.GetType();
+
             TreeViewItem newItem = new TreeViewItem();
-            newItem.Header = Layer.LayerTypes[layerClassType];// ((ComboBoxItem)LayerChoose.SelectedItem).Content;
-            newItem.Tag = newLayerClass;
+            newItem.Header = Layer.LayerTypes[layerClassType];
+            newItem.Tag = layer;
             foreach (var p in layerClassType.GetProperties())
             {
                 var property = p;   // we want to closure this value in lambdas - therefore there must be an additional variable - do not use the foreach variable p!
@@ -71,12 +73,12 @@ namespace MST_Heightmap_Generator_GUI
                 {
                     // create ui for this element
                     layerAttributeList[0].CreateTreeViewSubElement(newItem, (int)Layers.ActualWidth,
-                                () => { return property.GetMethod.Invoke(newLayerClass, new object[0]); },
-                                (value) => { property.SetMethod.Invoke(newLayerClass, new object[] { value }); });
+                                () => { return property.GetMethod.Invoke(layer, new object[0]); },
+                                (value) => { property.SetMethod.Invoke(layer, new object[] { value }); });
 
-                    // pointset layer must be registred
+                    // pointset layer must be registered
                     if (layerAttributeList[0] is LayerAttributes.LayerAttributePointSet)
-                        terrainRenderingPreview.AddPointSet((PointSet)property.GetMethod.Invoke(newLayerClass, new object[0]));
+                        terrainRenderingPreview.AddPointSet((PointSet)property.GetMethod.Invoke(layer, new object[0]));
                 }
             }
             if (Layers.Items.IsEmpty || (Layers.SelectedItem == null))
@@ -90,9 +92,9 @@ namespace MST_Heightmap_Generator_GUI
         private void AddLayer(object sender, RoutedEventArgs e)
         {
             Type layerClassType = (Type)((ComboBoxItem)LayerChoose.SelectedItem).Tag;
-            Layer newLayerClass = (Layer)layerClassType.GetConstructor(new Type[0]).Invoke(new object[0]);
+            Layer layer = (Layer)layerClassType.GetConstructor(new Type[0]).Invoke(new object[0]);
 
-            CreateLayer(layerClassType, newLayerClass);
+            AddLayer(layer);
         }
 
         private void MoveLayerUp(object sender, RoutedEventArgs e)

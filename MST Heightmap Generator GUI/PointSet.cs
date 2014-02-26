@@ -47,7 +47,7 @@ namespace MST_Heightmap_Generator_GUI
 
             writer.WriteStartObject();
             writer.WritePropertyName("Seed");
-            writer.WriteValue(pointSet.seed);
+            writer.WriteValue(pointSet.Seed);
 
             writer.WritePropertyName("Points");
             writer.WriteStartArray();
@@ -84,7 +84,7 @@ namespace MST_Heightmap_Generator_GUI
 
         private int selectedSphere = -1;
 
-        public int seed;
+        public int Seed { get; private set; }
 
         private const float SPHERE_RADIUS = 2.3f;
         private const float UPDOWN_MOVESPEED = 0.0001f;
@@ -117,7 +117,7 @@ namespace MST_Heightmap_Generator_GUI
 
         public PointSet(Vector3[] spherePositionArray, int seed)
         {
-            this.seed = seed;
+            this.Seed = seed;
             this.spherePositionArray = spherePositionArray;
             ++numActivePointSets;
         }
@@ -132,7 +132,7 @@ namespace MST_Heightmap_Generator_GUI
         public void CreateRandomPoints(int randomSeed, uint numPoints, float worldWidth, float worldHeight)
         {
             selectedSphere = -1;
-            seed = randomSeed;
+            Seed = randomSeed;
 
             Random random = new Random(randomSeed);
             spherePositionArray = new Vector3[numPoints];
@@ -145,7 +145,7 @@ namespace MST_Heightmap_Generator_GUI
 
         public void InitGraphicsRessource(GraphicsDevice graphicsDevice)
         {
-            System.Diagnostics.Debug.Assert(spherePositionArray != null);
+            System.Diagnostics.Debug.Assert(spherePositionArray != null && spherePositionArray.Length > 0);
 
             // setup spherepositions
             if (vertexBuffer == null)

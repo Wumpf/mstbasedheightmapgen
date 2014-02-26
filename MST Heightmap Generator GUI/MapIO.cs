@@ -34,18 +34,18 @@ namespace MST_Heightmap_Generator_GUI
             Layers.Items.Clear();
 
             var json = JObject.Parse(jsonString);
-            // Unfortunally the read back must be done manually.
+            // Unfortunately the read back must be done manually.
             int resolution = (int)json["HeightmapWidth"];
             SetResolution(resolution);
             foreach (var layer in json["Layers"])
             {
                 string type = layer["Type"].ToString();
                 Type layerType = Layer.LayerTypes.FirstOrDefault(x => x.Value == type).Key;
-                // Unfortunally there are generic and nongeneric methods with the same parameters
-                // so GetMethod is abigious.
+                // Unfortunately there are generic and nongeneric methods with the same parameters
+                // so GetMethod is ambigious.
                 var method = typeof(JsonConvert).GetMethods().Where(m => m.Name == "DeserializeObject" && m.IsGenericMethod && m.GetParameters().Length==1).First();
                 Layer param = (Layer)method.MakeGenericMethod(layerType).Invoke(this, new object[] { layer.ToString() });
-                CreateLayer(layerType, param);
+                AddLayer(param);
             }
         }
 

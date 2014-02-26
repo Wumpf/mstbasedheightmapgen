@@ -58,7 +58,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             Action randomizePositions = () => 
                 {
                     uint numPoints;
-                    if(!uint.TryParse(num.Text, out numPoints))
+                    if (!uint.TryParse(num.Text, out numPoints) || numPoints == 0)
                         numPoints = 15; // reset
                     num.Text = numPoints.ToString();
                     int seedValue;
@@ -77,14 +77,14 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             rect.Height = 20;
             panel.Children.Add(rect);
 
+            // create random points or recreate the ones from the file
+            randomizePositions();
+
             if (pointSet.Points.Length > 0)
             {
                 num.Text = pointSet.Points.Length.ToString();
-                seed.Text = pointSet.seed.ToString();
+                seed.Text = pointSet.Seed.ToString();
             }
-
-            // create random points or recreate the ones from the file
-            randomizePositions();
         }
     }
 }
