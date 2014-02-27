@@ -31,7 +31,7 @@ namespace MST_Heightmap_Generator_GUI
         public const int MAP_SIZE = 256;
 
       //  private WriteableBitmap imageContent;
-        private TerrainRenderingPreview terrainRenderingPreview = new TerrainRenderingPreview();
+        private Render.RenderPreviewPanel terrainRenderingPreview = new Render.RenderPreviewPanel();
 
         /// <summary>
         /// Last generated raw Heightmap data

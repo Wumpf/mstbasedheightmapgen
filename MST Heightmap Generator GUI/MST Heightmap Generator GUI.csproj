@@ -117,6 +117,8 @@
     <Compile Include="ProgressBar.xaml.cs">
       <DependentUpon>ProgressBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Render\Terrain.cs" />
+    <Compile Include="Render\TerrainRaymarcher.cs" />
     <Compile Include="ShaderAutoReload.cs" />
     <Content Include="Shader\maxmapgen.fx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -125,7 +127,7 @@
     <Compile Include="WPFHost\DPFCanvas.cs" />
     <Compile Include="WPFHost\DX11ImageSource.cs" />
     <Compile Include="WPFHost\IScene.cs" />
-    <Compile Include="TerrainRenderingPreview.cs" />
+    <Compile Include="Render\RenderPreviewPanel.cs" />
     <Content Include="Shader\vertexprocessing.fx" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -182,7 +184,7 @@
     <Content Include="Shader\sky.fx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Shader\terrain.fx">
+    <Content Include="Shader\terrainRaymarch.fx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
