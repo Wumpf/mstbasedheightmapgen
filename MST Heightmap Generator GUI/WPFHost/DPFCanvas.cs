@@ -31,7 +31,7 @@ namespace WPFHost
     using Device = SharpDX.Direct3D11.Device;
     using SharpDX.Direct3D;
 
-    public partial class DPFCanvas : Image, ISceneHost
+    sealed public partial class DPFCanvas : Image, ISceneHost, IDisposable
     {
         private Device Device;
         private Texture2D RenderTarget;
@@ -270,5 +270,11 @@ namespace WPFHost
         public int RenderTargetHeight { get { return RenderTarget.Description.Height; } }
 
         public System.Windows.IInputElement WindowsInputElement { get { return this; } }
+
+        public void Dispose()
+        {
+            StopRendering();
+            EndD3D();
+        }
     }
 }

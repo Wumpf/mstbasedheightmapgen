@@ -131,7 +131,7 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 	Json::Value root;   // will contains the root value after parsing.
 	Json::Reader reader;
 	bool parsingSuccessful = reader.parse( jsonCode, root );
-	assert(parsingSuccessful);
+	assert(parsingSuccessful && "JSON parsing failed");
 
 	// Read general map infos
 	_worldSizeX = root["HeightmapWidth"].asFloat();
@@ -181,6 +181,7 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 		{
 			// Count the new commando and read its blending
 			++_numCommands;
+      assert(_numCommands < layers.size() * 2 && "More commands than expected, array size is not sufficient!");
 			_commands[_numCommands] = LoadBlendCommand(currentLayer);
 			if( _commands[_numCommands] ) _numCommands++;
 		}

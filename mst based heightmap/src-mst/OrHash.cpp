@@ -234,6 +234,7 @@ void OrE::ADT::HashMap::Clear()
 // Recreate the table and reinsert all elements
 void OrE::ADT::HashMap::Resize(const uint32_t _dwSize)
 {
+  assert(_dwSize > 0 && "HashMap size of 0 is not permitted!");
 	BucketP* pOldList = m_apBuckets;
 	uint32_t dwOldSize = m_dwSize;
 	// Allocate a new larger? table and make it empty
