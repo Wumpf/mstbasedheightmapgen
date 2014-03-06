@@ -36,6 +36,8 @@ namespace WPFHost
         private Device Device;
         private Texture2D RenderTarget;
         private RenderTargetView RenderTargetView;
+        private Texture2D DepthStencil;
+        private DepthStencilView DepthStencilView;
         private DX11ImageSource D3DSurface;
         private Stopwatch RenderTimer;
         private IScene RenderScene;
@@ -70,7 +72,11 @@ namespace WPFHost
 
         private void StartD3D()
         {
-            this.Device = new Device(SharpDX.Direct3D.DriverType.Hardware, DeviceCreationFlags.BgraSupport, FeatureLevel.Level_11_0);
+            DeviceCreationFlags creationFlags = DeviceCreationFlags.BgraSupport;
+#if DEBUG
+            creationFlags |= DeviceCreationFlags.Debug;
+#endif
+            this.Device = new Device(SharpDX.Direct3D.DriverType.Hardware, creationFlags, FeatureLevel.Level_11_0);
 
             this.D3DSurface = new DX11ImageSource();
             this.D3DSurface.IsFrontBufferAvailableChanged += OnIsFrontBufferAvailableChanged;
@@ -93,6 +99,7 @@ namespace WPFHost
 
             Disposer.RemoveAndDispose(ref this.D3DSurface);
             Disposer.RemoveAndDispose(ref this.RenderTargetView);
+            Disposer.RemoveAndDispose(ref this.DepthStencilView);
             Disposer.RemoveAndDispose(ref this.RenderTarget);
             Disposer.RemoveAndDispose(ref this.Device);
         }
@@ -121,7 +128,7 @@ namespace WPFHost
                 ArraySize = 1
             };
 
-            /*
+            
             Texture2DDescription depthdesc = new Texture2DDescription
             {
                 BindFlags = BindFlags.DepthStencil,
@@ -135,11 +142,11 @@ namespace WPFHost
                 CpuAccessFlags = CpuAccessFlags.None,
                 ArraySize = 1,
             };
-            */
+            
             this.RenderTarget = new Texture2D(this.Device, colordesc);
-            //this.DepthStencil = new Texture2D(this.Device, depthdesc);
+            this.DepthStencil = new Texture2D(this.Device, depthdesc);
             this.RenderTargetView = new RenderTargetView(this.Device, this.RenderTarget);
-           // this.DepthStencilView = new DepthStencilView(this.Device, this.DepthStencil);
+            this.DepthStencilView = new DepthStencilView(this.Device, this.DepthStencil);
 
             this.D3DSurface.SetRenderTargetDX11(this.RenderTarget);
         }
@@ -193,11 +200,11 @@ namespace WPFHost
             int targetWidth = renderTarget.Description.Width;
             int targetHeight = renderTarget.Description.Height;
 
-      //      device.ImmediateContext.OutputMerger.SetTargets(this.DepthStencilView, this.RenderTargetView);
+            device.ImmediateContext.OutputMerger.SetTargets(this.DepthStencilView, this.RenderTargetView);
             device.ImmediateContext.Rasterizer.SetViewport(new Viewport(0, 0, targetWidth, targetHeight, 0.0f, 1.0f));
 
             device.ImmediateContext.ClearRenderTargetView(this.RenderTargetView, this.ClearColor);
-        //    device.ImmediateContext.ClearDepthStencilView(this.DepthStencilView, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1.0f, 0);
+            device.ImmediateContext.ClearDepthStencilView(this.DepthStencilView, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1.0f, 0);
 
 
             if (this.Scene != null)

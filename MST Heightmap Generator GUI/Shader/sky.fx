@@ -175,14 +175,15 @@ float3 PS(PS_INPUT input) : SV_Target
     return float3(spot*mie_collected + mie_factor*mie_collected + rayleigh_factor*rayleigh_collected);
 }
 
-
-
 technique10 Render
 {
     pass P0
     {
-        SetVertexShader(CompileShader(vs_5_0, VS()));
-        SetGeometryShader(CompileShader(gs_5_0, GS()));
-        SetPixelShader(CompileShader(ps_5_0, PS()));
+      Profile = 11.0;
+      VertexShader = VS;
+      HullShader = null;
+      DomainShader = null;
+      GeometryShader = GS;
+      PixelShader = PS;
     }
 }

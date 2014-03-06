@@ -85,8 +85,10 @@ technique RenderTeq
 {
     pass Pass1
     {
-		Profile = 10.0;
+		Profile = 11.0;
         VertexShader = VS_Passthrough;
+        HullShader = null;
+        DomainShader = null;
 		GeometryShader = GS_Render;
         PixelShader = PS_Render;
     }

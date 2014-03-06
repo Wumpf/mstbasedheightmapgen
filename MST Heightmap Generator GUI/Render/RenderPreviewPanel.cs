@@ -129,6 +129,7 @@ namespace MST_Heightmap_Generator_GUI.Render
             GraphicsDevice.SetRenderTargets(skyCubemap.RenderTargetView[ViewType.Full, 0, 0]);
             skyShader.Effect.CurrentTechnique.Passes[0].Apply();
             GraphicsDevice.Draw(PrimitiveType.PointList, 1);
+            skyShader.Effect.CurrentTechnique.Passes[0].UnApply();
 
             GraphicsDevice.SetRenderTargets(depthStencilBefore, renderTargetsBefore);
         }
@@ -156,8 +157,11 @@ namespace MST_Heightmap_Generator_GUI.Render
             GraphicsDevice.Presenter = new RenderTargetGraphicsPresenter(GraphicsDevice, backbufferRenderTarget);
             GraphicsDevice.SetRenderTargets(backbufferRenderTarget);
             
- 
+#if RAYMARCH_TERRAIN
             terrain = new TerrainRaymarcher(GraphicsDevice, (float)host.RenderTargetWidth / host.RenderTargetHeight);
+#else
+            terrain = new TerrainRasterizer(GraphicsDevice);
+#endif
             terrain.HeightScale = terrainScale;
 
             // load shader
@@ -223,13 +227,15 @@ namespace MST_Heightmap_Generator_GUI.Render
             sphereBillboardShader.Effect.Parameters["CameraPosition"].SetValue(camera.Position);
             sphereBillboardShader.Effect.Parameters["WorldViewProjection"].SetValue(viewProjection);
             sphereBillboardShader.Effect.Parameters["Translation"].SetValue(terrain.Translation);
+            sphereBillboardShader.Effect.CurrentTechnique.Passes[0].Apply();
             foreach (PointSet pointSet in pointSets)
             {
                 sphereBillboardShader.Effect.Parameters["Color"].SetValue(pointSet.Color.ToVector3());
                 sphereBillboardShader.Effect.Parameters["InvertedRendering"].SetValue(pointSet.InvertedRendering);
-                sphereBillboardShader.Effect.CurrentTechnique.Passes[0].Apply();
+                
                 pointSet.Draw(GraphicsDevice);
             }
+            sphereBillboardShader.Effect.CurrentTechnique.Passes[0].UnApply();
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Opaque);
 
 #if CONEMAPPING_RAYMARCH
