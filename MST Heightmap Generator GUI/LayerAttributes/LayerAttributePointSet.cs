@@ -77,14 +77,16 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             rect.Height = 20;
             panel.Children.Add(rect);
 
-            // create random points or recreate the ones from the file
-            randomizePositions();
-
-            if (pointSet.Points.Length > 0)
+            // Load data from file before randomization - it should be the
+            // same set which was saved!
+            if (pointSet.Points != null)
             {
                 num.Text = pointSet.Points.Length.ToString();
                 seed.Text = pointSet.Seed.ToString();
             }
+
+            // create random points or recreate the ones from the file
+            randomizePositions();
         }
     }
 }
