@@ -265,7 +265,7 @@ namespace MST_Heightmap_Generator_GUI.Render
             heightmapConstantBuffer.IsDirty = true;
 
             shader.Effect.Parameters["Heightmap"].SetResource(heightmapTexture);
-            shader.Effect.Parameters["TerrainHeightmapSampler"].SetResource(graphicsDevice.SamplerStates.LinearWrap);
+            shader.Effect.Parameters["TerrainHeightmapSampler"].SetResource(graphicsDevice.SamplerStates.LinearClamp);
        //     shader.Effect.Parameters["CubemapSampler"].SetResource(graphicsDevice.SamplerStates.LinearWrap);
 
             HeightScale = HeightScale;
