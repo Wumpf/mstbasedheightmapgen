@@ -191,7 +191,7 @@ namespace MST_Heightmap_Generator_GUI
                 {
                     case 1: SaveMapAsJson(saveFileDialog.FileName);
                         break;
-                    case 2: // raw heightmap
+                    case 2: SaveMapAsRaw(saveFileDialog.FileName);// raw heightmap
                         break;
                 }
             }

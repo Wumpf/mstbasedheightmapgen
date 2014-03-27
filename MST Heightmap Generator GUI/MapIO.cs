@@ -60,5 +60,26 @@ namespace MST_Heightmap_Generator_GUI
             DeserializeSettingsFromJSON(json);
             infile.Close();
         }
+
+
+        /// <summary>
+        /// Writes the sampled map to a raw file.
+        /// 
+        /// The file format is:
+        /// int width, int height
+        /// float data[width * height]
+        /// where data is stored rowwise
+        /// </summary>
+        /// <param name="fileName"></param>
+        private void SaveMapAsRaw(string fileName)
+        {
+            StreamWriter outfile = new StreamWriter(fileName);
+            outfile.Write(heightmapData.GetLength(0));  // Correct order?
+            outfile.Write(heightmapData.GetLength(1));
+            for( int y = 0; y < heightmapData.GetLength(1); ++y )
+                for (int x = 0; x < heightmapData.GetLength(0); ++x)
+                outfile.Write(heightmapData[x,y]);
+            outfile.Close();
+        }
     }
 }

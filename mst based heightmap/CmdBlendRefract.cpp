@@ -13,8 +13,8 @@ float linearSample( float x, float y, int w, int h, const float* data )
 {
 	int dx = Floor(x);	x -= dx;
 	int dy = Floor(y);	y -= dy;
-	return lrp(lrp(data[min(h,max(0, dy)) * w + min(w,max(0, dx))], data[min(h,max(0, dy)) * w + min(w,max(0, dx + 1))], x),
-		   lrp(data[min(h,max(0, dy+1)) * w + min(w,max(0, dx))], data[min(h,max(0, dy+1)) * w + min(w,max(0, dx + 1))], x), y);
+	return lrp(lrp(data[min(h-1,max(0, dy)) * w + min(w-1,max(0, dx))], data[min(h-1,max(0, dy)) * w + min(w-1,max(0, dx + 1))], x),
+		   lrp(data[min(h-1,max(0, dy+1)) * w + min(w-1,max(0, dx))], data[min(h-1,max(0, dy+1)) * w + min(w-1,max(0, dx + 1))], x), y);
 }
 
 float CmdBlendRefract::BlendKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult )
