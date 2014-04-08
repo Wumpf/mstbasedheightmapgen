@@ -73,7 +73,7 @@ namespace MST_Heightmap_Generator_GUI
         /// <param name="fileName"></param>
         private void SaveMapAsRaw(string fileName)
         {
-            StreamWriter outfile = new StreamWriter(fileName);
+            BinaryWriter outfile = new BinaryWriter(new FileStream(fileName, FileMode.Create));
             outfile.Write(heightmapData.GetLength(0));  // Correct order?
             outfile.Write(heightmapData.GetLength(1));
             for( int y = 0; y < heightmapData.GetLength(1); ++y )
