@@ -39,7 +39,6 @@ Command* GeneratorPipeline::LoadMSTDistanceCommand( const Json::Value& commandIn
 
 	// read point array
 	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::objectValue)).get("Points", Json::Value(Json::ValueType::arrayValue));
-	//auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));
 	int numPoints = pointSetArray.size();
 	std::unique_ptr<Vec3[]> points(new Vec3[numPoints]);
 //	float maxHeight = 0.0f;
@@ -70,7 +69,7 @@ Command* GeneratorPipeline::LoadVoronoiCommand( const Json::Value& commandInfo )
 	float heightScale = commandInfo.get("Height", 1.0f).asFloat();
 
 	// Read point array
-	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));
+	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::objectValue)).get("Points", Json::Value(Json::ValueType::arrayValue));
 	int numPoints = pointSetArray.size();
 	std::unique_ptr<Vec3[]> points(new Vec3[numPoints]);
 	for(int i=0; i<numPoints; ++i)
@@ -91,7 +90,7 @@ Command* GeneratorPipeline::LoadWorleyNoiseCommand( const Json::Value& commandIn
 	int nthNeighbor = int(commandInfo.get("NthNeighbor", 0.0f).asFloat()+0.5f);
 
 	// Read point array
-	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::arrayValue));
+	auto pointSetArray = commandInfo.get("PointSet", Json::Value(Json::ValueType::objectValue)).get("Points", Json::Value(Json::ValueType::arrayValue));
 	int numPoints = pointSetArray.size();
 	std::unique_ptr<Vec3[]> points(new Vec3[numPoints]);
 	for(int i=0; i<numPoints; ++i)
@@ -181,7 +180,7 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 		{
 			// Count the new commando and read its blending
 			++_numCommands;
-      assert(_numCommands < layers.size() * 2 && "More commands than expected, array size is not sufficient!");
+			assert(_numCommands < (int)layers.size() * 2 && "More commands than expected, array size is not sufficient!");
 			_commands[_numCommands] = LoadBlendCommand(currentLayer);
 			if( _commands[_numCommands] ) _numCommands++;
 		}
