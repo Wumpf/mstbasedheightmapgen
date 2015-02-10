@@ -1,5 +1,13 @@
 #pragma once
 
+#include <cstdint>
+
+/// \brief Create an integer hash and transform it to [0,1]
+double Sample1D(int64_t _i);
+
+/// \brief Create an integer hash from a 2D coordinate
+double Sample2D(int64_t _x, int64_t _y);
+
 /// \brief Samples a 2D Value Noise function.
 /// \param _iLowOctave [in] "Frequence" of large scale noise - at least 0.
 /// \param _iHeightOctave [in] "Frequence" of smaller scale noise - at least _iLowOctave.

@@ -26,6 +26,7 @@
 	inline float lrpsmooth( float a, float b, float f)	{ return a+(b-a)*f*f*f*(f*(f*6.0f-15.0f)+10.0f); }
 	inline float sqr( float _x )					{ return _x*_x; }
 	inline int Floor(const float a)					{int r=(int)a; return r - (int)((a<0)&&(a-r!=0.0f));}		// Round down
+	inline float saturate(float x)					{ return max(0.0f, min(1.0f, x)); }
 
 	// ************************************************************************** //
 	// 3D Vector class

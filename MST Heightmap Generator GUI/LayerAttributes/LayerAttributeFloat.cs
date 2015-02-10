@@ -10,6 +10,7 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
         public double Default = 0.5;
         public double MinValue = 0.0;
         public double MaxValue = 1.0;
+        public double TickFrequency = 0.01;
         
 
         public void CreateTreeViewSubElement(System.Windows.Controls.TreeViewItem parent, int width, Func<object> valueGetFunc, Action<object> valueSetFunc)
@@ -42,6 +43,8 @@ namespace MST_Heightmap_Generator_GUI.LayerAttributes
             slider.Height = 22;
             slider.Minimum = MinValue;
             slider.Maximum = MaxValue;
+            slider.TickFrequency = TickFrequency;
+            slider.IsSnapToTickEnabled = true;
             slider.Value = defValue;
             slider.BorderThickness = new System.Windows.Thickness(1.0);
             slider.BorderBrush = System.Windows.Media.Brushes.Gray;

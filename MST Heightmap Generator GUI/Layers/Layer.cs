@@ -30,7 +30,8 @@ namespace MST_Heightmap_Generator_GUI.Layers
             { typeof(MSTDistanceInverse) , "MST Inverse Distance" },
             { typeof(ValueNoise) , "Value Noise" },
             { typeof(Voronoi), "Voronoi" },
-            { typeof(WorleyNoise), "Worley Noise" }
+            { typeof(WorleyNoise), "Worley Noise" },
+            { typeof(Voronoise), "Voronoise" }
         };
     }
 }

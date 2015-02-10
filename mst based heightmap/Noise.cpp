@@ -1,6 +1,6 @@
 #include <cassert>
-#include <cstdint>
 #include "math.hpp"
+#include "Noise.h"
 
 static unsigned int g_uiSeed;
 
@@ -14,14 +14,14 @@ void SetSeed( unsigned int _uiSeed )
 
 
 // ************************************************************************* //
-static double Sample1D(int64_t _i)
+double Sample1D(int64_t _i)
 {
 	_i += g_uiSeed;
 	_i ^= (_i<<13);
 	return (((_i * (_i * _i * 15731 + 789221) + 1376312589) & 0x7fffffff) / 2147483647.0);
 }
 
-static double Sample2D(int64_t _x, int64_t _y)
+double Sample2D(int64_t _x, int64_t _y)
 {
 	return Sample1D((_x*57) ^ (_y*101) ^ (_x*_y*17));
 }

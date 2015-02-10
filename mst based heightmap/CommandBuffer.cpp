@@ -11,6 +11,7 @@ void GeneratorPipeline::InitializeTypeMap()
 	_typeMap.insert(pair<string, CommandType>(string("Value Noise"), CommandType::VALUE_NOISE));
 	_typeMap.insert(pair<string, CommandType>(string("Voronoi"), CommandType::VORONOI));
 	_typeMap.insert(pair<string, CommandType>(string("Worley Noise"), CommandType::WORLEY_NOISE));
+	_typeMap.insert(pair<string, CommandType>(string("Voronoise"), CommandType::VORONOISE));
 	_typeMap.insert(pair<string, CommandType>(string("ADDITIVE"), CommandType::ADD));
 	_typeMap.insert(pair<string, CommandType>(string("MULTIPLICATIVE"), CommandType::MULTIPLY));
 	_typeMap.insert(pair<string, CommandType>(string("REFRACTIVE"), CommandType::REFRACT));
@@ -103,6 +104,16 @@ Command* GeneratorPipeline::LoadWorleyNoiseCommand( const Json::Value& commandIn
 	return new CmdWorly(points.get(), numPoints, nthNeighbor, heightScale);
 }
 
+Command* GeneratorPipeline::LoadVoronoiseCommand( const Json::Value& commandInfo )
+{
+	// Read four additional scalar values
+	float heightScale = commandInfo.get("Height", 1.0f).asFloat();
+	int minOctave = commandInfo.get("MinOctave", 0.0f).asInt();
+	int maxOctave = commandInfo.get("MaxOctave", 0.0f).asInt();
+	maxOctave = max(maxOctave, minOctave);
+	return new CmdVoronoise(heightScale, minOctave, maxOctave);
+}
+
 
 
 Command* GeneratorPipeline::LoadBlendCommand( const Json::Value& commandInfo )
@@ -165,6 +176,9 @@ GeneratorPipeline::GeneratorPipeline(const std::string& jsonCode)
 			break;
 		case CommandType::WORLEY_NOISE:
 			_commands[_numCommands] = LoadWorleyNoiseCommand(currentLayer);
+			break;
+		case CommandType::VORONOISE:
+			_commands[_numCommands] = LoadVoronoiseCommand(currentLayer);
 			break;
 	/*	case CommandType::SMOOTH:
 			break;

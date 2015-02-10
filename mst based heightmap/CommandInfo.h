@@ -13,10 +13,11 @@ struct Vec3;
 enum struct CommandType
 {
 	MST_DISTANCE = 0,
-    MST_INV_DISTANCE = 1,
-    VALUE_NOISE = 2,
+	MST_INV_DISTANCE = 1,
+	VALUE_NOISE = 2,
 	VORONOI = 3,
 	WORLEY_NOISE = 4,
+	VORONOISE = 5,
 
 	ADD = 10,
 	MULTIPLY = 11,
@@ -32,7 +33,7 @@ enum struct CommandType
 /// \brief Description of the map object which is the target of all operations.
 /// \details A map is a partition of the whole float x float space. The
 ///		resolution defines only the sampling rate. Increasing the
-///		resolution will not change the large scale appeareance (still the
+///		resolution will not change the large scale appearance (still the
 ///		same area shown).
 ///
 ///		The pixel size can have an aspect != 1 and can be a floating point too.
@@ -279,6 +280,35 @@ public:
 						  float* destination) override;
 
 	virtual ~CmdVoronoi();
+};
+
+/// This commando creates a voronoise after Ingo Quilez.
+/// http://www.iquilezles.org/www/articles/voronoise/voronoise.htm
+class CmdVoronoise : public Command
+{
+	float _heightScale;				///< Amplitude of the noise (all heights in [0,_heightScale]).
+	int _minOctave;					///< Determines largest frequency
+	int _maxOctave;					///< Determines smallest frequency _maxOctave >= _minOctave
+	float _noiseScaleX;				///< Precomputed scale for the coordinates to frequency
+	float _noiseScaleY;				///< Precomputed scale for the coordinates to frequency
+
+	float NoiseKernel( const MapBufferInfo& bufferInfo, int x, int y, const float* prevResult, const float* currentResult );
+public:
+	CmdVoronoise( float heightScale,
+				  int minOctave,
+				  int maxOctave ) :
+		Command(CommandType::VALUE_NOISE),
+		_heightScale(heightScale),
+		_minOctave(minOctave),
+		_maxOctave(maxOctave)
+	{}
+
+	/// Create some noise.
+	/// \details Uses `currentResult` if defined.
+	virtual void Execute( const MapBufferInfo& bufferInfo,
+						  const float* prevResult,
+						  const float* currentResult,
+						  float* destination ) override;
 };
 
 

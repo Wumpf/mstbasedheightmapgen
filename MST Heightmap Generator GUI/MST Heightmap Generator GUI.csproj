@@ -107,6 +107,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="LayerAttributes\LayerAttributePointSet.cs" />
     <Compile Include="LayerAttributes\LayerAttribute.cs" />
+    <Compile Include="Layers\Voronoise.cs" />
     <Compile Include="Layers\ValueNoise.cs" />
     <Compile Include="Layers\Layer.cs" />
     <Compile Include="LayerAttributes\LayerAttributeFloat.cs" />

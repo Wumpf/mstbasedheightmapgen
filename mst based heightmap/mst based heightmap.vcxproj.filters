@@ -122,5 +122,8 @@
     <ClCompile Include="CmdVoronoi.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="CmdVoronoise.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
